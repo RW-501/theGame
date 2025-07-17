@@ -526,15 +526,7 @@ window.onload = centerBoard;
     document.getElementById("statKarma").textContent = player.stats.karma;
   }
 
-  // Show tile details in sidebar
-  function showTileDetails(tile) {
-    const details = document.getElementById("tileDetails");
-    document.getElementById("tileTitle").textContent = tile.label;
-    document.getElementById("tileDesc").textContent = tile.description || "No description";
 
-
-    if(details.classList.contains("hidden")) details.classList.remove("hidden");
-  }
 
   // Handle tile clicks on canvas
   canvas.addEventListener("click", (e) => {
