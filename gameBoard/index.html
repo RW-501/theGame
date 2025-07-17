@@ -269,17 +269,7 @@
 
     const gridSize = 5;
     const cellSize = 100;
-    const board = [];
 
-    for (let y = 0; y < gridSize; y++) {
-      for (let x = 0; x < gridSize; x++) {
-        board.push({
-          x,
-          y,
-          label: `(${x},${y})`
-        });
-      }
-    }
 
   // Generate board tiles
   const boardTiles = Array.from({ length: 40 }, (_, i) => {
