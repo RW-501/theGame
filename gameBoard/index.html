@@ -453,38 +453,15 @@
   }
 
   // Main draw board
-function drawBoard() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.save();
-  ctx.translate(offsetX, offsetY);
-  ctx.scale(scale, scale);
-
-  // Draw the grid/board
-  board.forEach((cell, i) => {
-    const x = cell.x * cellSize;
-    const y = cell.y * cellSize;
-
-    // Draw tile background
-    ctx.fillStyle = "#eee";
-    ctx.fillRect(x, y, cellSize, cellSize);
-
-    // Tile border
-    ctx.strokeStyle = "#333";
-    ctx.strokeRect(x, y, cellSize, cellSize);
-
-    // Tile label
-    ctx.fillStyle = "#000";
-    ctx.font = "14px sans-serif";
-    ctx.fillText(cell.label, x + 10, y + 20);
-
-    // Draw player if on this tile
-    if (player.position === i) {
-      ctx.fillStyle = "blue";
-      ctx.beginPath();
-      ctx.arc(x + cellSize / 2, y + cellSize / 2, 10, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  });
+ // Main draw board
+  function drawBoard() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    boardTiles.forEach((tile, i) => {
+      const { x, y } = positions[i];
+      drawTile(x, y, tile);
+      if (player.position === i) drawPlayer(x, y, player);
+    });
+  
 
   canvas.addEventListener("click", (e) => {
   // Example logic: find which tile was clicked (your own logic may vary)
