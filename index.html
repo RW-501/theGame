@@ -65,14 +65,13 @@
           localStorage.setItem("theGame_username", username);
           statusMsg.textContent = `Logged in as ${username}`;
           // Redirect to the game board or dashboard
-          setTimeout(() => window.location.href = "https://rw-501.github.io/theGame/gameBoard.html", 1500);
+          setTimeout(() => window.location.href = "https://rw-501.github.io/theGame/gameBoard/", 1500);
         })
         .catch((error) => {
           console.error(error);
           statusMsg.textContent = "Login failed. Try again.";
         });
     });
-
     // Optional: auto-redirect if already signed in
     onAuthStateChanged(auth, (user) => {
       if (user && localStorage.getItem("theGame_username")) {

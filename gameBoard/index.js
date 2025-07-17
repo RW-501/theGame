@@ -214,26 +214,114 @@ function getTileCoordinates() {
 }
 
 function drawTile(x, y, tile) {
-  ctx.fillStyle = tileTypes[tile.type] || "#ccc";
-  ctx.fillRect(x, y, tileSize, tileSize);
-  ctx.strokeStyle = "#333";
-  ctx.lineWidth = 2;
-  ctx.strokeRect(x, y, tileSize, tileSize);
+  const radius = 15;
+  // Create gradient background based on tile type color
+  const color = tileTypes[tile.type] || "#999";
+  const gradient = ctx.createLinearGradient(x, y, x + tileSize, y + tileSize);
+  gradient.addColorStop(0, shadeColor(color, 20));
+  gradient.addColorStop(1, shadeColor(color, -20));
 
+  // Rounded rect fill
+  roundRect(ctx, x, y, tileSize, tileSize, radius, true, false, gradient);
+
+  // Tile shadow border
+  ctx.strokeStyle = shadeColor(color, -50);
+  ctx.lineWidth = 3;
+  roundRect(ctx, x, y, tileSize, tileSize, radius, false, true);
+
+  // Tile label with shadow
   ctx.fillStyle = "#fff";
-  ctx.font = "12px Arial";
-  ctx.fillText(tile.label, x + 5, y + 20);
+  ctx.font = "bold 14px 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+  ctx.shadowColor = "rgba(0,0,0,0.5)";
+  ctx.shadowBlur = 4;
+  ctx.fillText(tile.label, x + 10, y + 25);
+
+  // Draw emoji icon for tile type (you can replace with images if desired)
+  const icon = tileIcon(tile.type);
+  ctx.shadowBlur = 0;
+  ctx.font = "24px Arial";
+  ctx.fillText(icon, x + tileSize - 30, y + 35);
 }
+
+// Helper to draw rounded rectangles
+function roundRect(ctx, x, y, width, height, radius, fill, stroke, fillStyle) {
+  if (typeof radius === "number") {
+    radius = { tl: radius, tr: radius, br: radius, bl: radius };
+  } else {
+    const defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+    for (let side in defaultRadius) radius[side] = radius[side] || defaultRadius[side];
+  }
+  ctx.beginPath();
+  ctx.moveTo(x + radius.tl, y);
+  ctx.lineTo(x + width - radius.tr, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+  ctx.lineTo(x + width, y + height - radius.br);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+  ctx.lineTo(x + radius.bl, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+  ctx.lineTo(x, y + radius.tl);
+  ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+  ctx.closePath();
+  if (fill) {
+    if (fillStyle) ctx.fillStyle = fillStyle;
+    ctx.fill();
+  }
+  if (stroke) ctx.stroke();
+}
+
+// Shade color helper (lighten/darken)
+function shadeColor(color, percent) {
+  // Convert hex to rgb
+  let f=parseInt(color.slice(1),16),t=percent<0?0:255,p=percent<0?percent*-1:percent;
+  let R=f>>16,G=f>>8&0x00FF,B=f&0x0000FF;
+  return "#" + (0x1000000 + (Math.round((t-R)*p/100)+R)*0x10000 
+    + (Math.round((t-G)*p/100)+G)*0x100 + (Math.round((t-B)*p/100)+B)).toString(16).slice(1);
+}
+
+// Emoji icon picker for tile types
+function tileIcon(type) {
+  switch(type) {
+    case "start": return "🏁";
+    case "action": return "🎯";
+    case "chance": return "🎲";
+    case "quiz": return "❓";
+    case "goal": return "🏆";
+    case "story": return "📖";
+    case "family_poll": return "👪";
+    case "challenge": return "⚔️";
+    default: return "⬜";
+  }
+}
+
 
 function drawPlayer(x, y, player) {
+  const cx = x + tileSize / 2;
+  const cy = y + tileSize / 2;
+  const radius = 14;
+
+  // Glow shadow
+  ctx.shadowColor = player.color;
+  ctx.shadowBlur = 12;
+
   ctx.beginPath();
-  ctx.arc(x + tileSize / 2, y + tileSize / 2, 12, 0, 2 * Math.PI);
+  ctx.arc(cx, cy, radius, 0, Math.PI * 2);
   ctx.fillStyle = player.color;
   ctx.fill();
+
+  // Reset shadow for stroke
+  ctx.shadowBlur = 0;
   ctx.strokeStyle = "#fff";
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 3;
   ctx.stroke();
+
+  // Player initial letter
+  ctx.fillStyle = "#fff";
+  ctx.font = "bold 16px 'Segoe UI'";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(player.name.charAt(0), cx, cy);
 }
+
 
 // TEMP: Move player every second for testing
 setInterval(() => {
