@@ -22,6 +22,30 @@
     }
   </style>
 </head>
+
+
+  <canvas id="gameBoard" width="800" height="800"></canvas>
+  
+  <div id="tileDetails" style="
+    position: fixed; 
+    right: 20px; top: 20px; 
+    width: 250px; padding: 15px; 
+    background: white; border: 2px solid #333; 
+    box-shadow: 0 0 10px rgba(0,0,0,0.3); 
+    font-family: 'Segoe UI', sans-serif;
+    display: none;
+  ">
+    <h3 id="tileTitle"></h3>
+    <p id="tileDesc"></p>
+  </div>
+
+  <div style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 15px;">
+    <button id="rollDiceBtn">Roll Dice</button>
+    <button id="viewStatsBtn">View Stats</button>
+    <button id="playCardBtn">Play Card</button>
+  </div>
+
+  
 <body>
   <canvas id="gameBoard" width="800" height="800"></canvas>
   <script src="gameBoard/index.js"></script>
