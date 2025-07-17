@@ -23,6 +23,10 @@
     }
 
  
+  .modal-content {
+    background: #fdfdfd;
+    border-radius: 1rem;
+  }
 
 
 
@@ -219,11 +223,7 @@
 
     <canvas id="gameBoard" width="800" height="800" title="Game board"></canvas>
 
-    <div id="tileDetails">
-      <div id="sidebarToggle" title="Toggle Sidebar">&laquo;</div>
-      <h3 id="tileTitle">Tile Title</h3>
-      <p id="tileDesc">Tile description will appear here.</p>
-    </div>
+
   </div>
 
   <div id="statusArea" aria-live="polite" role="region">
@@ -245,6 +245,21 @@
     <p id="cardPopupDesc">Card description</p>
     <button class="closeBtn" aria-label="Close Card Popup">&times; Close</button>
   </div>
+
+  <!-- Tile Details Modal -->
+<div class="modal fade" id="tileDetailsModal" tabindex="-1" aria-labelledby="tileDetailsLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tileDetailsLabel">Tile Title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="tileDesc">Tile description will appear here.</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
   const canvas = document.getElementById("gameBoard");
@@ -471,6 +486,14 @@ function drawBoard() {
     }
   });
 
+  canvas.addEventListener("click", (e) => {
+  // Example logic: find which tile was clicked (your own logic may vary)
+  const clickedTile = getTileAtClick(e.offsetX, e.offsetY);
+  if (clickedTile) {
+    showTileDetails(clickedTile.title, clickedTile.description);
+  }
+});
+
   ctx.restore();
 }
 
@@ -508,6 +531,8 @@ window.onload = centerBoard;
     const details = document.getElementById("tileDetails");
     document.getElementById("tileTitle").textContent = tile.label;
     document.getElementById("tileDesc").textContent = tile.description || "No description";
+
+
     if(details.classList.contains("hidden")) details.classList.remove("hidden");
   }
 
@@ -643,6 +668,16 @@ window.onload = centerBoard;
   window.addEventListener("resize", () => {
     drawBoard();
   });
+
+
+function showTileDetails(title, desc) {
+  document.getElementById("tileDetailsLabel").textContent = title;
+  document.getElementById("tileDesc").textContent = desc;
+    showTileDetails(title, desc);
+
+  const modal = new bootstrap.Modal(document.getElementById('tileDetailsModal'));
+  modal.show();
+}
 
 </script>
 </body>
