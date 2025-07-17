@@ -22,6 +22,10 @@
       height: 100vh;
     }
 
+ 
+
+
+
     #container {
       display: flex;
       height: 90vh;
@@ -131,6 +135,13 @@
       background-color: #1769aa;
     }
 
+        .btn-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
     /* Status area */
     #statusArea {
       position: fixed;
@@ -200,6 +211,12 @@
 </head>
 <body>
   <div id="container">
+     <div class="btn-container">
+    <button onclick="zoomIn()">Zoom In</button>
+    <button onclick="zoomOut()">Zoom Out</button>
+    <button onclick="centerBoard()">Center</button>
+  </div>
+
     <canvas id="gameBoard" width="800" height="800" title="Game board"></canvas>
 
     <div id="tileDetails">
@@ -244,6 +261,25 @@
     family_poll: "#E91E63",
     challenge: "#795548"
   };
+
+
+      let scale = 1;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const gridSize = 5;
+    const cellSize = 100;
+    const board = [];
+
+    for (let y = 0; y < gridSize; y++) {
+      for (let x = 0; x < gridSize; x++) {
+        board.push({
+          x,
+          y,
+          label: `(${x},${y})`
+        });
+      }
+    }
 
   // Generate board tiles
   const boardTiles = Array.from({ length: 40 }, (_, i) => {
@@ -412,14 +448,62 @@
   }
 
   // Main draw board
-  function drawBoard() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    boardTiles.forEach((tile, i) => {
-      const { x, y } = positions[i];
-      drawTile(x, y, tile);
-      if (player.position === i) drawPlayer(x, y, player);
-    });
-  }
+function drawBoard() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.save();
+  ctx.translate(offsetX, offsetY);
+  ctx.scale(scale, scale);
+
+  // Draw the grid/board
+  board.forEach((cell, i) => {
+    const x = cell.x * cellSize;
+    const y = cell.y * cellSize;
+
+    // Draw tile background
+    ctx.fillStyle = "#eee";
+    ctx.fillRect(x, y, cellSize, cellSize);
+
+    // Tile border
+    ctx.strokeStyle = "#333";
+    ctx.strokeRect(x, y, cellSize, cellSize);
+
+    // Tile label
+    ctx.fillStyle = "#000";
+    ctx.font = "14px sans-serif";
+    ctx.fillText(cell.label, x + 10, y + 20);
+
+    // Draw player if on this tile
+    if (player.position === i) {
+      ctx.fillStyle = "blue";
+      ctx.beginPath();
+      ctx.arc(x + cellSize / 2, y + cellSize / 2, 10, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  ctx.restore();
+}
+
+
+function zoomIn() {
+  scale *= 1.2;
+  drawBoard();
+}
+
+function zoomOut() {
+  scale /= 1.2;
+  drawBoard();
+}
+
+function centerBoard() {
+  const boardWidth = gridSize * cellSize * scale;
+  const boardHeight = gridSize * cellSize * scale;
+  offsetX = (canvas.width - boardWidth) / 2;
+  offsetY = (canvas.height - boardHeight) / 2;
+  drawBoard();
+}
+
+window.onload = centerBoard;
 
   // Update stats area
   function updateStats() {
