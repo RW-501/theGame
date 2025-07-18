@@ -155,11 +155,11 @@
   <div>❤️ Health: <span id="health">100%</span></div>
   <div>🛡️ Security: <span id="security">1</span></div>
   <div>⚙️ Tech Strength: <span id="techStrength">1</span></div>
-  <div>🚗 Cars: <span id="cars">0</span></div>
-  <div>🏠 Homes: <span id="homes">0</span></div>
-  <div>🎮 Mode: <span id="mode">Safe</span></div>
-  <div>Level: <span id="level">1</span></div>
 
+    <div>🏠 XP: <span id="xp">0</span></div>
+  <div>Level: <span id="level">1</span></div>
+  <div>🚗 crypto: <span id="crypto">0</span></div>
+  <div>🎮 Mode: <span id="mode">Safe</span></div>
 </div>
 
 <!-- Tooltip for zones -->
@@ -315,9 +315,9 @@ const zoneNames = {
 let mapData = [];
 let playerData = {
   cash: 0,
-  health: 100,
-  security: 1,
-  techStrength: 1,
+        techStrength: 1,
+        security: 1,
+        health: 100,
   assets: { car: 0, home: 0 },
   safe: true,
   trainingMode: false,
@@ -325,6 +325,9 @@ let playerData = {
     inCombat: false,
   actionsLeft: 2,
   cooldowns: { attack: 0, move: 0 },
+          avatar: "1",
+        crypto: 5,
+        xp: 0
 };
 
 const game = new Phaser.Game({
@@ -444,7 +447,7 @@ function setDefaultMap() {
   mapData[1][2] = "profile";
   mapData[3][1] = "learn";
   mapData[3][2] = "safe";
-  mapData[4][1] = "assets";
+  mapData[2][2] = "assets";
   mapData[4][2] = "healthClinic";
 }
 
@@ -472,8 +475,8 @@ function updateStatsUI() {
   document.getElementById("health").textContent = playerData.health + "%";
   document.getElementById("security").textContent = playerData.security;
   document.getElementById("techStrength").textContent = playerData.techStrength;
-  document.getElementById("cars").textContent = playerData.assets.car || 0;
-  document.getElementById("homes").textContent = playerData.assets.home || 0;
+  document.getElementById("crypto").textContent = playerData.crypto || 0;
+  document.getElementById("xp").textContent = playerData.xp || 0;
   document.getElementById("level").textContent = playerData.level || 1;
   document.getElementById("mode").textContent = playerData.safe ? "Safe" : (playerData.trainingMode ? "Training" : "Normal");
 }
