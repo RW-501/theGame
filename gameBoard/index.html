@@ -241,6 +241,8 @@
     <button onclick="zoomIn()">Zoom In</button>
     <button onclick="zoomOut()">Zoom Out</button>
     <button onclick="centerBoard()">Center</button>
+    <button onclick="topCenterBoard()">Top Center</button>
+
   </div>
 
   </div>
@@ -510,6 +512,11 @@ function centerBoard() {
   drawBoard();
 }
 
+function topCenterBoard() {
+  offsetX = (canvas.width - canvas.width * scale) / 2;
+  offsetY = 0; // Stick to the top
+  drawBoard();
+}
 
 window.onload = centerBoard;
 
