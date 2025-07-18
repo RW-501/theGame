@@ -173,6 +173,8 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="marketLabel">Market - Buy/Sell Stocks</h5>
+        <h5 class="modal-title" id="playerCashLabel">Cash: $1</h5>
+
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -524,7 +526,21 @@ async function loadPlayerData() {
   }
 }
 
+/*
+const userRef = doc(db, "users", uid);
+const userUnsub = onSnapshot(userRef, (doc) => {
+  if (doc.exists()) {
+    playerData = doc.data();
+    portfolio = playerData.portfolio || {};
+    updateStatsUI();
+    renderMarket();
+  }
+});
+
+*/MAP_SIZE
+
 function updateStatsUI() {
+document.getElementById("playerCashLabel").textContent = `Cash: $${playerData.cash.toFixed(2)}`;
   document.getElementById("cash").textContent = playerData.cash.toFixed(2);
   document.getElementById("health").textContent = playerData.health + "%";
   document.getElementById("security").textContent = playerData.security;
@@ -839,25 +855,30 @@ function showStockModal(symbol) {
 
 // ====== MARKET ======
 
-function loadMarketData() {
+
+async function loadMarketData() {
   document.getElementById("tradeMessage").textContent = "";
 
-  // Listen to real-time stock updates
-  const unsubscribe = onSnapshot(collection(db, "stocks"), async (snapshot) => {
+  // Initial load of player data (once)
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+  if (userSnap.exists()) {
+    playerData = userSnap.data();
+    portfolio = playerData.portfolio || {};
+    updateStatsUI(); // Update cash etc.
+  }
+
+  // Subscribe to real-time stock prices only
+  const unsubscribe = onSnapshot(collection(db, "stocks"), (snapshot) => {
     stocks = {};
     snapshot.forEach(doc => {
       stocks[doc.id] = doc.data();
     });
 
-    // Reload portfolio (could cache if performance becomes an issue)
-    const userRef = doc(db, "users", uid);
-    const userSnap = await getDoc(userRef);
-    portfolio = (userSnap.exists() && userSnap.data().portfolio) || {};
-
     renderMarket();
   });
 
-  return unsubscribe; // you can call this later to stop listening
+  return unsubscribe;
 }
 
 
@@ -1051,11 +1072,13 @@ if (existing && typeof existing === "object") {
 
   // Save to Firestore
   await setDoc(userRef, { cash, portfolio: userPortfolio }, { merge: true });
-  portfolio = userPortfolio;
-  playerData.cash = cash;
+playerData.portfolio = userPortfolio;
+playerData.cash = cash;
+portfolio = userPortfolio;
 
-  updateStatsUI();
-  renderMarket();
+updateStatsUI();
+renderMarket(); // Re-render the market with the updated cache
+
   document.getElementById("tradeMessage").textContent = `Successfully ${type === "buy" ? "bought" : "sold"} ${qty} shares of ${symbol}.`;
   // Clear inputs
   document.getElementById("tradeSymbol").value = "";
