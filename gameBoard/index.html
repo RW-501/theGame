@@ -360,6 +360,25 @@
 
   let animating = false;
 
+  canvas.addEventListener("click", (e) => {
+  if (animating) return;
+  
+  const rect = canvas.getBoundingClientRect();
+  const clickX = (e.clientX - rect.left - offsetX) / scale;
+  const clickY = (e.clientY - rect.top - offsetY) / scale;
+
+  for (let i = 0; i < positions.length; i++) {
+    const pos = positions[i];
+    if (
+      clickX >= pos.x && clickX <= pos.x + tileSize &&
+      clickY >= pos.y && clickY <= pos.y + tileSize
+    ) {
+      showTileDetails(boardTiles[i]);
+      break;
+    }
+  }
+});
+
   // Helpers
   function roundRect(ctx, x, y, w, h, r, fill, stroke, fillStyle) {
     if (typeof r === "number") {
@@ -456,26 +475,21 @@
   }
 
   // Main draw board
- // Main draw board
-  function drawBoard() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    boardTiles.forEach((tile, i) => {
-      const { x, y } = positions[i];
-      drawTile(x, y, tile);
-      if (player.position === i) drawPlayer(x, y, player);
-    });
-  
+function drawBoard() {
+  ctx.save();
+  ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY); // Apply zoom and pan
 
-  canvas.addEventListener("click", (e) => {
-  // Example logic: find which tile was clicked (your own logic may vary)
-  const clickedTile = getTileAtClick(e.offsetX, e.offsetY);
-  if (clickedTile) {
-    showTileDetails(clickedTile.title, clickedTile.description);
-  }
-});
+  ctx.clearRect(-offsetX / scale, -offsetY / scale, canvas.width / scale, canvas.height / scale);
+  
+  boardTiles.forEach((tile, i) => {
+    const { x, y } = positions[i];
+    drawTile(x, y, tile);
+    if (player.position === i) drawPlayer(x, y, player);
+  });
 
   ctx.restore();
 }
+
 
 
 function zoomIn() {
@@ -489,12 +503,11 @@ function zoomOut() {
 }
 
 function centerBoard() {
-  const boardWidth = gridSize * cellSize * scale;
-  const boardHeight = gridSize * cellSize * scale;
-  offsetX = (canvas.width - boardWidth) / 2;
-  offsetY = (canvas.height - boardHeight) / 2;
+  offsetX = (canvas.width - canvas.width * scale) / 2;
+  offsetY = (canvas.height - canvas.height * scale) / 2;
   drawBoard();
 }
+
 
 window.onload = centerBoard;
 
@@ -643,16 +656,14 @@ window.onload = centerBoard;
   });
 
 
-function showTileDetails(title, desc) {
-  /*
-              document.getElementById("tileDetailsLabel").textContent = title;
-              document.getElementById("tileDesc").textContent = desc;
-              */
-    showTileDetails(title, desc);
+function showTileDetails(tile) {
+  document.getElementById("tileDetailsLabel").textContent = tile.label;
+  document.getElementById("tileDesc").textContent = tile.description;
 
   const modal = new bootstrap.Modal(document.getElementById('tileDetailsModal'));
   modal.show();
 }
+
 
 </script>
 </body>
