@@ -194,7 +194,6 @@ let playerX = 5, playerY = 5; // Default fallback
 let graphics, cursors;
 let mapData = [];
 let otherPlayerSprites = new Map();
-let playersData; 
 
 const tileTooltip = document.getElementById("tileTooltip");
 
@@ -319,7 +318,7 @@ this.input.on('pointerdown', async pointer => {
 
   // Check if a player is on that tile (other than self)
   let otherPlayerId = null;
-  for (const [pid, pos] of playersData.entries()) {
+  for (const [pid, pos] of playerState.entries()) {
     if (pid !== uid && pos.x === clickedX && pos.y === clickedY) {
       otherPlayerId = pid;
       break;
@@ -724,7 +723,7 @@ function updateStatsUI() {
   const attackCD = Math.max(0, Math.ceil(((playerState.cooldowns.attack ?? 0) - now) / 1000));
   const moveCD = Math.max(0, Math.ceil(((playerState.cooldowns.move ?? 0) - now) / 1000));
 
-  document.getElementById("cash").textContent = `$${playerData.cash ?? 0}`;
+  document.getElementById("cash").textContent = `$${playerState.cash ?? 0}`;
   document.getElementById("trades").textContent = playerState.actionsLeft ?? 0;
   document.getElementById("health").textContent = `${playerState.health ?? 100}%`;
   document.getElementById("security").textContent = `${playerState.security ?? 100}%`;
@@ -767,11 +766,11 @@ function createButton(text, btnClass, onClick) {
   // Listen for all players data to show other players
   const playersCollection = collection(db, "players");
   onSnapshot(playersCollection, (querySnapshot) => {
-    playersData.clear();
+    playerState.clear();
     querySnapshot.forEach(doc => {
       const data = doc.data();
       if (data.position) {
-        playersData.set(doc.id, data.position);
+        playerState.set(doc.id, data.position);
       }
     });
     renderAllPlayers(this);
@@ -920,16 +919,16 @@ function setDefaultMapData() {
 
 // Render other players except local player
 function renderAllPlayers(scene) {
-  // Remove old sprites no longer in playersData
+  // Remove old sprites no longer in playerState
   for (const [key, sprite] of otherPlayerSprites) {
-    if (!playersData.has(key) || key === uid) {
+    if (!playerState.has(key) || key === uid) {
       sprite.destroy();
       otherPlayerSprites.delete(key);
     }
   }
 
   // Draw other players as red circles with initials
-  for (const [playerId, pos] of playersData.entries()) {
+  for (const [playerId, pos] of playerState.entries()) {
     if (playerId === uid) continue;
     if (!pos) continue;
 
