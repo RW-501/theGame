@@ -3,42 +3,63 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Stock Wars</title>
+  <title>Stock Wars Enhanced World Map</title>
 
-  <!-- Bootstrap, Animate, Phaser -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
 
   <style>
     body, html {
-      margin: 0;
-      height: 100%;
-      background: #e0f7fa;
-      font-family: sans-serif;
+      margin: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #a8edea, #fed6e3);
+      overflow: hidden;
+    }
+
+    #game-container {
+      position: relative;
+      margin: auto;
+      width: 1000px;
+      max-width: 100vw;
+      height: 100vh;
+      background: #222;
+      box-shadow: 0 0 15px #333;
     }
 
     .info-box {
       position: absolute;
       top: 10px;
       left: 10px;
-      background: #fff8;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 14px;
+      background: rgba(255 255 255 / 0.85);
+      padding: 12px 18px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 16px;
+      color: #222;
       z-index: 10;
-      min-width: 220px;
+      user-select: none;
+      width: 260px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
     #zoneName {
-      margin-top: 6px;
-      font-weight: bold;
-      font-size: 16px;
+      margin-top: 8px;
+      font-size: 18px;
       color: #333;
     }
 
-    #game-container {
-      position: relative;
+    /* Tooltip for tiles */
+    #tileTooltip {
+      position: absolute;
+      pointer-events: none;
+      background: rgba(0,0,0,0.75);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+      z-index: 1000;
+      user-select: none;
     }
   </style>
 </head>
@@ -46,12 +67,14 @@
 
 <div id="game-container"></div>
 
-<div id="statsBox" class="info-box">
+<div class="info-box" id="statsBox">
   💰 <span id="cash">$0</span> |
   🔁 Trades Left: <span id="trades">2</span> |
   ❤️ <span id="health">100%</span>
   <div id="zoneName">Zone: Loading...</div>
 </div>
+
+<div id="tileTooltip"></div>
 
 <!-- Market Modal -->
 <div class="modal fade" id="marketModal" tabindex="-1" aria-labelledby="marketLabel" aria-hidden="true">
@@ -67,22 +90,23 @@
 </div>
 
 <script type="module">
-import { initializeFirebase, auth, db , onAuthStateChanged } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import { initializeFirebase, auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 initializeFirebase();
 
 const TILE_SIZE = 40;
 const MAP_SIZE = 25;
-let uid; // global variable to hold UID
+const platformURL = "https://rw-501.github.io/theGame/game/platform/";
+
+let uid;
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
-    uid = user.uid;  // assign uid here
-    
+    uid = user.uid;
+
     const userRef = doc(db, "users", uid);
     const snap = await getDoc(userRef);
-
     if (!snap.exists()) {
       await setDoc(userRef, {
         username: "Player" + Math.floor(Math.random() * 1000),
@@ -98,86 +122,121 @@ onAuthStateChanged(auth, async (user) => {
       });
     }
   } else {
-    // User is signed out, sign in anonymously and wait for that event
     await signInAnonymously(auth);
   }
 });
 
-const zoneColors = {
-  home: 0x90caf9,
-  market: 0xa5d6a7,
-  training: 0xffcc80,
-  safe: 0xce93d8,
-  blocked: 0x555555,
-  empty: 0xffffff
+// Zone colors and icons (use emojis for fun)
+const zoneInfo = {
+  empty: { color: 0xffffff, label: "Wilderness", icon: "🌲" },
+  home: { color: 0x90caf9, label: "Home Base", icon: "🏠" },
+  market: { color: 0xa5d6a7, label: "Market", icon: "🛒" },
+  training: { color: 0xffcc80, label: "Training Center", icon: "🎯" },
+  safe: { color: 0xce93d8, label: "Safe House", icon: "🛡️" },
+  blocked: { color: 0x555555, label: "Blocked Area", icon: "🚧" }
 };
 
 let mapData = []; // 2D array [y][x] = zoneType
-let playersData = new Map(); // uid => { x, y }
+let playersData = new Map();
 
 const config = {
   type: Phaser.AUTO,
   width: TILE_SIZE * MAP_SIZE,
   height: TILE_SIZE * MAP_SIZE,
   parent: "game-container",
-  backgroundColor: "#f5f5f5",
+  backgroundColor: "#222222",
   scene: {
+    preload,
     create,
     update
   }
 };
 
 let playerX = 0, playerY = 0;
-let playerRect, graphics, cursors;
+let playerSprite;
+let graphics;
+let cursors;
 let otherPlayerSprites = new Map();
+let isMoving = false;
+let moveTween;
+let tileTooltip = document.getElementById("tileTooltip");
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+
+function preload() {
+  // load any assets here if you want later
+}
 
 async function create() {
   graphics = this.add.graphics();
 
   await loadMapFromFirebase();
-  drawMap();
+  drawMap(this);
 
-  // Create player rectangle with a distinct color (black)
-  playerRect = this.add.rectangle(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2, TILE_SIZE * 0.8, TILE_SIZE * 0.8, 0x000000);
+  // Player sprite: blue circle with white border
+  playerSprite = this.add.circle(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2, TILE_SIZE * 0.4, 0x0000ff);
+  playerSprite.setStrokeStyle(3, 0xffffff);
 
   cursors = this.input.keyboard.createCursorKeys();
 
-  // Keyboard movement
   this.input.keyboard.on('keydown', (event) => {
+    if (isMoving) return;
     switch(event.code) {
-      case 'ArrowLeft': tryMove(-1, 0); break;
-      case 'ArrowRight': tryMove(1, 0); break;
-      case 'ArrowUp': tryMove(0, -1); break;
-      case 'ArrowDown': tryMove(0, 1); break;
+      case 'ArrowLeft': tryMove(-1, 0, this); break;
+      case 'ArrowRight': tryMove(1, 0, this); break;
+      case 'ArrowUp': tryMove(0, -1, this); break;
+      case 'ArrowDown': tryMove(0, 1, this); break;
     }
   });
 
-  // Click / tap movement
+  // Pointer input: click adjacent tile to move
   this.input.on('pointerdown', pointer => {
+    if (isMoving) return;
     const clickedX = Math.floor(pointer.x / TILE_SIZE);
     const clickedY = Math.floor(pointer.y / TILE_SIZE);
-    if (isAdjacent(playerX, playerY, clickedX, clickedY)) {
-      tryMove(clickedX - playerX, clickedY - playerY);
+
+    if (clickedX >= 0 && clickedX < MAP_SIZE && clickedY >= 0 && clickedY < MAP_SIZE) {
+      if (isAdjacent(playerX, playerY, clickedX, clickedY)) {
+        tryMove(clickedX - playerX, clickedY - playerY, this);
+      }
     }
   });
 
-  // Listen to own player position changes and update UI zone name
+  // Show tile tooltip on pointer move
+  this.input.on('pointermove', pointer => {
+    const x = Math.floor(pointer.x / TILE_SIZE);
+    const y = Math.floor(pointer.y / TILE_SIZE);
+    if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+      const zoneType = mapData[y]?.[x] || "empty";
+      const info = zoneInfo[zoneType] || zoneInfo.empty;
+      tileTooltip.style.left = (pointer.x + 15) + "px";
+      tileTooltip.style.top = (pointer.y + 15) + "px";
+      tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
+      tileTooltip.style.display = "block";
+    } else {
+      tileTooltip.style.display = "none";
+    }
+  });
+
+  this.input.on('pointerout', () => {
+    tileTooltip.style.display = "none";
+  });
+
+  // Listen for own player position changes
   const playerRef = doc(db, "players", uid);
   onSnapshot(playerRef, (docSnap) => {
     if (docSnap.exists()) {
       const pos = docSnap.data().position;
-      if (pos) {
+      if (pos && (pos.x !== playerX || pos.y !== playerY)) {
         playerX = pos.x;
         playerY = pos.y;
-        playerRect.setPosition(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2);
+        movePlayerSmoothly(this, playerX, playerY);
         updateZoneName();
       }
     }
   });
 
-  // Listen for all players' data changes for real-time multiplayer sync
+  // Listen for all players data to show other players
   const playersCollection = collection(db, "players");
   onSnapshot(playersCollection, (querySnapshot) => {
     playersData.clear();
@@ -193,63 +252,110 @@ async function create() {
   updateZoneName();
 }
 
+function update() {
+  // nothing needed here for now
+}
+
 function isAdjacent(x1, y1, x2, y2) {
   const dx = Math.abs(x1 - x2);
   const dy = Math.abs(y1 - y2);
   return (dx + dy) === 1;
 }
 
-function drawMap() {
+function drawMap(scene) {
   graphics.clear();
-  for (let y = 0; y < MAP_SIZE; y++) {
-    for (let x = 0; x < MAP_SIZE; x++) {
+  for (let y=0; y < MAP_SIZE; y++) {
+    for (let x=0; x < MAP_SIZE; x++) {
       const type = mapData[y]?.[x] || "empty";
-      const color = zoneColors[type] || 0xffffff;
-      graphics.fillStyle(color, 1);
+      const info = zoneInfo[type] || zoneInfo.empty;
+
+      // draw colored tile
+      graphics.fillStyle(info.color, 1);
       graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-      graphics.lineStyle(1, 0xcccccc);
-      graphics.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+      // draw tile border
+      graphics.lineStyle(2, 0x999999);
+      graphics.strokeRect(x * TILE_SIZE + 1, y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+
+      // draw emoji icon centered
+      const iconText = scene.add.text(x * TILE_SIZE + TILE_SIZE/2, y * TILE_SIZE + TILE_SIZE/2, info.icon, {
+        fontSize: '24px',
+        align: 'center'
+      });
+      iconText.setOrigin(0.5);
+      iconText.setDepth(1);
+
+      // make home tile clickable with pointer cursor and interactive
+      if (type === "home") {
+        iconText.setInteractive({ useHandCursor: true });
+        iconText.on('pointerdown', () => {
+          window.location.href = platformURL;
+        });
+        iconText.on('pointerover', () => {
+          iconText.setStyle({ fill: '#0000ff', fontStyle: 'bold' });
+        });
+        iconText.on('pointerout', () => {
+          iconText.setStyle({ fill: '#000000', fontStyle: 'normal' });
+        });
+      }
     }
   }
 }
 
-function update() {
-  // no logic needed here for now
-}
-
-async function tryMove(dx, dy) {
+async function tryMove(dx, dy, scene) {
   const newX = Phaser.Math.Clamp(playerX + dx, 0, MAP_SIZE - 1);
   const newY = Phaser.Math.Clamp(playerY + dy, 0, MAP_SIZE - 1);
 
   if (mapData[newY]?.[newX] === "blocked") {
-    alert("You cannot move there! This area is blocked.");
+    alert("🚧 You cannot move there! This area is blocked.");
     return;
   }
 
+  isMoving = true;
+
+  // Smooth move player sprite to new tile with tween
+  await movePlayerSmoothly(scene, newX, newY);
+
   playerX = newX;
   playerY = newY;
-
-  playerRect.setPosition(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2);
-
   updateZoneName();
 
-  handleZoneEvent(mapData[playerY]?.[playerX]);
+  // Handle zone events
+  await handleZoneEvent(mapData[playerY]?.[playerX]);
 
-  // Update Firestore with new position and timestamp
+  // Update Firestore with position and timestamp
   await setDoc(doc(db, "players", uid), {
     position: { x: playerX, y: playerY },
     updatedAt: new Date().toISOString()
   }, { merge: true });
+
+  isMoving = false;
+}
+
+function movePlayerSmoothly(scene, x, y) {
+  return new Promise(resolve => {
+    if (moveTween) moveTween.stop();
+
+    moveTween = scene.tweens.add({
+      targets: playerSprite,
+      x: x * TILE_SIZE + TILE_SIZE/2,
+      y: y * TILE_SIZE + TILE_SIZE/2,
+      duration: 300,
+      ease: 'Power2',
+      onComplete: () => {
+        resolve();
+      }
+    });
+  });
 }
 
 function updateZoneName() {
   const zoneType = mapData[playerY]?.[playerX] || "empty";
-  const zoneText = zoneType === "empty" ? "Wilderness" : capitalize(zoneType);
-  document.getElementById("zoneName").textContent = `Zone: ${zoneText}`;
+  const label = zoneInfo[zoneType]?.label || "Unknown";
+  document.getElementById("zoneName").textContent = `Zone: ${label}`;
 }
 
-// Custom logic for different zones — extend this as you want
-function handleZoneEvent(zoneType) {
+async function handleZoneEvent(zoneType) {
   if (!zoneType) return;
 
   switch(zoneType) {
@@ -257,20 +363,21 @@ function handleZoneEvent(zoneType) {
       new bootstrap.Modal(document.getElementById("marketModal")).show();
       break;
     case "training":
-      alert("You have entered the Training Center! Time to improve your skills.");
+      alert("🎯 You have entered the Training Center! Time to improve your skills.");
       break;
     case "safe":
-      alert("You are in a Safe House. Take a moment to rest.");
+      alert("🛡️ You are in a Safe House. Take a moment to rest.");
       break;
     case "home":
-      console.log("Welcome home!");
+      // Redirect on clicking the home tile is handled by icon click, but also do here on arrival:
+      if (confirm("Welcome home! Do you want to go to your platform?")) {
+        window.location.href = platformURL;
+      }
       break;
-    // Add more zone logic here: e.g. battles, rewards, quests...
+    default:
+      // wilderness or others: no special action
+      break;
   }
-}
-
-function capitalize(str) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
 async function loadMapFromFirebase() {
@@ -300,20 +407,20 @@ function setDefaultMapData() {
   for(let y=0; y<MAP_SIZE; y++) {
     const row = [];
     for(let x=0; x<MAP_SIZE; x++) {
-      if(x === 2 && y === 2) row.push("home");
-      else if(x === 10 && y === 5) row.push("market");
-      else if(x === 20 && y === 10) row.push("training");
-      else if(x === 25 && y === 25) row.push("safe");
-      else if(x === 15 && y >= 15 && y <= 20) row.push("blocked");
+      if(x === 5 && y === 5) row.push("home");
+      else if(x === 10 && y === 8) row.push("market");
+      else if(x === 17 && y === 12) row.push("training");
+      else if(x === 22 && y === 20) row.push("safe");
+      else if(x >= 15 && x <= 18 && y >= 15 && y <= 18) row.push("blocked");
       else row.push("empty");
     }
     mapData.push(row);
   }
 }
 
-// Render all players except local player rectangle, which is separate
+// Render other players except local player
 function renderAllPlayers(scene) {
-  // Remove old sprites that don't exist anymore
+  // Remove old sprites no longer in playersData
   for (const [key, sprite] of otherPlayerSprites) {
     if (!playersData.has(key) || key === uid) {
       sprite.destroy();
@@ -321,29 +428,29 @@ function renderAllPlayers(scene) {
     }
   }
 
-  // Draw other players
+  // Draw other players as red circles with initials
   for (const [playerId, pos] of playersData.entries()) {
-    if (playerId === uid) continue; // local player handled separately
-
+    if (playerId === uid) continue;
     if (!pos) continue;
 
     let sprite = otherPlayerSprites.get(playerId);
     if (!sprite) {
-      // Create a container with colored square and initials
-      sprite = scene.add.container(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2);
+      // Create a container with red circle and initials text
+      sprite = scene.add.container(pos.x * TILE_SIZE + TILE_SIZE/2, pos.y * TILE_SIZE + TILE_SIZE/2);
 
-      const rect = scene.add.rectangle(0, 0, TILE_SIZE * 0.8, TILE_SIZE * 0.8, 0xff4444);
-      const text = scene.add.text(0, 0, playerId.substring(0, 2).toUpperCase(), {
-        fontSize: '14px',
+      const circle = scene.add.circle(0, 0, TILE_SIZE * 0.4, 0xff4444);
+      circle.setStrokeStyle(2, 0xffffff);
+
+      const initials = scene.add.text(0, 0, playerId.substring(0, 2).toUpperCase(), {
+        fontSize: '16px',
         color: '#fff',
         fontStyle: 'bold'
       }).setOrigin(0.5);
 
-      sprite.add([rect, text]);
+      sprite.add([circle, initials]);
       otherPlayerSprites.set(playerId, sprite);
     } else {
-      // Update position smoothly
-      sprite.setPosition(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2);
+      sprite.setPosition(pos.x * TILE_SIZE + TILE_SIZE/2, pos.y * TILE_SIZE + TILE_SIZE/2);
     }
   }
 }
