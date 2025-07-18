@@ -194,9 +194,9 @@ let mapData = [];
 let otherPlayerSprites = new Map();
 
 const tileTooltip = document.getElementById("tileTooltip");
-let playerState = new Map();
+let playerState = new Map(); // ✅ Initialize Map
 
- playerState = set(uid, {
+playerState.set(uid, {       // ✅ Use set() method properly
   inCombat: false,
   actionsLeft: 2,
   currentHealth: 100,
