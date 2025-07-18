@@ -5,97 +5,165 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Stock Wars</title>
 
-  <!-- Confetti, Animate, HTML2Canvas -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-  <!-- Bootstrap -->
+  <!-- Bootstrap, Animate, Phaser -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
 
   <style>
     body, html {
-      margin: 0; padding: 0; height: 100%;
-      background: linear-gradient(135deg, #a8edea, #fed6e3);
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      overflow: hidden;
-      user-select: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      margin: 0;
+      height: 100%;
+      background: #e0f7fa;
+      font-family: sans-serif;
     }
 
-    canvas {
-      border: 2px solid #444;
-      border-radius: 12px;
-      margin-bottom: 20px;
+    .info-box {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #fff8;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 10;
+    }
+
+    #game-container {
+      position: relative;
     }
   </style>
 </head>
 <body>
 
-<canvas hidden id="gameBoard" width="800" height="800" title="Game board"></canvas>
+<div id="game-container"></div>
 
-<div>
-  <h2>Live Stock Prices</h2>
-<div id="stockList" style="padding: 1rem;"></div>
+<div id="statsBox" class="info-box">
+  💰 <span id="cash">$0</span> |
+  🔁 Trades Left: <span id="trades">2</span> |
+  ❤️ <span id="health">100%</span>
 </div>
 
-<!-- Add Stock Form -->
-<div style="padding: 1rem; background: #f5f5f5; margin: 1rem;">
-  <h3>Add New Stock</h3>
-  <input type="text" id="stockName" placeholder="Stock Name" />
-  <input type="text" id="stockSymbol" placeholder="Stock Symbol" />
-  <input type="number" id="stockPrice" placeholder="Initial Price" />
-  <input type="text" id="stockSector" placeholder="Sector (e.g., Tech)" />
-  <button onclick="addStock()">Add Stock</button>
+<!-- Market Modal -->
+<div class="modal fade" id="marketModal" tabindex="-1" aria-labelledby="marketLabel" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Market</h5></div>
+    <div class="modal-body">
+      <p>Buy stocks, check prices, and trade.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  </div></div>
 </div>
 
-<!-- Firebase with ES module support -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-  import { collection, getFirestore, doc, getDoc, setDoc, onSnapshot, addDoc, serverTimestamp  } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { initializeFirebase, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import { doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-  // Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyAw6H0VmOtZtTLo_TFN5RLjx3glB7g4twM",
-    authDomain: "thegame-1d509.firebaseapp.com",
-    projectId: "thegame-1d509",
-    storageBucket: "thegame-1d509.appspot.com",
-    messagingSenderId: "932910520730",
-    appId: "1:932910520730:web:ebe861737607767d09c223",
-    measurementId: "G-B450N3446R"
-  };
+initializeFirebase();
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+const TILE_SIZE = 32;
+const MAP_SIZE = 30;
+const uid = "demoPlayer"; // Replace later with auth UID
 
+const config = {
+  type: Phaser.AUTO,
+  width: TILE_SIZE * MAP_SIZE,
+  height: TILE_SIZE * MAP_SIZE,
+  parent: "game-container",
+  backgroundColor: "#f5f5f5",
+  scene: {
+    create,
+    update
+  }
+};
 
-const stockListDiv = document.getElementById("stockList");
+let player, graphics, cursors;
+let playerX = 0, playerY = 0;
 
-onSnapshot(collection(db, "stocks"), (snapshot) => {
-  stockListDiv.innerHTML = "<h4>Current Stocks:</h4>";
-  snapshot.forEach(doc => {
-    const s = doc.data();
-    stockListDiv.innerHTML += `<div><strong>${s.symbol}</strong>: $${s.price.toFixed(2)} (${s.name})</div>`;
+const zoneColors = {
+  home: 0x90caf9,
+  market: 0xa5d6a7,
+  training: 0xffcc80,
+  safe: 0xce93d8,
+};
+
+const mapData = generateMapZones();
+
+new Phaser.Game(config);
+
+function generateMapZones() {
+  const map = [];
+  for (let y = 0; y < MAP_SIZE; y++) {
+    const row = [];
+    for (let x = 0; x < MAP_SIZE; x++) {
+      if (x === 2 && y === 2) row.push("home");
+      else if (x === 10 && y === 5) row.push("market");
+      else if (x === 20 && y === 10) row.push("training");
+      else if (x === 25 && y === 25) row.push("safe");
+      else row.push("empty");
+    }
+    map.push(row);
+  }
+  return map;
+}
+
+function create() {
+  graphics = this.add.graphics();
+  drawMap();
+
+  player = this.add.rectangle(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2, TILE_SIZE * 0.8, TILE_SIZE * 0.8, 0x000);
+  cursors = this.input.keyboard.createCursorKeys();
+
+  const playerRef = doc(db, "players", uid);
+  onSnapshot(playerRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const pos = docSnap.data().position;
+      playerX = pos.x;
+      playerY = pos.y;
+      player.setPosition(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2);
+    }
   });
-});
+}
 
+function drawMap() {
+  graphics.clear();
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const type = mapData[y][x];
+      let color = 0xffffff;
+      if (zoneColors[type]) color = zoneColors[type];
+      graphics.fillStyle(color, 1);
+      graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      graphics.lineStyle(1, 0xcccccc);
+      graphics.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    }
+  }
+}
 
-  // Optional: Setup canvas
-  const canvas = document.getElementById("gameBoard");
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+function update() {
+  if (Phaser.Input.Keyboard.JustDown(cursors.left)) tryMove(-1, 0);
+  else if (Phaser.Input.Keyboard.JustDown(cursors.right)) tryMove(1, 0);
+  else if (Phaser.Input.Keyboard.JustDown(cursors.up)) tryMove(0, -1);
+  else if (Phaser.Input.Keyboard.JustDown(cursors.down)) tryMove(0, 1);
+}
 
+async function tryMove(dx, dy) {
+  const newX = Phaser.Math.Clamp(playerX + dx, 0, MAP_SIZE - 1);
+  const newY = Phaser.Math.Clamp(playerY + dy, 0, MAP_SIZE - 1);
+  playerX = newX;
+  playerY = newY;
+  player.setPosition(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2);
 
+  const zone = mapData[playerY][playerX];
+  if (zone === "market") new bootstrap.Modal(document.getElementById("marketModal")).show();
+
+  await setDoc(doc(db, "players", uid), {
+    position: { x: playerX, y: playerY },
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+}
 </script>
-
 </body>
 </html>
