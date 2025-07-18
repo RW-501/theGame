@@ -12,9 +12,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+let db;
 
 export { auth, db };
-export let db;
 
 export function initializeFirebase() {
   const app = initializeApp(firebaseConfig);
