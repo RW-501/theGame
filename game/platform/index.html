@@ -203,7 +203,66 @@
   </div>
 </div>
 
-<!-- Other modals (Shop, Attack, Hacker) updated similarly - omitted here for brevity -->
+<!-- SHOP Modal -->
+<div class="modal fade" id="shopModal" tabindex="-1" aria-labelledby="shopLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shopLabel">🛒 Shop - Buy Gear & Tools</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul id="shopList" class="list-group mb-3" style="max-height: 300px; overflow-y: auto;"></ul>
+        <div id="shopMessage" class="text-success fw-semibold"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ATTACK Modal -->
+<div class="modal fade" id="attackModal" tabindex="-1" aria-labelledby="attackLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="attackLabel">💣 Attack Panel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul id="attackTargets" class="list-group mb-3" style="max-height: 250px; overflow-y: auto;"></ul>
+        <div class="mb-3">
+          <label for="attackMethod" class="form-label">Attack Method:</label>
+          <select id="attackMethod" class="form-select">
+            <option value="brute_force">Brute Force</option>
+            <option value="social_engineering">Social Engineering</option>
+            <option value="bot_attack">Bot Attack</option>
+          </select>
+        </div>
+        <button id="attackBtn" class="btn btn-danger w-100">Launch Attack</button>
+        <div id="attackMessage" class="mt-2 fw-semibold text-danger"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HACKER Modal -->
+<div class="modal fade" id="hackerModal" tabindex="-1" aria-labelledby="hackerLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hackerLabel">👨‍💻 Hacker Tools</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="d-grid gap-2 mb-3">
+          <button id="spyBtn" class="btn btn-outline-primary">🕵️ Spy</button>
+          <button id="corruptBtn" class="btn btn-outline-warning">💼 Corrupt Trade</button>
+          <button id="stealBtn" class="btn btn-outline-danger">📂 Steal Data</button>
+        </div>
+        <div id="hackerStatus" class="fw-bold text-info"></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import { initializeFirebase, auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
