@@ -826,9 +826,19 @@ for (const [symbol, stock] of Object.entries(stocks)) {
 
 
   portfolioListEl.innerHTML = "";
+let totalValue = 0;
+
 for (const [symbol, stockData] of Object.entries(portfolio)) {
-  const { quantity: qty, boughtPrice } = typeof stockData === "object" ? stockData : { quantity: stockData, boughtPrice: 0 };
-  const currentPrice = (stocks[symbol]?.price || 0).toFixed(2);
+  const { quantity: qty, boughtPrice } =
+    typeof stockData === "object"
+      ? stockData
+      : { quantity: stockData, boughtPrice: 0 };
+
+  const currentPrice = stocks[symbol]?.price || 0;
+  const currentPriceFixed = currentPrice.toFixed(2);
+  const currentValue = currentPrice * qty;
+  totalValue += currentValue;
+
   const li = document.createElement("li");
   li.className = "list-group-item d-flex justify-content-between align-items-center";
   li.innerHTML = `
@@ -836,7 +846,7 @@ for (const [symbol, stockData] of Object.entries(portfolio)) {
       <strong>${symbol}</strong>: ${qty} shares<br>
       Bought at: $${boughtPrice?.toFixed(2) || "?"}
     </div>
-    <div>Now: $${currentPrice}</div>
+    <div>Now: $${currentPriceFixed}</div>
   `;
 
   li.addEventListener("click", () => {
@@ -848,6 +858,13 @@ for (const [symbol, stockData] of Object.entries(portfolio)) {
 
   portfolioListEl.appendChild(li);
 }
+
+// ✅ Show total value at the end of the portfolio list
+const totalLi = document.createElement("li");
+totalLi.className = "list-group-item d-flex justify-content-between align-items-center fw-bold bg-light";
+totalLi.innerHTML = `<span>Total Value</span><span>$${totalValue.toFixed(2)}</span>`;
+portfolioListEl.appendChild(totalLi);
+
 
 }
 
@@ -939,7 +956,7 @@ document.getElementById("tradeBtn").addEventListener("click", async () => {
       return;
     }
     cash -= totalCost;
-    
+
 const existing = userPortfolio[symbol];
 if (existing && typeof existing === "object") {
   // Weighted average if buying more of what you already own
