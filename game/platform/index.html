@@ -324,18 +324,25 @@ let uid;
 const zoneColors = {
   market: 0xa5d6a7,
   shop: 0xffcc80,
-  attack: 0xef9a9a,
-  hacker: 0x90caf9,
+  learn: 0xef9a9a,
+  profile: 0x90caf9,
+  safe: 0xce93d8,
+  assets: 0x80cbc4,
+  healthClinic: 0xffab91,
   empty: 0xffffff
 };
 
 const zoneNames = {
   market: "Market",
   shop: "Shop",
-  attack: "Attack Panel",
-  hacker: "Hacker Panel",
+  learn: "Learn Panel",
+  profile: "Profile",
+  safe: "Safe House",
+  assets: "Your Assets",
+  healthClinic: "Health Clinic",
   empty: "Empty"
 };
+
 
 let mapData = [];
 let playerData = {
@@ -459,14 +466,14 @@ async function loadMap() {
   }
 }
 
+
 function setDefaultMap() {
   mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
 
   // Example layout
   mapData[1][1] = "market";
   mapData[2][1] = "shop";
-  mapData[1][2] = "attack";
-  mapData[2][2] = "hacker";
+  mapData[1][2] = "profile";
   mapData[3][1] = "learn";
   mapData[3][2] = "safe";
   mapData[4][1] = "assets";
