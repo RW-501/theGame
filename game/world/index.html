@@ -174,6 +174,21 @@
   </div>
 </div>
 
+
+<div class="modal fade" id="tileActionModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Tile Action</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="tileActionBody"></div>
+      <div class="modal-footer" id="tileActionFooter"></div>
+    </div>
+  </div>
+</div>
+
+
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -539,7 +554,29 @@ async function showTileActionModal(x, y, tileType, otherPlayerId) {
   modalBody.innerHTML += `<p><strong>Tile Type:</strong> ${zoneInfo[tileType]?.label || "Unknown"}</p>`;
   modalFooter.innerHTML = "";
 
+
+  if (tileType === "wilderness") {
+    // Add "Move Here" button
+    const moveBtn = document.createElement("button");
+    moveBtn.className = "btn btn-success";
+    moveBtn.innerText = "Move Here (Purchase)";
+    moveBtn.onclick = async () => {
+      await handleMoveAndPurchase(x, y);
+      const modalInstance = bootstrap.Modal.getInstance(modalEl);
+      if (modalInstance) modalInstance.hide(); // Close modal
+    };
+    modalFooter.appendChild(moveBtn);
+        
+    return new bootstrap.Modal(modalEl).show();
+  }
+
   const now = Date.now();
+
+
+      if (tileType === "blocked") {
+    modalBody.innerHTML += "<p>This area is blocked. No actions available.</p>";
+    return new bootstrap.Modal(modalEl).show();
+  }
   const isInCombat = playerState.inCombat;
   const hasActions = playerState.actionsLeft > 0;
 
@@ -551,10 +588,7 @@ async function showTileActionModal(x, y, tileType, otherPlayerId) {
     return isOnCooldown(action) ? Math.ceil((playerState.cooldowns[action] - now) / 1000) : 0;
   }
 
-  if (tileType === "blocked") {
-    modalBody.innerHTML += "<p>This area is blocked. No actions available.</p>";
-    return new bootstrap.Modal(modalEl).show();
-  }
+
 
   // === Player tile ===
   if (otherPlayerId) {
@@ -776,6 +810,63 @@ async function tryMove(dx, dy, scene) {
   }
 
   isMoving = false;
+}
+
+async function handleMoveAndPurchase(x, y) {
+  try {
+    console.log(`Purchasing tile at (${x}, ${y})...`);
+
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      throw new Error("User not logged in");
+    }
+
+    const userRef = doc(db, "users", user.uid);
+    const tileRef = doc(db, "tiles", `${x}_${y}`);
+
+    const [userSnap, tileSnap] = await Promise.all([
+      getDoc(userRef),
+      getDoc(tileRef)
+    ]);
+
+    if (!userSnap.exists()) throw new Error("User data not found");
+    if (!tileSnap.exists()) throw new Error("Tile data not found");
+
+    const userData = userSnap.data();
+    const tileData = tileSnap.data();
+
+    // Check if already owned
+    if (tileData.owner && tileData.owner !== user.uid) {
+      alert("Tile already owned by someone else.");
+      return;
+    }
+
+    const cost = tileData.price || 100;
+
+    if (userData.balance < cost) {
+      alert("Not enough funds to purchase tile.");
+      return;
+    }
+
+    // Deduct funds and update tile ownership
+    await Promise.all([
+      updateDoc(userRef, {
+        balance: userData.balance - cost
+      }),
+      updateDoc(tileRef, {
+        owner: user.uid,
+        type: "owned", // optional: update type
+        ownerName: userData.displayName || user.email
+      })
+    ]);
+
+    console.log(`Tile at (${x}, ${y}) successfully purchased!`);
+    alert("Purchase successful!");
+    // Optional: update UI
+  } catch (error) {
+    console.error("Purchase failed:", error.message);
+    alert("Failed to purchase tile: " + error.message);
+  }
 }
 
 
