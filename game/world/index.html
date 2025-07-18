@@ -194,6 +194,9 @@ let mapData = [];
 let otherPlayerSprites = new Map();
 
 const tileTooltip = document.getElementById("tileTooltip");
+
+
+
 let playerState = new Map(); // ✅ Initialize Map
 
 playerState.set(uid, {       // ✅ Use set() method properly
@@ -725,9 +728,14 @@ async function tryMove(dx, dy, scene) {
 
 // === Stats UI ===
 function updateStatsUI() {
+    const state = playerState.get(uid);
+  if (!state || !state.cooldowns) {
+    console.warn("Missing player state or cooldowns for UID:", uid);
+    return;
+  }
   const now = Date.now();
-  const attackCD = Math.max(0, Math.ceil(((playerState.cooldowns.attack ?? 0) - now) / 1000));
-  const moveCD = Math.max(0, Math.ceil(((playerState.cooldowns.move ?? 0) - now) / 1000));
+  const attackCD = Math.max(0, Math.ceil(((state.cooldowns.attack ?? 0) - now) / 1000));
+  const moveCD = Math.max(0, Math.ceil(((state.cooldowns.move ?? 0) - now) / 1000));
 
   document.getElementById("cash").textContent = `$${playerState.cash ?? 0}`;
   document.getElementById("trades").textContent = playerState.actionsLeft ?? 0;
