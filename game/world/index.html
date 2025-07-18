@@ -193,6 +193,10 @@ let graphics, cursors;
 let mapData = [];
 let otherPlayerSprites = new Map();
 
+let isDragging = false;
+let dragStartX = 0;
+let dragStartY = 0;
+
 const tileTooltip = document.getElementById("tileTooltip");
 
 
@@ -299,6 +303,7 @@ function preload() {
 
 async function create() {
   graphics = this.add.graphics();
+const cam = this.cameras.main;
 
   await loadMapFromFirebase();
   drawMap(this);
@@ -322,10 +327,10 @@ async function create() {
   // Pointer input: click adjacent tile to move
 this.input.on('pointerdown', async pointer => {
   if (isMoving) return;
-// Adjust for camera translation
-const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
-const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
-const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
+
+  const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
+  const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
+  const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
 
 
   if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
@@ -355,25 +360,34 @@ if (playerState && typeof playerState === "object") {
 
 
   // Show tile tooltip on pointer move
-  this.input.on('pointermove', pointer => {
-    const x = Math.floor(pointer.x / TILE_SIZE);
-    const y = Math.floor(pointer.y / TILE_SIZE);
-    // Adjust for camera translation
-const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
-const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
-const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
+this.input.on('pointermove', pointer => {
+  const cam = this.cameras.main;
 
-    if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
-      const zoneType = mapData[y]?.[x] || "empty";
-      const info = zoneInfo[zoneType] || zoneInfo.empty;
-      tileTooltip.style.left = (pointer.x + 15) + "px";
-      tileTooltip.style.top = (pointer.y + 15) + "px";
-      tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
-      tileTooltip.style.display = "block";
-    } else {
-      tileTooltip.style.display = "none";
-    }
-  });
+  // 🖱️ Drag the map if mouse is down
+  if (pointer.isDown) {
+    cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
+    cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
+    return; // 🛑 Skip tooltip while dragging
+  }
+
+  // 🎯 Show tile tooltip when hovering
+  const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
+  const x = Math.floor(worldPoint.x / TILE_SIZE);
+  const y = Math.floor(worldPoint.y / TILE_SIZE);
+
+  if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+    const zoneType = mapData[y]?.[x] || "empty";
+    const info = zoneInfo[zoneType] || zoneInfo.empty;
+
+    tileTooltip.style.left = (pointer.x + 15) + "px";
+    tileTooltip.style.top = (pointer.y + 15) + "px";
+    tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
+    tileTooltip.style.display = "block";
+  } else {
+    tileTooltip.style.display = "none";
+  }
+});
+
 
   this.input.on('pointerout', () => {
     tileTooltip.style.display = "none";
@@ -382,7 +396,6 @@ const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
 
 
   // Setup camera bounds and initial zoom
-const cam = this.cameras.main;
 cam.setBounds(0, 0, MAP_SIZE * TILE_SIZE, MAP_SIZE * TILE_SIZE);
 cam.startFollow(playerSprite, true, 0.1, 0.1);
 cam.setZoom(1);
