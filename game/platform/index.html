@@ -205,6 +205,23 @@
   </div>
 </div>
 
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="profileModalLabel">👤 Profile</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p><strong>Name:</strong> <span id="profileUsername">Loading...</span></p>
+        <p><strong>Level:</strong> <span id="profileLevel">-</span></p>
+        <p><strong>XP:</strong> <span id="profileXP">-</span></p>
+        <!-- Add avatar, achievements, etc. -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- SHOP Modal -->
 <div class="modal fade" id="shopModal" tabindex="-1" aria-labelledby="shopLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -516,7 +533,12 @@ function openZoneModal(zoneType) {
     case "assets":
       showAssetSummary();
       new bootstrap.Modal(document.getElementById("assetsModal")).show();
+      break;   
+    case "profile":
+      loadProfileDetails();
+      new bootstrap.Modal(document.getElementById("profileModal")).show();
       break;
+
     case "healthClinic":
       visitHealthClinic();
       new bootstrap.Modal(document.getElementById("healthClinicModal")).show();
