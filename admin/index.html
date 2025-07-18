@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Stock Wars</title>
+  <title>Stock Wars Admin Page</title>
 
   <!-- Confetti, Animate, HTML2Canvas -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -27,16 +27,10 @@
       justify-content: center;
     }
 
-    canvas {
-      border: 2px solid #444;
-      border-radius: 12px;
-      margin-bottom: 20px;
-    }
+  
   </style>
 </head>
 <body>
-
-<canvas hidden id="gameBoard" width="800" height="800" title="Game board"></canvas>
 
 <div>
   <h2>Live Stock Prices</h2>
@@ -84,12 +78,6 @@ onSnapshot(collection(db, "stocks"), (snapshot) => {
   });
 });
 
-
-  // Optional: Setup canvas
-  const canvas = document.getElementById("gameBoard");
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 
 
