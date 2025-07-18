@@ -730,22 +730,26 @@ async function loadMapFromFirebase() {
 }
 
 function setDefaultMapData() {
-  mapData = [];
-const stockX = 12;
-const stockY = 12;
-mapData[stockY][stockX] = "stock";
+  // Initialize the map with "empty" tiles
+  mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
 
-for (let y = stockY - 2; y <= stockY + 2; y++) {
-  for (let x = stockX - 2; x <= stockX + 2; x++) {
-    if (x === stockX && y === stockY) continue;
-    const dist = Math.max(Math.abs(x - stockX), Math.abs(y - stockY)); // Manhattan distance
-    if (mapData[y] && mapData[y][x] !== "stock") {
-      mapData[y][x] = `zone${5 - dist}`; // zone4, zone3...zone1
+  const stockX = 12;
+  const stockY = 12;
+  mapData[stockY][stockX] = "stock";
+
+  // Surrounding bonus zones
+  for (let y = stockY - 2; y <= stockY + 2; y++) {
+    for (let x = stockX - 2; x <= stockX + 2; x++) {
+      if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) continue;
+      if (x === stockX && y === stockY) continue;
+      const dist = Math.max(Math.abs(x - stockX), Math.abs(y - stockY));
+      mapData[y][x] = `zone${5 - dist}`; // zone4, zone3, etc.
     }
   }
 }
 
-}
+
+
 
 // Render other players except local player
 function renderAllPlayers(scene) {
