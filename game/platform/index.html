@@ -820,7 +820,7 @@ window.healPlayer = healPlayer;
 let stocks;
 let portfolio;
 
-let priceChart;
+window.priceChart = new Chart(ctx, { });
 
 function showStockModal(symbol) {
   const stock = stocks[symbol];
