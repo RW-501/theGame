@@ -1000,7 +1000,9 @@ function populateTradeForm(symbol, qty = 1) {
   }
 
     // Draw chart
-  if (window.priceChart) window.priceChart.destroy(); // cleanup if chart exists
+if (window.priceChart && typeof window.priceChart.destroy === "function") {
+  window.priceChart.destroy();
+}
 
   const ctx = document.getElementById("priceTrendChart").getContext("2d");
   const priceHistory = stock.priceHistory || [];
