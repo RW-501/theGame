@@ -158,7 +158,7 @@
 
     <div> XP: <span id="xp">0</span></div>
   <div>Level: <span id="level">1</span></div>
-  <div> crypto: <span id="crypto">0</span></div>
+  <div> Crypto: <span id="crypto">0</span></div>
   <div>🎮 Mode: <span id="mode">Safe</span></div>
 </div>
 
@@ -264,6 +264,22 @@
 </div>
 </div></div></div>
 
+<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="profileModalLabel">👤 Profile</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p><strong>Name:</strong> <span id="profileUsername">Loading...</span></p>
+        <p><strong>Level:</strong> <span id="profileLevel">-</span></p>
+        <p><strong>XP:</strong> <span id="profileXP">-</span></p>
+        <!-- Add avatar, achievements, etc. -->
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import { initializeFirebase, auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
@@ -509,6 +525,34 @@ function openZoneModal(zoneType) {
       break;
     default:
       console.log("Empty zone clicked.");
+  }
+}
+
+async function loadProfileDetails() {
+  const uid = auth.currentUser?.uid;
+  if (!uid) {
+    alert("You must be signed in to access your Profile.");
+    return;
+  }
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (!userDoc.exists()) {
+      console.error("User not found");
+      return;
+    }
+
+    const playerData = userDoc.data();
+    const username = playerData.username || "Anonymous";
+    const level = playerData.level || 1;
+    const xp = playerData.xp || 0;
+
+    document.getElementById("profileUsername").textContent = username;
+    document.getElementById("profileLevel").textContent = `Level: ${level}`;
+    document.getElementById("profileXP").textContent = `XP: ${xp}`;
+    
+  } catch (err) {
+    console.error("Error loading profile data:", err);
   }
 }
 
