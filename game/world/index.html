@@ -814,7 +814,7 @@ async function handleMoveAndPurchase(x, y) {
   try {
     console.log(`Purchasing tile at (${x}, ${y})...`);
 
-    const user = firebase.auth().currentUser;
+const user = auth.currentUser;
     if (!user) {
       throw new Error("User not logged in");
     }
