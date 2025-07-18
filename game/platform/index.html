@@ -505,52 +505,6 @@ document.getElementById("tradeBtn").addEventListener("click", async () => {
 });
 
 // ====== SHOP ======
-async function loadShopData() {
-  document.getElementById("shopMessage").textContent = "";
-  // Load shop items
-  const snapshot = await getDocs(collection(db, "shopItems"));
-  shopItems = [];
-  snapshot.forEach(doc => {
-    shopItems.push({ id: doc.id, ...doc.data() });
-  });
-
-  // Load player assets
-  const userRef = doc(db, "users", uid);
-  const userSnap = await getDoc(userRef);
-  playerData.assets = (userSnap.exists() && userSnap.data().assets) || { car: 0, home: 0, gear: 0 };
-
-  renderShop();
-}
-
-function renderShop() {
-  const shopItemList = document.getElementById("shopItemList");
-  const playerAssets = document.getElementById("playerAssets");
-
-  shopItemList.innerHTML = "";
-  shopItems.forEach(item => {
-    const li = document.createElement("li");
-    li.className = "list-group-item d-flex justify-content-between align-items-center";
-    li.innerHTML = `
-      <div>
-        <strong>${item.name}</strong> (${item.type}) - $${item.price.toFixed(2)}
-      </div>
-      <button class="btn btn-sm btn-success buy-btn" data-id="${item.id}">Buy</button>
-    `;
-    shopItemList.appendChild(li);
-  });
-
-  playerAssets.innerHTML = `
-    <li class="list-group-item">Cars: ${playerData.assets.car || 0}</li>
-    <li class="list-group-item">Homes: ${playerData.assets.home || 0}</li>
-    <li class="list-group-item">Gear: ${playerData.assets.gear || 0}</li>
-  `;
-
-  // Add buy event listeners
-  document.querySelectorAll(".buy-btn").forEach(btn => {
-    btn.onclick = () => buyShopItem(btn.dataset.id);
-  });
-}
-
 async function buyShopItem(itemId) {
   const item = shopItems.find(i => i.id === itemId);
   if (!item) return;
@@ -560,23 +514,45 @@ async function buyShopItem(itemId) {
   if (!userSnap.exists()) return;
 
   const userData = userSnap.data();
-  let cash = userData.cash || 0;
-  if (cash < item.price) {
-    document.getElementById("shopMessage").textContent = "Insufficient cash to buy this item.";
+
+  // Determine currency and check balance
+  const currency = item.currency || "cash";
+  const balance = userData[currency] || 0;
+
+  if (balance < item.price) {
+    document.getElementById("shopMessage").textContent = `Insufficient ${currency} to buy this item.`;
     return;
   }
 
-  cash -= item.price;
-  const assets = userData.assets || { car: 0, home: 0, gear: 0 };
-  // Increment asset count by item.type
-  assets[item.type] = (assets[item.type] || 0) + 1;
+  // Deduct price
+  userData[currency] = balance - item.price;
 
-  await setDoc(userRef, { cash, assets }, { merge: true });
-  playerData.cash = cash;
-  playerData.assets = assets;
+  // Apply item effect based on type
+  switch(item.type) {
+    case "securityBoost":
+      userData.security = (userData.security || 1) + (item.boostAmount || 1);
+      break;
+    case "hackingTool":
+      userData.techStrength = (userData.techStrength || 1) + (item.boostAmount || 1);
+      break;
+    case "healthPack":
+      userData.health = Math.min(100, (userData.health || 100) + (item.restoreAmount || 10));
+      break;
+    default:
+      // For asset types like car/home/gear
+      userData.assets = userData.assets || {};
+      userData.assets[item.type] = (userData.assets[item.type] || 0) + 1;
+      break;
+  }
 
+  // Save updated data
+  await setDoc(userRef, userData, { merge: true });
+
+  // Update local playerData and UI
+  Object.assign(playerData, userData);
   updateStatsUI();
   renderShop();
+
   document.getElementById("shopMessage").textContent = `Purchased 1 ${item.name}.`;
 }
 
