@@ -819,12 +819,14 @@ window.healPlayer = healPlayer;
 
 let stocks;
 let portfolio;
+let priceHistory;
 
 let priceChart;
 
 function showStockModal(symbol) {
   const stock = stocks[symbol];
   const prices = stock.history || [stock.price]; // assume you store last 5 prices in Firestore
+const priceHistory = stock?.priceHistory || []; // 👈 Safely extract it
 
   // Update modal content
   document.getElementById("stockModalLabel").textContent = `${symbol} - $${stock.price.toFixed(2)}`;
