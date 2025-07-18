@@ -27,25 +27,39 @@ exports.updateStockPrices = onSchedule("every 1 minutes", async () => {
     const updates = snapshot.docs.map(async (doc) => {
       const symbol = doc.id;
       const data = doc.data();
-      const { price: lastPrice, minPrice = 100, maxPrice = 500, maxChangePercent = 0.05, manualPrice = null } = data;
+      const {
+        price: lastPrice = 0,
+        minPrice = 100,
+        maxPrice = 500,
+        maxChangePercent = 0.05,
+        manualPrice = null,
+        priceHistory = []
+      } = data;
 
       let newPrice;
-      if (manualPrice !== null && typeof manualPrice === "number" && manualPrice >= minPrice && manualPrice <= maxPrice) {
+      if (
+        manualPrice !== null &&
+        typeof manualPrice === "number" &&
+        manualPrice >= minPrice &&
+        manualPrice <= maxPrice
+      ) {
         newPrice = manualPrice;
-        await db.collection("stocks").doc(symbol).set({
-          price: newPrice,
-          manualPrice: admin.firestore.FieldValue.delete(),
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
-        console.log(`Manual price set for ${symbol}: $${newPrice}`);
       } else {
         newPrice = generateRandomPrice(lastPrice, minPrice, maxPrice, maxChangePercent);
-        await db.collection("stocks").doc(symbol).set({
-          price: newPrice,
-          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        }, { merge: true });
-        console.log(`Updated ${symbol} price to $${newPrice}`);
       }
+
+      // Keep only the last 4 prices and append the new one (total of 5)
+      const updatedHistory = [...priceHistory.slice(-4), newPrice];
+
+      await db.collection("stocks").doc(symbol).set({
+        price: newPrice,
+        lastPrice, // store the previous price
+        priceHistory: updatedHistory,
+        manualPrice: admin.firestore.FieldValue.delete(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+
+      console.log(`Updated ${symbol} from $${lastPrice} to $${newPrice} | History: [${updatedHistory.join(", ")}]`);
     });
 
     await Promise.all(updates);
