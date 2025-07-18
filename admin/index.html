@@ -731,6 +731,33 @@ stockData.forEach(async (stock) => {
   }
 });
 
+
+async function addMockShopItems() {
+  const items = [
+    { name: "Firewall Upgrade", type: "securityBoost", price: 50, currency: "cash", boostAmount: 10 },
+    { name: "Antivirus Patch", type: "securityBoost", price: 30, currency: "crypto", boostAmount: 5 },
+    { name: "Basic Health Pack", type: "healthPack", price: 25, currency: "cash", restoreAmount: 20 },
+    { name: "Advanced Health Kit", type: "healthPack", price: 60, currency: "cash", restoreAmount: 50 },
+    { name: "Brute Force Tool", type: "hackingTool", price: 80, currency: "crypto", boostAmount: 15 },
+    { name: "Encryption Cracker", type: "hackingTool", price: 120, currency: "crypto", boostAmount: 25 },
+    { name: "Nano Health Boost", type: "healthPack", price: 15, currency: "techStrength", restoreAmount: 10 },
+    { name: "Cyber Shield", type: "securityBoost", price: 90, currency: "techStrength", boostAmount: 20 },
+    { name: "Silent Injector", type: "hackingTool", price: 150, currency: "crypto", boostAmount: 30 },
+    { name: "Emergency MedPack", type: "healthPack", price: 40, currency: "cash", restoreAmount: 35 }
+  ];
+
+  for (const item of items) {
+    try {
+      await addDoc(collection(db, "shopItems"), item);
+      console.log(`✅ Added item: ${item.name}`);
+    } catch (err) {
+      console.error(`❌ Failed to add item ${item.name}:`, err.message);
+    }
+  }
+
+  alert("Mock shop items added!");
+}
+
 </script>
 
 </body>

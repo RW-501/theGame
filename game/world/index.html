@@ -729,11 +729,12 @@ function updateStatsUI() {
   document.getElementById("security").textContent = `${playerState.security ?? 100}%`;
   document.getElementById("techStrength").textContent = `${playerState.techStrength ?? 100}%`;
   document.getElementById("crypto").textContent = `${playerState.crypto ?? 5}`;
-
+/*
     document.getElementById("combatLog").innerHTML = `
-    <p><strong>${attacker.name}</strong> hit <strong>${defender.name}</strong> for <strong>${attacker.lastDamage || 0}</strong> damage.</p>
+    <p><strong>${playerState.name}</strong> hit <strong>${defender.name}</strong> for <strong>${playerState.lastDamage || 0}</strong> damage.</p>
     <p>${defender.name} has ${defender.hp} HP left.</p>
   `;
+  */
   document.getElementById("zoneName").textContent =
     `Zone: ${zoneInfo[mapData[playerY]?.[playerX]]?.label || "Unknown"} | Attack CD: ${attackCD}s | Move CD: ${moveCD}s`;
 }
