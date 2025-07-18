@@ -587,6 +587,150 @@ form.addEventListener("submit", async (e) => {
     messageEl.style.color = "red";
   }
 });
+
+
+
+
+const stocks = [
+  {
+    "name": "Solarion Tech",
+    "symbol": "SLRN",
+    "price": 120.45,
+    "sector": "Technology"
+  },
+  {
+    "name": "GreenPastures Farms",
+    "symbol": "GPFM",
+    "price": 34.22,
+    "sector": "Agriculture"
+  },
+  {
+    "name": "Aether Airlines",
+    "symbol": "AETH",
+    "price": 88.76,
+    "sector": "Transportation"
+  },
+  {
+    "name": "NeuroNet Inc",
+    "symbol": "NNET",
+    "price": 199.99,
+    "sector": "Healthcare"
+  },
+  {
+    "name": "PixelCore Media",
+    "symbol": "PXCM",
+    "price": 57.45,
+    "sector": "Entertainment"
+  },
+  {
+    "name": "Crimson Mining",
+    "symbol": "CRMN",
+    "price": 15.78,
+    "sector": "Energy"
+  },
+  {
+    "name": "Quantum Brew Co.",
+    "symbol": "QBRC",
+    "price": 23.64,
+    "sector": "Consumer Goods"
+  },
+  {
+    "name": "Frostbyte CyberSec",
+    "symbol": "FRBY",
+    "price": 142.89,
+    "sector": "Technology"
+  },
+  {
+    "name": "Zenith Logistics",
+    "symbol": "ZTHL",
+    "price": 62.11,
+    "sector": "Transportation"
+  },
+  {
+    "name": "BlueOak Biotech",
+    "symbol": "BLOB",
+    "price": 131.00,
+    "sector": "Healthcare"
+  },
+  {
+    "name": "NextGen Realty",
+    "symbol": "NXGR",
+    "price": 49.99,
+    "sector": "Real Estate"
+  },
+  {
+    "name": "EchoWave Networks",
+    "symbol": "ECHW",
+    "price": 108.33,
+    "sector": "Telecommunications"
+  },
+  {
+    "name": "Starlight Entertainment",
+    "symbol": "STLE",
+    "price": 74.55,
+    "sector": "Entertainment"
+  },
+  {
+    "name": "Nimbus Robotics",
+    "symbol": "NMBR",
+    "price": 212.67,
+    "sector": "Technology"
+  },
+  {
+    "name": "VitaLeaf Organics",
+    "symbol": "VTLF",
+    "price": 36.18,
+    "sector": "Consumer Goods"
+  },
+  {
+    "name": "Horizon Engines",
+    "symbol": "HZEN",
+    "price": 92.50,
+    "sector": "Manufacturing"
+  },
+  {
+    "name": "Axion Financial",
+    "symbol": "AXFN",
+    "price": 81.90,
+    "sector": "Finance"
+  },
+  {
+    "name": "LumaSpark Energy",
+    "symbol": "LMSK",
+    "price": 67.23,
+    "sector": "Energy"
+  },
+  {
+    "name": "Verity Foods",
+    "symbol": "VTFD",
+    "price": 28.75,
+    "sector": "Food & Beverage"
+  },
+  {
+    "name": "Skybridge Aerospace",
+    "symbol": "SKBR",
+    "price": 149.60,
+    "sector": "Aerospace"
+  }
+]
+;
+
+stocks.forEach(async (stock) => {
+  try {
+    await setDoc(doc(db, "stocks", stock.symbol), {
+      ...stock,
+      minPrice: stock.price * 0.5,
+      maxPrice: stock.price * 1.5,
+      maxChangePercent: 0.05,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    console.log(`Added stock: ${stock.symbol}`);
+  } catch (err) {
+    console.error(`Error adding ${stock.symbol}:`, err);
+  }
+});
+
 </script>
 
 </body>
