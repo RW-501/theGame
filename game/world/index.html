@@ -67,7 +67,7 @@
 </div>
 
 <script type="module">
-import { initializeFirebase, auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import { initializeFirebase, auth, db , onAuthStateChanged } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 initializeFirebase();

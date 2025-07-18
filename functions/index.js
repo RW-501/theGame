@@ -97,3 +97,7 @@ exports.marketEventBigChange = onSchedule("every 4 hours", async () => {
     return null;
   }
 });
+
+
+// firebase deploy --only functions
+// firebase functions:log
