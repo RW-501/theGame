@@ -10,6 +10,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     /* Reset and base */
     body, html {
@@ -824,27 +826,31 @@ for (const [symbol, stock] of Object.entries(stocks)) {
 
 
   portfolioListEl.innerHTML = "";
-  for (const [symbol, qty] of Object.entries(portfolio)) {
-    const price = (stocks[symbol]?.price || 0).toFixed(2);
-    const li = document.createElement("li");
-    li.className = "list-group-item d-flex justify-content-between align-items-center";
-    li.textContent = `${symbol}: ${qty} shares (Value: $${(qty * price).toFixed(2)})`;
-      // ✅ Add click handler to populate form
-let lastSelectedStockLi = null;
+for (const [symbol, stockData] of Object.entries(portfolio)) {
+  const { quantity: qty, boughtPrice } = typeof stockData === "object" ? stockData : { quantity: stockData, boughtPrice: 0 };
+  const currentPrice = (stocks[symbol]?.price || 0).toFixed(2);
+  const li = document.createElement("li");
+  li.className = "list-group-item d-flex justify-content-between align-items-center";
+  li.innerHTML = `
+    <div>
+      <strong>${symbol}</strong>: ${qty} shares<br>
+      Bought at: $${boughtPrice?.toFixed(2) || "?"}
+    </div>
+    <div>Now: $${currentPrice}</div>
+  `;
 
-li.addEventListener("click", () => {
-  if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
-  li.classList.add("active");
-  lastSelectedStockLi = li;
+  li.addEventListener("click", () => {
+    if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
+    li.classList.add("active");
+    lastSelectedStockLi = li;
+    populateTradeForm(symbol, qty);
+  });
 
-populateTradeForm(symbol, qty);
-});
-
-    portfolioListEl.appendChild(li);
-  }
-
+  portfolioListEl.appendChild(li);
+}
 
 }
+
 
 function populateTradeForm(symbol, qty = 1) {
   const ownsStock = portfolio[symbol] && portfolio[symbol] > 0;
@@ -856,7 +862,53 @@ function populateTradeForm(symbol, qty = 1) {
   document.getElementById("tradeMessage").textContent = ownsStock
     ? `You own ${portfolio[symbol]} shares of ${symbol}.`
     : `You don't own any ${symbol}. Buying?`;
+
+      // Show trend and price history
+  const trendBox = document.getElementById("priceTrendBox");
+  if (!trendBox) {
+    const box = document.createElement("div");
+    box.id = "priceTrendBox";
+    box.className = "mt-2";
+
+    const canvas = document.createElement("canvas");
+    canvas.id = "priceTrendChart";
+    canvas.height = 100;
+    box.appendChild(canvas);
+
+    document.getElementById("tradeForm").appendChild(box); // assuming your form has id="tradeForm"
+  }
+
+    // Draw chart
+  if (window.priceChart) window.priceChart.destroy(); // cleanup if chart exists
+
+  const ctx = document.getElementById("priceTrendChart").getContext("2d");
+  const priceHistory = stock.priceHistory || [];
+  const labels = priceHistory.map((_, i) => `T-${priceHistory.length - i}`);
+  window.priceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: `${symbol} Price Trend`,
+        data: priceHistory,
+        fill: false,
+        borderColor: 'rgba(75,192,192,1)',
+        tension: 0.2
+      }]
+    },
+    options: {
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: false
+        }
+      }
+    }
+  });
 }
+
 
 // Trade button event
 document.getElementById("tradeBtn").addEventListener("click", async () => {
@@ -887,7 +939,22 @@ document.getElementById("tradeBtn").addEventListener("click", async () => {
       return;
     }
     cash -= totalCost;
-    userPortfolio[symbol] = (userPortfolio[symbol] || 0) + qty;
+    
+const existing = userPortfolio[symbol];
+if (existing && typeof existing === "object") {
+  // Weighted average if buying more of what you already own
+  const totalQty = existing.quantity + qty;
+  const avgPrice = ((existing.boughtPrice * existing.quantity) + (stockPrice * qty)) / totalQty;
+  userPortfolio[symbol] = {
+    quantity: totalQty,
+    boughtPrice: avgPrice
+  };
+} else {
+  userPortfolio[symbol] = {
+    quantity: qty,
+    boughtPrice: stockPrice
+  };
+}
   } else if (type === "sell") {
     if (!userPortfolio[symbol] || userPortfolio[symbol] < qty) {
       document.getElementById("tradeMessage").textContent = "Not enough shares to sell.";
