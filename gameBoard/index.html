@@ -215,11 +215,7 @@
 </head>
 <body>
   <div id="container">
-     <div class="btn-container">
-    <button onclick="zoomIn()">Zoom In</button>
-    <button onclick="zoomOut()">Zoom Out</button>
-    <button onclick="centerBoard()">Center</button>
-  </div>
+
 
     <canvas id="gameBoard" width="800" height="800" title="Game board"></canvas>
 
@@ -238,6 +234,13 @@
     <button id="rollDiceBtn">Roll Dice</button>
     <button id="viewStatsBtn">View Stats</button>
     <button id="playCardBtn">Play Card</button>
+
+     <div class="btn-container">
+    <button onclick="zoomIn()">Zoom In</button>
+    <button onclick="zoomOut()">Zoom Out</button>
+    <button onclick="centerBoard()">Center</button>
+  </div>
+
   </div>
 
   <div id="cardPopup" role="dialog" aria-modal="true" aria-labelledby="cardPopupTitle" aria-describedby="cardPopupDesc" tabindex="-1">
