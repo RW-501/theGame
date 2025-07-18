@@ -156,6 +156,8 @@
   <div>🚗 Cars: <span id="cars">0</span></div>
   <div>🏠 Homes: <span id="homes">0</span></div>
   <div>🎮 Mode: <span id="mode">Safe</span></div>
+  <div>Level: <span id="level">1</span></div>
+
 </div>
 
 <!-- Tooltip for zones -->
@@ -239,7 +241,8 @@ let playerData = {
   techStrength: 1,
   assets: { car: 0, home: 0 },
   safe: true,
-  trainingMode: false
+  trainingMode: false,
+  level: 1
 };
 
 const game = new Phaser.Game({
@@ -383,6 +386,7 @@ function updateStatsUI() {
   document.getElementById("techStrength").textContent = playerData.techStrength;
   document.getElementById("cars").textContent = playerData.assets.car || 0;
   document.getElementById("homes").textContent = playerData.assets.home || 0;
+  document.getElementById("level").textContent = playerData.level || 1;
   document.getElementById("mode").textContent = playerData.safe ? "Safe" : (playerData.trainingMode ? "Training" : "Normal");
 }
 
