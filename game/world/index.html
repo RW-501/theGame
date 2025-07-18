@@ -197,19 +197,24 @@ const tileTooltip = document.getElementById("tileTooltip");
 
 
 
-let playerState = new Map(); // ✅ Initialize Map
+const playerState = new Map();
 
-playerState.set(uid, {       // ✅ Use set() method properly
-  inCombat: false,
-  actionsLeft: 2,
-  currentHealth: 100,
-  movesLeft: 3,
-  cooldowns: {
-    attack: 0,
-    dash: 0,
-    move: 0
+function initializePlayerState(uid) {
+  if (!playerState.has(uid)) {
+    playerState.set(uid, {
+      inCombat: false,
+      actionsLeft: 2,
+      currentHealth: 100,
+      movesLeft: 3,
+      cooldowns: {
+        attack: 0,
+        dash: 0,
+        move: 0
+      }
+    });
   }
-});
+}
+
 
 // === Zone Metadata ===
 const zoneInfo = {
@@ -274,9 +279,13 @@ onAuthStateChanged(auth, async (user) => {
 
     console.log("✅ User loaded:", userData.name || "Unnamed");
 
+
+
   } else {
     await signInAnonymously(auth);
   }
+      initializePlayerState(uid);
+
 });
 
 // === Phaser Scene Methods ===

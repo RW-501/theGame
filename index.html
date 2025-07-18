@@ -78,6 +78,25 @@
     const avatarOptions = document.querySelectorAll('.avatar-option');
     let selectedAvatar = "1";
 
+
+    const playerState = new Map();
+
+function initializePlayerState(uid) {
+  if (!playerState.has(uid)) {
+    playerState.set(uid, {
+      inCombat: false,
+      actionsLeft: 2,
+      currentHealth: 100,
+      movesLeft: 3,
+      cooldowns: {
+        attack: 0,
+        dash: 0,
+        move: 0
+      }
+    });
+  }
+}
+
     // Handle avatar selection
     avatarOptions.forEach(avatar => {
       avatar.addEventListener('click', () => {
@@ -139,6 +158,9 @@
           await setDoc(userRef, newPlayer);
           console.log("✅ New player created.");
         }
+
+        initializePlayerState(uid);
+
 
         statusMsg.textContent = `Welcome, ${username}! Redirecting...`;
         setTimeout(() => window.location.href = "https://rw-501.github.io/theGame/game/world/", 1500);
