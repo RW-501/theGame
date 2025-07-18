@@ -205,6 +205,9 @@ function initializePlayerState(uid) {
       inCombat: false,
       actionsLeft: 2,
       currentHealth: 100,
+        portfolio: {},
+  loans: [],
+  history: [],
       movesLeft: 3,
       cooldowns: {
         attack: 0,
@@ -319,8 +322,11 @@ async function create() {
   // Pointer input: click adjacent tile to move
 this.input.on('pointerdown', async pointer => {
   if (isMoving) return;
-  const clickedX = Math.floor(pointer.x / TILE_SIZE);
-  const clickedY = Math.floor(pointer.y / TILE_SIZE);
+// Adjust for camera translation
+const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
+const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
+const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
+
 
   if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
 
@@ -352,6 +358,11 @@ if (playerState && typeof playerState === "object") {
   this.input.on('pointermove', pointer => {
     const x = Math.floor(pointer.x / TILE_SIZE);
     const y = Math.floor(pointer.y / TILE_SIZE);
+    // Adjust for camera translation
+const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
+const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
+const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
+
     if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
       const zoneType = mapData[y]?.[x] || "empty";
       const info = zoneInfo[zoneType] || zoneInfo.empty;
@@ -368,6 +379,26 @@ if (playerState && typeof playerState === "object") {
     tileTooltip.style.display = "none";
   });
 
+
+
+  // Setup camera bounds and initial zoom
+const cam = this.cameras.main;
+cam.setBounds(0, 0, MAP_SIZE * TILE_SIZE, MAP_SIZE * TILE_SIZE);
+cam.startFollow(playerSprite, true, 0.1, 0.1);
+cam.setZoom(1);
+
+// Enable drag (click & hold) to pan
+this.input.on('pointermove', pointer => {
+  if (!pointer.isDown) return;
+  cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
+  cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
+}, this);
+
+// Mouse wheel to zoom
+this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
+  const newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
+  cam.setZoom(newZoom);
+});
 
   /*
       case "attack":
@@ -823,29 +854,24 @@ function isAdjacent(x1, y1, x2, y2) {
 
 function drawMap(scene) {
   graphics.clear();
+for (let y = 0; y < MAP_SIZE; y++) {
+  for (let x = 0; x < MAP_SIZE; x++) {
+    const zoneType = mapData[y][x] || "empty";
+    const info = zoneInfo[zoneType] || zoneInfo.empty;
 
-  for (let y = 0; y < MAP_SIZE; y++) {
-    for (let x = 0; x < MAP_SIZE; x++) {
-      const zoneType = mapData[y][x] || "empty";
-      const info = zoneInfo[zoneType] || zoneInfo.empty;
-      graphics.fillStyle(info.color, 1);
-      graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-      
-      // Optional corner number
-      if (zoneType.startsWith("zone")) {
-        const num = zoneType.replace("zone", "");
-        const text = scene.add.text(
-          x * TILE_SIZE + TILE_SIZE - 12,
-          y * TILE_SIZE + 2,
-          num,
-          { font: "14px Arial", fill: "#000" }
-        );
-        text.setDepth(10);
-        setTimeout(() => text.destroy(), 5000);
+    graphics.fillStyle(info.color, 1);
+    graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
-      }
-    }
+    scene.add.text(
+      x * TILE_SIZE + TILE_SIZE/2,
+      y * TILE_SIZE + TILE_SIZE/2,
+      info.icon,
+      { font: `${TILE_SIZE * 0.5}px Arial`, align: 'center' }
+    ).setOrigin(0.5);
+    //         setTimeout(() => info.destroy(), 5000);
+
   }
+}
 
 }
 
