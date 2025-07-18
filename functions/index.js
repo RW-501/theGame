@@ -15,8 +15,8 @@ function generateRandomPrice(lastPrice, minPrice, maxPrice, maxChangePercent = 0
   return Math.round(newPrice * 100) / 100;
 }
 
-// Normal update every 2 minutes (small changes)
-exports.updateStockPrices = onSchedule("every 2 minutes", async () => {
+// Normal update every 1 minutes (small changes)
+exports.updateStockPrices = onSchedule("every 1 minutes", async () => {
   try {
     const snapshot = await db.collection("stocks").get();
     if (snapshot.empty) {
