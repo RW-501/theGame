@@ -133,7 +133,7 @@ initializeFirebase();
 
 
 // === Game Constants ===
-const TILE_SIZE = 40;
+const TILE_SIZE = 64; // was 40
 const MAP_SIZE = 25;
 const platformURL = "https://rw-501.github.io/theGame/game/platform/";
 
@@ -164,14 +164,20 @@ const playerState = {
 const zoneInfo = {
   empty: { color: 0xffffff, label: "Wilderness", icon: "🌲" },
   home: { color: 0x90caf9, label: "Home Base", icon: "🏠" },
-  blocked: { color: 0x555555, label: "Blocked Area", icon: "🚧" }
+  blocked: { color: 0x555555, label: "Blocked Area", icon: "🚧" },
+  stock: { color: 0xffd54f, label: "Stock Exchange", icon: "📈" },
+zone4: { color: 0x81c784, label: "Finance District (4)", icon: "💸" },
+zone3: { color: 0x4db6ac, label: "Finance District (3)", icon: "🏦" },
+zone2: { color: 0x4fc3f7, label: "Finance District (2)", icon: "💰" },
+zone1: { color: 0x9575cd, label: "Finance District (1)", icon: "🧠" },
+
 };
 
 // === Game Setup ===
 const config = {
   type: Phaser.AUTO,
-  width: TILE_SIZE * MAP_SIZE,
-  height: TILE_SIZE * MAP_SIZE,
+width: window.innerWidth,
+height: window.innerHeight,
   parent: "game-container",
   backgroundColor: "#222222",
   scene: { preload, create, update }
@@ -200,7 +206,8 @@ onAuthStateChanged(auth, async (user) => {
         location: [5, 5],
         inCombat: false,
         avatar: "1",
-        crypto: 5
+        crypto: 5,
+        xp: 0
       });
     }
 
@@ -499,28 +506,50 @@ async function tryMove(dx, dy, scene) {
   const newY = Phaser.Math.Clamp(playerY + dy, 0, MAP_SIZE - 1);
   if (mapData[newY]?.[newX] === "blocked") return alert("Blocked tile!");
 
+  function applyTileEffects(x, y) {
+    const zone = mapData[y][x];
+    if (zone === "stock") {
+      playerData.stockTradeDiscount = 0.25;
+      console.log("📈 Stock trading fees reduced!");
+    } else if (zone?.startsWith("zone")) {
+      const bonusTier = parseInt(zone.replace("zone", ""));
+      playerData.movementCost = bonusTier;
+      console.log(`🧭 Zone bonus tier ${bonusTier}: movement cost increased.`);
+    } else {
+      playerData.stockTradeDiscount = 0;
+      playerData.movementCost = 1;
+    }
+  }
+
   isMoving = true;
   await movePlayerSmoothly(scene, newX, newY);
   playerX = newX;
   playerY = newY;
+  applyTileEffects(playerX, playerY); // ✅ FIXED
   updateZoneName();
 
   await handleZoneEvent(mapData[playerY]?.[playerX]);
-  await setDoc(doc(db, "players", uid), {
-    position: { x: playerX, y: playerY },
-    updatedAt: new Date().toISOString()
-  }, { merge: true });
 
-  playerState.actionsLeft--;
-  playerState.cooldowns.move = Date.now() + 5000;
+  try {
+    await setDoc(doc(db, "players", uid), {
+      position: { x: playerX, y: playerY },
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
 
-  await setDoc(doc(db, "users", uid), {
-    actionsLeft: playerState.actionsLeft,
-    cooldowns: playerState.cooldowns
-  }, { merge: true });
+    playerState.actionsLeft--;
+    playerState.cooldowns.move = now + 5000;
+
+    await setDoc(doc(db, "users", uid), {
+      actionsLeft: playerState.actionsLeft,
+      cooldowns: playerState.cooldowns
+    }, { merge: true });
+  } catch (err) {
+    console.error("Error saving player move:", err);
+  }
 
   isMoving = false;
 }
+
 
 // === Stats UI ===
 function updateStatsUI() {
@@ -581,6 +610,14 @@ function createButton(text, btnClass, onClick) {
     renderAllPlayers(this);
   });
 
+  this.cameras.main.setBounds(0, 0, MAP_SIZE * TILE_SIZE, MAP_SIZE * TILE_SIZE);
+this.cameras.main.startFollow(playerSprite, true, 0.1, 0.1);
+this.input.on('pointermove', function (pointer) {
+  if (!pointer.isDown) return;
+  this.cameras.main.scrollX -= (pointer.x - pointer.prevPosition.x);
+  this.cameras.main.scrollY -= (pointer.y - pointer.prevPosition.y);
+}, this);
+
   updateZoneName();
 }
 
@@ -596,42 +633,30 @@ function isAdjacent(x1, y1, x2, y2) {
 
 function drawMap(scene) {
   graphics.clear();
-  for (let y=0; y < MAP_SIZE; y++) {
-    for (let x=0; x < MAP_SIZE; x++) {
-      const type = mapData[y]?.[x] || "empty";
-      const info = zoneInfo[type] || zoneInfo.empty;
 
-      // draw colored tile
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const zoneType = mapData[y][x] || "empty";
+      const info = zoneInfo[zoneType] || zoneInfo.empty;
       graphics.fillStyle(info.color, 1);
       graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      
+      // Optional corner number
+      if (zoneType.startsWith("zone")) {
+        const num = zoneType.replace("zone", "");
+        const text = scene.add.text(
+          x * TILE_SIZE + TILE_SIZE - 12,
+          y * TILE_SIZE + 2,
+          num,
+          { font: "14px Arial", fill: "#000" }
+        );
+        text.setDepth(10);
+        setTimeout(() => text.destroy(), 5000);
 
-      // draw tile border
-      graphics.lineStyle(2, 0x999999);
-      graphics.strokeRect(x * TILE_SIZE + 1, y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2);
-
-      // draw emoji icon centered
-      const iconText = scene.add.text(x * TILE_SIZE + TILE_SIZE/2, y * TILE_SIZE + TILE_SIZE/2, info.icon, {
-        fontSize: '24px',
-        align: 'center'
-      });
-      iconText.setOrigin(0.5);
-      iconText.setDepth(1);
-
-      // make home tile clickable with pointer cursor and interactive
-      if (type === "home") {
-        iconText.setInteractive({ useHandCursor: true });
-        iconText.on('pointerdown', () => {
-          window.location.href = platformURL;
-        });
-        iconText.on('pointerover', () => {
-          iconText.setStyle({ fill: '#0000ff', fontStyle: 'bold' });
-        });
-        iconText.on('pointerout', () => {
-          iconText.setStyle({ fill: '#000000', fontStyle: 'normal' });
-        });
       }
     }
   }
+
 }
 
 function movePlayerSmoothly(scene, x, y) {
@@ -706,18 +731,20 @@ async function loadMapFromFirebase() {
 
 function setDefaultMapData() {
   mapData = [];
-  for(let y=0; y<MAP_SIZE; y++) {
-    const row = [];
-    for(let x=0; x<MAP_SIZE; x++) {
-      if(x === 5 && y === 5) row.push("home");
-      else if(x === 10 && y === 8) row.push("market");
-      else if(x === 17 && y === 12) row.push("training");
-      else if(x === 22 && y === 20) row.push("safe");
-      else if(x >= 15 && x <= 18 && y >= 15 && y <= 18) row.push("blocked");
-      else row.push("empty");
+const stockX = 12;
+const stockY = 12;
+mapData[stockY][stockX] = "stock";
+
+for (let y = stockY - 2; y <= stockY + 2; y++) {
+  for (let x = stockX - 2; x <= stockX + 2; x++) {
+    if (x === stockX && y === stockY) continue;
+    const dist = Math.max(Math.abs(x - stockX), Math.abs(y - stockY)); // Manhattan distance
+    if (mapData[y] && mapData[y][x] !== "stock") {
+      mapData[y][x] = `zone${5 - dist}`; // zone4, zone3...zone1
     }
-    mapData.push(row);
   }
+}
+
 }
 
 // Render other players except local player
