@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Player Home Base - Stock Wars</title>
+
+  <!-- Bootstrap, Phaser -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+
+  <style>
+    body, html {
+      margin: 0; padding: 0; height: 100%;
+      background: #e0f7fa;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
+    #game-container {
+      position: relative;
+      margin: 10px auto;
+      width: 480px; /* 12 tiles * 40px */
+      height: 480px;
+      border: 2px solid #333;
+      background: #fafafa;
+    }
+    .info-box {
+      position: absolute;
+      top: 10px; left: 10px;
+      background: rgba(255 255 255 / 0.9);
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      width: 460px;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+    .info-box div {
+      margin-right: 10px;
+    }
+    .zone-label {
+      pointer-events: none;
+      user-select: none;
+      font-size: 12px;
+      font-weight: bold;
+      color: #333;
+      text-shadow: 1px 1px 0 #fff;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-container"></div>
+<div class="info-box" id="statsBox">
+  <div>💰 Cash: $<span id="cash">0</span></div>
+  <div>❤️ Health: <span id="health">100%</span></div>
+  <div>🛡️ Security: <span id="security">1</span></div>
+  <div>⚙️ Tech Strength: <span id="techStrength">1</span></div>
+  <div>🚗 Cars: <span id="cars">0</span></div>
+  <div>🏠 Homes: <span id="homes">0</span></div>
+  <div>🎮 Mode: <span id="mode">Safe</span></div>
+</div>
+
+<!-- Only the modal bodies changed, rest is your original HTML -->
+
+<!-- Market Modal -->
+<div class="modal fade" id="marketModal" tabindex="-1" aria-labelledby="marketLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="marketLabel">Market - Buy/Sell Stocks</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="marketContent">
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Available Stocks</h6>
+              <ul id="stockList" class="list-group" style="max-height: 300px; overflow-y:auto;"></ul>
+            </div>
+            <div class="col-md-6">
+              <h6>Your Portfolio</h6>
+              <ul id="portfolioList" class="list-group" style="max-height: 300px; overflow-y:auto;"></ul>
+            </div>
+          </div>
+          <hr/>
+          <div>
+            <label>Stock Symbol: <input type="text" id="tradeSymbol" maxlength="5" style="width:80px" /></label>
+            <label>Quantity: <input type="number" id="tradeQuantity" min="1" style="width:80px" /></label>
+            <select id="tradeType" class="form-select d-inline-block" style="width: 100px;">
+              <option value="buy">Buy</option>
+              <option value="sell">Sell</option>
+            </select>
+            <button id="tradeBtn" class="btn btn-primary btn-sm">Execute Trade</button>
+          </div>
+          <div id="tradeMessage" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Shop Modal -->
+<div class="modal fade" id="shopModal" tabindex="-1" aria-labelledby="shopLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shopLabel">Shop - Cars, Houses, Gear</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="shopContent">
+          <h6>Items for Sale</h6>
+          <ul id="shopItemList" class="list-group" style="max-height: 350px; overflow-y:auto;"></ul>
+          <hr/>
+          <h6>Your Assets</h6>
+          <ul id="playerAssets" class="list-group"></ul>
+          <div id="shopMessage" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Attack Modal -->
+<div class="modal fade" id="attackModal" tabindex="-1" aria-labelledby="attackLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="attackLabel">Attack Panel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="attackContent">
+          <h6>Available Targets</h6>
+          <ul id="attackTargets" class="list-group" style="max-height: 300px; overflow-y:auto;"></ul>
+          <hr/>
+          <label>Attack Method:
+            <select id="attackMethod" class="form-select" style="width: 200px; display:inline-block;">
+              <option value="brute_force">Brute Force</option>
+              <option value="phishing">Phishing</option>
+              <option value="ddos">DDoS</option>
+            </select>
+          </label>
+          <button id="attackBtn" class="btn btn-danger btn-sm ms-2">Launch Attack</button>
+          <div id="attackMessage" class="mt-2"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Hacker Modal -->
+<div class="modal fade" id="hackerModal" tabindex="-1" aria-labelledby="hackerLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hackerLabel">Hacker Panel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="hackerContent">
+          <h6>Hack Actions</h6>
+          <button id="spyBtn" class="btn btn-info btn-sm me-2">Spy on Player</button>
+          <button id="corruptBtn" class="btn btn-warning btn-sm me-2">Corrupt Trade</button>
+          <button id="stealBtn" class="btn btn-danger btn-sm">Steal Data</button>
+          <hr/>
+          <div id="hackerStatus"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeFirebase, auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+initializeFirebase();
+
+const TILE_SIZE = 40;
+const MAP_SIZE = 12; // smaller map for home base
+
+let uid; // global variable to hold UID
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    uid = user.uid;  // assign uid here
+    
+    const userRef = doc(db, "users", uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+ 
+  }
+}
+});
+
+const zoneColors = {
+  market: 0xa5d6a7,
+  shop: 0xffcc80,
+  attack: 0xef9a9a,
+  hacker: 0x90caf9,
+  empty: 0xffffff
+};
+
+const zoneNames = {
+  market: "Market",
+  shop: "Shop",
+  attack: "Attack Panel",
+  hacker: "Hacker Panel",
+  empty: "Empty"
+};
+
+let mapData = []; // 2D array [y][x]
+
+let playerData = {
+  cash: 0,
+  health: 100,
+  security: 1,
+  techStrength: 1,
+  assets: { car: 0, home: 0 },
+  safe: true,
+  trainingMode: false
+};
+
+const config = {
+  type: Phaser.AUTO,
+  width: TILE_SIZE * MAP_SIZE,
+  height: TILE_SIZE * MAP_SIZE,
+  parent: "game-container",
+  backgroundColor: "#f5f5f5",
+  scene: {
+    create,
+    update
+  }
+};
+
+let graphics;
+
+new Phaser.Game(config);
+
+async function create() {
+  graphics = this.add.graphics();
+
+  await loadMapFromFirebase();
+  drawMap();
+
+  // Show zone labels (optional)
+  drawZoneLabels();
+
+  // Load player data and stats UI
+  await loadPlayerData();
+
+  // Listen to player data realtime updates
+  const userRef = doc(db, "users", uid);
+  onSnapshot(userRef, (docSnap) => {
+    if (docSnap.exists()) {
+      Object.assign(playerData, docSnap.data());
+      updateStatsUI();
+    }
+  });
+
+  this.input.on('pointerdown', pointer => {
+    const clickedX = Math.floor(pointer.x / TILE_SIZE);
+    const clickedY = Math.floor(pointer.y / TILE_SIZE);
+    if (clickedX >= 0 && clickedX < MAP_SIZE && clickedY >= 0 && clickedY < MAP_SIZE) {
+      const zoneType = mapData[clickedY][clickedX];
+      openZoneModal(zoneType);
+    }
+  });
+}
+
+function update() {
+  // no continuous update logic for now
+}
+
+async function loadMapFromFirebase() {
+  try {
+    const snapshot = await getDocs(collection(db, "homeMapTiles"));
+    if (snapshot.empty) {
+      setDefaultMap();
+      return;
+    }
+
+    mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
+    snapshot.forEach(doc => {
+      const { x, y, type } = doc.data();
+      if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+        mapData[y][x] = type || "empty";
+      }
+    });
+  } catch (e) {
+    console.error("Error loading home map from Firebase:", e);
+    setDefaultMap();
+  }
+}
+
+function setDefaultMap() {
+  mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
+  // Example layout:
+  mapData[5][5] = "market";
+  mapData[6][5] = "shop";
+  mapData[5][6] = "attack";
+  mapData[6][6] = "hacker";
+}
+
+function drawMap() {
+  graphics.clear();
+  for (let y=0; y<MAP_SIZE; y++) {
+    for (let x=0; x<MAP_SIZE; x++) {
+      const type = mapData[y][x];
+      const color = zoneColors[type] || 0xffffff;
+      graphics.fillStyle(color, 1);
+      graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      graphics.lineStyle(1, 0xcccccc);
+      graphics.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    }
+  }
+}
+
+function drawZoneLabels() {
+  for(let y=0; y<MAP_SIZE; y++) {
+    for(let x=0; x<MAP_SIZE; x++) {
+      const type = mapData[y][x];
+      if(type !== "empty") {
+        const label = zoneNames[type] || "";
+        const text = this.scene ? this.scene.add.text : undefined; // defensive check
+        if(text) {
+          // no scene available here, so skip Phaser text, use HTML overlay maybe in future
+        }
+      }
+    }
+  }
+}
+
+async function loadPlayerData() {
+  // Get uid from auth
+  await new Promise((res) => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        uid = user.uid;
+        unsubscribe();
+        res();
+      }
+    });
+  });
+  const userRef = doc(db, "users", uid);
+  const docSnap = await getDoc(userRef);
+  if (docSnap.exists()) {
+    Object.assign(playerData, docSnap.data());
+    updateStatsUI();
+  }
+}
+
+function updateStatsUI() {
+  document.getElementById("cash").textContent = playerData.cash.toFixed(2);
+  document.getElementById("health").textContent = playerData.health + "%";
+  document.getElementById("security").textContent = playerData.security;
+  document.getElementById("techStrength").textContent = playerData.techStrength;
+  document.getElementById("cars").textContent = playerData.assets.car || 0;
+  document.getElementById("homes").textContent = playerData.assets.home || 0;
+  document.getElementById("mode").textContent = playerData.safe ? "Safe" : (playerData.trainingMode ? "Training" : "Normal");
+}
+
+// ... your existing imports and init code here ...
+
+// Data holders
+let stocks = {};
+let portfolio = {};
+let shopItems = [];
+let playersList = [];
+let selectedAttackTarget = null;
+
+// Open modal overrides to load data
+function openZoneModal(zoneType) {
+  switch(zoneType) {
+    case "market":
+      loadMarketData();
+      new bootstrap.Modal(document.getElementById("marketModal")).show();
+      break;
+    case "shop":
+      loadShopData();
+      new bootstrap.Modal(document.getElementById("shopModal")).show();
+      break;
+    case "attack":
+      loadAttackTargets();
+      new bootstrap.Modal(document.getElementById("attackModal")).show();
+      break;
+    case "hacker":
+      setupHackerPanel();
+      new bootstrap.Modal(document.getElementById("hackerModal")).show();
+      break;
+    default:
+      alert("This zone is empty or under construction.");
+  }
+}
+
+// ====== MARKET ======
+async function loadMarketData() {
+  document.getElementById("tradeMessage").textContent = "";
+  // Load stocks from Firestore
+  const snapshot = await getDocs(collection(db, "stocks"));
+  stocks = {};
+  snapshot.forEach(doc => {
+    stocks[doc.id] = doc.data();
+  });
+
+  // Load player's portfolio
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+  portfolio = (userSnap.exists() && userSnap.data().portfolio) || {};
+
+  renderMarket();
+}
+
+function renderMarket() {
+  const stockListEl = document.getElementById("stockList");
+  const portfolioListEl = document.getElementById("portfolioList");
+
+  stockListEl.innerHTML = "";
+  for (const [symbol, stock] of Object.entries(stocks)) {
+    const price = stock.price.toFixed(2);
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.textContent = `${symbol} - $${price}`;
+    stockListEl.appendChild(li);
+  }
+
+  portfolioListEl.innerHTML = "";
+  for (const [symbol, qty] of Object.entries(portfolio)) {
+    const price = (stocks[symbol]?.price || 0).toFixed(2);
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.textContent = `${symbol}: ${qty} shares (Value: $${(qty * price).toFixed(2)})`;
+    portfolioListEl.appendChild(li);
+  }
+}
+
+// Trade button event
+document.getElementById("tradeBtn").addEventListener("click", async () => {
+  const symbol = document.getElementById("tradeSymbol").value.toUpperCase();
+  const qty = parseInt(document.getElementById("tradeQuantity").value);
+  const type = document.getElementById("tradeType").value;
+
+  if (!symbol || !qty || qty <= 0 || !stocks[symbol]) {
+    document.getElementById("tradeMessage").textContent = "Invalid stock symbol or quantity.";
+    return;
+  }
+
+  const stockPrice = stocks[symbol].price;
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    document.getElementById("tradeMessage").textContent = "User data not found.";
+    return;
+  }
+  const userData = userSnap.data();
+  let cash = userData.cash || 0;
+  let userPortfolio = userData.portfolio || {};
+
+  if (type === "buy") {
+    const totalCost = stockPrice * qty;
+    if (cash < totalCost) {
+      document.getElementById("tradeMessage").textContent = "Insufficient cash to buy.";
+      return;
+    }
+    cash -= totalCost;
+    userPortfolio[symbol] = (userPortfolio[symbol] || 0) + qty;
+  } else if (type === "sell") {
+    if (!userPortfolio[symbol] || userPortfolio[symbol] < qty) {
+      document.getElementById("tradeMessage").textContent = "Not enough shares to sell.";
+      return;
+    }
+    cash += stockPrice * qty;
+    userPortfolio[symbol] -= qty;
+    if (userPortfolio[symbol] === 0) delete userPortfolio[symbol];
+  }
+
+  // Save to Firestore
+  await setDoc(userRef, { cash, portfolio: userPortfolio }, { merge: true });
+  portfolio = userPortfolio;
+  playerData.cash = cash;
+
+  updateStatsUI();
+  renderMarket();
+  document.getElementById("tradeMessage").textContent = `Successfully ${type === "buy" ? "bought" : "sold"} ${qty} shares of ${symbol}.`;
+  // Clear inputs
+  document.getElementById("tradeSymbol").value = "";
+  document.getElementById("tradeQuantity").value = "";
+});
+
+// ====== SHOP ======
+async function loadShopData() {
+  document.getElementById("shopMessage").textContent = "";
+  // Load shop items
+  const snapshot = await getDocs(collection(db, "shopItems"));
+  shopItems = [];
+  snapshot.forEach(doc => {
+    shopItems.push({ id: doc.id, ...doc.data() });
+  });
+
+  // Load player assets
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+  playerData.assets = (userSnap.exists() && userSnap.data().assets) || { car: 0, home: 0, gear: 0 };
+
+  renderShop();
+}
+
+function renderShop() {
+  const shopItemList = document.getElementById("shopItemList");
+  const playerAssets = document.getElementById("playerAssets");
+
+  shopItemList.innerHTML = "";
+  shopItems.forEach(item => {
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.innerHTML = `
+      <div>
+        <strong>${item.name}</strong> (${item.type}) - $${item.price.toFixed(2)}
+      </div>
+      <button class="btn btn-sm btn-success buy-btn" data-id="${item.id}">Buy</button>
+    `;
+    shopItemList.appendChild(li);
+  });
+
+  playerAssets.innerHTML = `
+    <li class="list-group-item">Cars: ${playerData.assets.car || 0}</li>
+    <li class="list-group-item">Homes: ${playerData.assets.home || 0}</li>
+    <li class="list-group-item">Gear: ${playerData.assets.gear || 0}</li>
+  `;
+
+  // Add buy event listeners
+  document.querySelectorAll(".buy-btn").forEach(btn => {
+    btn.onclick = () => buyShopItem(btn.dataset.id);
+  });
+}
+
+async function buyShopItem(itemId) {
+  const item = shopItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) return;
+
+  const userData = userSnap.data();
+  let cash = userData.cash || 0;
+  if (cash < item.price) {
+    document.getElementById("shopMessage").textContent = "Insufficient cash to buy this item.";
+    return;
+  }
+
+  cash -= item.price;
+  const assets = userData.assets || { car: 0, home: 0, gear: 0 };
+  // Increment asset count by item.type
+  assets[item.type] = (assets[item.type] || 0) + 1;
+
+  await setDoc(userRef, { cash, assets }, { merge: true });
+  playerData.cash = cash;
+  playerData.assets = assets;
+
+  updateStatsUI();
+  renderShop();
+  document.getElementById("shopMessage").textContent = `Purchased 1 ${item.name}.`;
+}
+
+// ====== ATTACK ======
+async function loadAttackTargets() {
+  document.getElementById("attackMessage").textContent = "";
+  const playersSnap = await getDocs(collection(db, "players"));
+  playersList = [];
+  playersSnap.forEach(doc => {
+    const data = doc.data();
+    if (doc.id !== uid) { // exclude current player
+      playersList.push({ id: doc.id, name: data.name || "Unnamed", security: data.security || 1 });
+    }
+  });
+
+  renderAttackTargets();
+}
+
+function renderAttackTargets() {
+  const attackTargetsEl = document.getElementById("attackTargets");
+  attackTargetsEl.innerHTML = "";
+  playersList.forEach(player => {
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.textContent = `${player.name} (Security: ${player.security})`;
+    li.style.cursor = "pointer";
+    li.onclick = () => {
+      selectedAttackTarget = player;
+      // highlight selected
+      Array.from(attackTargetsEl.children).forEach(child => child.classList.remove("active"));
+      li.classList.add("active");
+    };
+    attackTargetsEl.appendChild(li);
+  });
+}
+
+document.getElementById("attackBtn").addEventListener("click", async () => {
+  if (!selectedAttackTarget) {
+    document.getElementById("attackMessage").textContent = "Select a target first.";
+    return;
+  }
+
+  const method = document.getElementById("attackMethod").value;
+  // For example, attacks are logged in a collection "attacks"
+  const attackDoc = {
+    attacker: uid,
+    target: selectedAttackTarget.id,
+    method,
+    timestamp: new Date()
+  };
+
+  try {
+    await setDoc(doc(collection(db, "attacks")), attackDoc);
+    document.getElementById("attackMessage").textContent = `Attack launched against ${selectedAttackTarget.name} using ${method}.`;
+  } catch (err) {
+    document.getElementById("attackMessage").textContent = "Failed to launch attack: " + err.message;
+  }
+});
+
+// ====== HACKER ======
+function setupHackerPanel() {
+  document.getElementById("hackerStatus").textContent = "";
+}
+
+document.getElementById("spyBtn").addEventListener("click", () => {
+  performHackAction("spy");
+});
+
+document.getElementById("corruptBtn").addEventListener("click", () => {
+  performHackAction("corrupt_trade");
+});
+
+document.getElementById("stealBtn").addEventListener("click", () => {
+  performHackAction("steal_data");
+});
+
+async function performHackAction(action) {
+  // Dummy cooldown + success simulation
+  const hackerStatus = document.getElementById("hackerStatus");
+  hackerStatus.textContent = `Performing ${action}...`;
+
+  // Simulate delay
+  await new Promise(r => setTimeout(r, 1500));
+
+  // Success chance based on player techStrength and security, just an example
+  const successChance = playerData.techStrength / (playerData.security + 1);
+  const success = Math.random() < successChance;
+
+  if (success) {
+    hackerStatus.textContent = `${action} succeeded!`;
+    // Record hack event in Firestore, e.g. in "hacks" collection
+    await setDoc(doc(collection(db, "hacks")), {
+      user: uid,
+      action,
+      success,
+      timestamp: new Date()
+    });
+  } else {
+    hackerStatus.textContent = `${action} failed. Try again later.`;
+  }
+}
+
+
+</script>
+
+</body>
+</html>
