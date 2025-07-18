@@ -553,7 +553,7 @@ async function showTileActionModal(x, y, tileType, otherPlayerId) {
   modalFooter.innerHTML = "";
 
 
-  if (tileType === "Wilderness") {
+  if (!otherPlayerId || tileType != "blocked") {
     // Add "Move Here" button
     const moveBtn = document.createElement("button");
     moveBtn.className = "btn btn-success";
