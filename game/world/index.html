@@ -544,29 +544,45 @@ async function performHackAction(action) {
 
 // === Tile Modal ===
 async function showTileActionModal(x, y, tileType, otherPlayerId) {
-  const modalEl = document.getElementById("tileActionModal");
-  const modalBody = document.getElementById("tileActionBody");
-  const modalFooter = document.getElementById("tileActionFooter");
+const modalEl = document.getElementById("tileActionModal");
+const modalBody = document.getElementById("tileActionBody");
+const modalFooter = document.getElementById("tileActionFooter");
 
-  modalBody.innerHTML = `<p><strong>Coordinates:</strong> (${x}, ${y})</p>`;
-  modalBody.innerHTML += `<p><strong>Tile Type:</strong> ${zoneInfo[tileType]?.label || "Unknown"}</p>`;
+if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+  const tileType = mapData[y]?.[x] || "empty";
+  const info = zoneInfo[tileType] || zoneInfo.empty;
+
+  console.log("Tile Info:", {
+    x, y,
+    tileType,
+    label: info.label,
+    icon: info.icon,
+    color: info.color.toString(16),
+    price: info.price
+  });
+
+  modalBody.innerHTML = `
+    <p><strong>Coordinates:</strong> (${x}, ${y})</p>
+    <p><strong>Tile Type:</strong> ${info.label} ${info.icon}</p>
+    <p><strong>Price:</strong> $${info.price}</p>
+  `;
+
   modalFooter.innerHTML = "";
 
-
-  if (!otherPlayerId || tileType != "blocked") {
-    // Add "Move Here" button
+  if (!otherPlayerId || tileType !== "blocked") {
     const moveBtn = document.createElement("button");
     moveBtn.className = "btn btn-success";
-    moveBtn.innerText = "Move Here (Purchase)";
+    moveBtn.innerText = `Move Here (Buy for $${info.price})`;
     moveBtn.onclick = async () => {
-      await handleMoveAndPurchase(x, y);
+      await handleMoveAndPurchase(x, y, info.price); // Pass price if needed
       const modalInstance = bootstrap.Modal.getInstance(modalEl);
-      if (modalInstance) modalInstance.hide(); // Close modal
+      if (modalInstance) modalInstance.hide();
     };
     modalFooter.appendChild(moveBtn);
-        
-    return new bootstrap.Modal(modalEl).show();
   }
+
+  new bootstrap.Modal(modalEl).show();
+}
 
   const now = Date.now();
 
@@ -810,7 +826,7 @@ async function tryMove(dx, dy, scene) {
   isMoving = false;
 }
 
-async function handleMoveAndPurchase(x, y) {
+async function handleMoveAndPurchase(x, y, price) {
   try {
     console.log(`Purchasing tile at (${x}, ${y})...`);
 
@@ -839,7 +855,7 @@ const user = auth.currentUser;
       return;
     }
 
-    const cost = tileData.price || 100;
+    const cost = tileData.price || price;
 
     if (userData.balance < cost) {
       alert("Not enough funds to purchase tile.");
