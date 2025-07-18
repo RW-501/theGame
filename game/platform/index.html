@@ -282,11 +282,9 @@
 </div>
 
 <script type="module">
-import { initializeFirebase, auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import {  auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-
-initializeFirebase();
 
 const TILE_SIZE = 100;
 const MAP_SIZE = 8; // home base size
