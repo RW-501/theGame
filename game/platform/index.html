@@ -316,6 +316,8 @@
         <canvas id="priceChart" height="100"></canvas>
         <div id="stockInfo" class="mt-3"></div>
         <!-- Optionally reuse your trade form here -->
+                 <div id="tradeForm" class="mt-3"></div>
+
       </div>
     </div>
   </div>
@@ -909,8 +911,7 @@ li.addEventListener("click", () => {
   stockListEl.appendChild(li);
 }
 
-
-  portfolioListEl.innerHTML = "";
+portfolioListEl.innerHTML = "";
 let totalValue = 0;
 
 for (const [symbol, stockData] of Object.entries(portfolio)) {
@@ -924,6 +925,14 @@ for (const [symbol, stockData] of Object.entries(portfolio)) {
   const currentValue = currentPrice * qty;
   totalValue += currentValue;
 
+  // Decide price color
+  const priceDiff = currentPrice - boughtPrice;
+  const priceClass = priceDiff > 0
+    ? "text-success"    // Green
+    : priceDiff < 0
+    ? "text-danger"     // Red
+    : "";               // No change
+
   const li = document.createElement("li");
   li.className = "list-group-item d-flex justify-content-between align-items-center";
   li.innerHTML = `
@@ -931,21 +940,23 @@ for (const [symbol, stockData] of Object.entries(portfolio)) {
       <strong>${symbol}</strong>: ${qty} shares<br>
       Bought at: $${boughtPrice?.toFixed(2) || "?"}
     </div>
-    <div>Now: $${currentPriceFixed}</div>
+    <div class="${priceClass}">Now: $${currentPriceFixed}</div>
   `;
 
-li.addEventListener("click", () => {
-  if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
-  li.classList.add("active");
-  lastSelectedStockLi = li;
+  li.addEventListener("click", () => {
+    if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
+    li.classList.add("active");
+    lastSelectedStockLi = li;
 
-  populateTradeForm(symbol);
-  showStockModal(symbol); // 👈 open modal
-});
-
+    populateTradeForm(symbol);
+    showStockModal(symbol); // 👈 open modal
+  });
 
   portfolioListEl.appendChild(li);
 }
+
+
+
 
 // ✅ Show total value at the end of the portfolio list
 const totalLi = document.createElement("li");
@@ -981,6 +992,11 @@ function populateTradeForm(symbol, qty = 1) {
     box.appendChild(canvas);
 
     document.getElementById("tradeForm").appendChild(box); // assuming your form has id="tradeForm"
+
+    
+  // Show the modal (requires Bootstrap JS)
+  const modal = new bootstrap.Modal(document.getElementById('stockModal'));
+  modal.show();
   }
 
     // Draw chart
