@@ -242,7 +242,10 @@ let playerData = {
   assets: { car: 0, home: 0 },
   safe: true,
   trainingMode: false,
-  level: 1
+  level: 1,
+    inCombat: false,
+  actionsLeft: 2,
+  cooldowns: { attack: 0, move: 0 },
 };
 
 const game = new Phaser.Game({

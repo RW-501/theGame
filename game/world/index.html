@@ -61,6 +61,19 @@
       z-index: 1000;
       user-select: none;
     }
+
+    .damage-popup {
+  position: absolute;
+  color: red;
+  font-weight: bold;
+  animation: floatUp 1.2s ease-out;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
   </style>
 </head>
 <body>
@@ -88,6 +101,25 @@
     </div>
   </div></div>
 </div>
+
+<!-- Tile Actions Modal -->
+<div class="modal fade" id="tileActionModal" tabindex="-1" aria-labelledby="tileActionLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tileActionLabel">Tile Actions</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="tileActionBody">
+        <!-- Dynamic content here -->
+      </div>
+      <div class="modal-footer" id="tileActionFooter">
+        <!-- Buttons added dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script type="module">
 import { initializeFirebase, auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
@@ -119,6 +151,9 @@ onAuthStateChanged(auth, async (user) => {
         assets: { car: 0, home: 0 },
         safe: true,
         location: [5, 5],
+          inCombat: false,
+  actionsLeft: 2,
+  cooldowns: { attack: 0, move: 0 },
       });
     }
   } else {
@@ -190,17 +225,29 @@ async function create() {
   });
 
   // Pointer input: click adjacent tile to move
-  this.input.on('pointerdown', pointer => {
-    if (isMoving) return;
-    const clickedX = Math.floor(pointer.x / TILE_SIZE);
-    const clickedY = Math.floor(pointer.y / TILE_SIZE);
+this.input.on('pointerdown', async pointer => {
+  if (isMoving) return;
+  const clickedX = Math.floor(pointer.x / TILE_SIZE);
+  const clickedY = Math.floor(pointer.y / TILE_SIZE);
 
-    if (clickedX >= 0 && clickedX < MAP_SIZE && clickedY >= 0 && clickedY < MAP_SIZE) {
-      if (isAdjacent(playerX, playerY, clickedX, clickedY)) {
-        tryMove(clickedX - playerX, clickedY - playerY, this);
-      }
+  if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
+
+  // Get tile info
+  const tileType = mapData[clickedY][clickedX] || "empty";
+
+  // Check if a player is on that tile (other than self)
+  let otherPlayerId = null;
+  for (const [pid, pos] of playersData.entries()) {
+    if (pid !== uid && pos.x === clickedX && pos.y === clickedY) {
+      otherPlayerId = pid;
+      break;
     }
-  });
+  }
+
+  // Show modal with options based on tile and player presence
+  showTileActionModal(clickedX, clickedY, tileType, otherPlayerId);
+});
+
 
   // Show tile tooltip on pointer move
   this.input.on('pointermove', pointer => {
@@ -221,6 +268,263 @@ async function create() {
   this.input.on('pointerout', () => {
     tileTooltip.style.display = "none";
   });
+
+// === Tile Modal ===
+async function showTileActionModal(x, y, tileType, otherPlayerId) {
+  const modalEl = document.getElementById("tileActionModal");
+  const modalBody = document.getElementById("tileActionBody");
+  const modalFooter = document.getElementById("tileActionFooter");
+
+  modalBody.innerHTML = `<p><strong>Coordinates:</strong> (${x}, ${y})</p>`;
+  modalBody.innerHTML += `<p><strong>Tile Type:</strong> ${zoneInfo[tileType]?.label || "Unknown"}</p>`;
+  modalFooter.innerHTML = "";
+
+  const now = Date.now();
+  const isInCombat = playerState.inCombat;
+  const hasActions = playerState.actionsLeft > 0;
+
+  function isOnCooldown(action) {
+    return playerState.cooldowns[action] && playerState.cooldowns[action] > now;
+  }
+
+  function cooldownLeft(action) {
+    return isOnCooldown(action) ? Math.ceil((playerState.cooldowns[action] - now) / 1000) : 0;
+  }
+
+  if (tileType === "blocked") {
+    modalBody.innerHTML += "<p>This area is blocked. No actions available.</p>";
+    return new bootstrap.Modal(modalEl).show();
+  }
+
+  // === Player tile ===
+  if (otherPlayerId) {
+    const otherSnap = await getDoc(doc(db, "users", otherPlayerId));
+    const data = otherSnap.exists() ? otherSnap.data() : {};
+    const info = {
+      username: data.username ?? otherPlayerId.substring(0, 6),
+      health: data.health ?? "??",
+      level: data.level ?? "?",
+      techStrength: data.techStrength ?? "?",
+      security: data.security ?? "?",
+    };
+
+    modalBody.innerHTML += `
+      <p>Player <strong>${info.username}</strong> is here.</p>
+      <p>Health: ${info.health}</p>
+      <p>Level: ${info.level}</p>
+      <p>Tech Strength: ${info.techStrength}</p>
+      <p>Security: ${info.security}</p>
+    `;
+
+    // === Attack Button ===
+    const attackBtn = createButton(
+      `Attack${isOnCooldown("attack") ? ` (${cooldownLeft("attack")}s)` : ""}`,
+      "btn-danger",
+      async () => {
+        if (isInCombat || !hasActions || isOnCooldown("attack")) return;
+        await performAttack(otherPlayerId);
+        bootstrap.Modal.getInstance(modalEl).hide();
+      }
+    );
+    attackBtn.disabled = isInCombat || !hasActions || isOnCooldown("attack");
+    modalFooter.appendChild(attackBtn);
+
+    // === Talk Button ===
+    const talkBtn = createButton("Talk", "btn-primary", () => {
+      alert(`Talking to ${info.username}...`);
+      bootstrap.Modal.getInstance(modalEl).hide();
+    });
+    talkBtn.disabled = isInCombat;
+    modalFooter.appendChild(talkBtn);
+  }
+
+  // === Move Button ===
+  if (isAdjacent(playerX, playerY, x, y)) {
+    const moveBtn = createButton(
+      `Move Here${isOnCooldown("move") ? ` (${cooldownLeft("move")}s)` : ""}`,
+      "btn-success",
+      async () => {
+        if (isInCombat || !hasActions || isOnCooldown("move")) return;
+        await tryMove(x - playerX, y - playerY, game.scene.scenes[0]);
+        bootstrap.Modal.getInstance(modalEl).hide();
+      }
+    );
+    moveBtn.disabled = isInCombat || !hasActions || isOnCooldown("move");
+    modalFooter.appendChild(moveBtn);
+  }
+
+  new bootstrap.Modal(modalEl).show();
+}
+
+// === Attack Flow ===
+async function performAttack(targetPlayerId) {
+  if (!playerState.actionsLeft || playerState.inCombat) return;
+
+  playerState.inCombat = true;
+  playerState.actionsLeft--;
+  playerState.cooldowns.attack = Date.now() + 10000;
+
+  await setDoc(doc(db, "users", uid), {
+    inCombat: true,
+    actionsLeft: playerState.actionsLeft,
+    cooldowns: playerState.cooldowns
+  }, { merge: true });
+
+  await handleCombat(uid, targetPlayerId);
+
+  setTimeout(async () => {
+    playerState.inCombat = false;
+    await setDoc(doc(db, "users", uid), { inCombat: false }, { merge: true });
+  }, 15000);
+}
+
+// === Combat Logic ===
+function calculateDamage(attacker, defender) {
+  const atk = attacker.attack ?? 5;
+  const def = defender.defense ?? 2;
+  return Math.max(1, atk - def + Math.floor(Math.random() * 3));
+}
+
+async function handleCombat(attackerId, defenderId) {
+  const attackerRef = doc(db, "players", attackerId);
+  const defenderRef = doc(db, "players", defenderId);
+
+  const [attackerSnap, defenderSnap] = await Promise.all([
+    getDoc(attackerRef), getDoc(defenderRef)
+  ]);
+
+  if (!attackerSnap.exists() || !defenderSnap.exists()) return;
+
+  const attacker = attackerSnap.data();
+  const defender = defenderSnap.data();
+
+  const damage = calculateDamage(attacker, defender);
+  const newHp = Math.max((defender.hp ?? 10) - damage, 0);
+
+  await updateDoc(defenderRef, {
+    hp: newHp,
+    lastDamagedBy: attackerId,
+    lastCombat: serverTimestamp()
+  });
+
+  showCombatAnimation(attackerId, defenderId, damage);
+  updateCombatUI(attacker, { ...defender, hp: newHp });
+
+  if (newHp === 0) {
+    await updateDoc(defenderRef, { status: "defeated" });
+    alert(`${attacker.name ?? "Player"} defeated ${defender.name ?? "Enemy"}!`);
+  }
+}
+
+// === Combat UI + Animation ===
+function showCombatAnimation(attackerId, defenderId, damage) {
+  const scene = game.scene.scenes[0];
+  const targetGraphics = scene.add.graphics();
+  targetGraphics.lineStyle(3, 0xff0000, 1);
+  targetGraphics.strokeRect(playerX * TILE_SIZE, playerY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+  setTimeout(() => targetGraphics.destroy(), 500);
+
+    const tile = document.querySelector(`[data-player-id="${defender.id}"]`);
+  if (!tile) return;
+
+  const dmg = document.createElement("div");
+  dmg.className = "damage-popup";
+  dmg.innerText = `-${damage} HP`;
+  tile.appendChild(dmg);
+
+  setTimeout(() => dmg.remove(), 1200);
+}
+
+function updateCombatUI(attacker, defender) {
+  const attackerEl = document.getElementById(`${attacker.id}-hp`);
+  const defenderEl = document.getElementById(`${defender.id}-hp`);
+  if (attackerEl) attackerEl.textContent = attacker.hp;
+  if (defenderEl) defenderEl.textContent = defender.hp;
+
+  const isDisabled = attacker.inCombat || attacker.actionsLeft <= 0;
+  document.querySelectorAll(".action-button").forEach(btn => {
+    btn.disabled = isDisabled;
+  });
+  setInterval(() => updateActionButtons(currentPlayer), 1000);
+
+}
+
+function updateActionButtons(player) {
+  const buttons = document.querySelectorAll(".action-btn");
+  const inCombat = player.inCombat;
+  const onCooldown = player.cooldown && player.cooldown > Date.now();
+
+  buttons.forEach(btn => {
+    btn.disabled = inCombat || onCooldown;
+  });
+}
+
+// === Move Logic ===
+async function tryMove(dx, dy, scene) {
+  if (playerState.inCombat || playerState.actionsLeft <= 0) return;
+
+  const now = Date.now();
+  if (playerState.cooldowns.move && playerState.cooldowns.move > now) {
+    alert(`Move cooldown active. Wait ${Math.ceil((playerState.cooldowns.move - now) / 1000)}s.`);
+    return;
+  }
+
+  const newX = Phaser.Math.Clamp(playerX + dx, 0, MAP_SIZE - 1);
+  const newY = Phaser.Math.Clamp(playerY + dy, 0, MAP_SIZE - 1);
+  if (mapData[newY]?.[newX] === "blocked") return alert("Blocked tile!");
+
+  isMoving = true;
+  await movePlayerSmoothly(scene, newX, newY);
+  playerX = newX;
+  playerY = newY;
+  updateZoneName();
+
+  await handleZoneEvent(mapData[playerY]?.[playerX]);
+  await setDoc(doc(db, "players", uid), {
+    position: { x: playerX, y: playerY },
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+
+  playerState.actionsLeft--;
+  playerState.cooldowns.move = Date.now() + 5000;
+
+  await setDoc(doc(db, "users", uid), {
+    actionsLeft: playerState.actionsLeft,
+    cooldowns: playerState.cooldowns
+  }, { merge: true });
+
+  isMoving = false;
+}
+
+// === Stats UI ===
+function updateStatsUI() {
+  const now = Date.now();
+  const attackCD = Math.max(0, Math.ceil(((playerState.cooldowns.attack ?? 0) - now) / 1000));
+  const moveCD = Math.max(0, Math.ceil(((playerState.cooldowns.move ?? 0) - now) / 1000));
+
+  document.getElementById("cash").textContent = `$${playerData.cash ?? 0}`;
+  document.getElementById("trades").textContent = playerState.actionsLeft ?? 0;
+  document.getElementById("health").textContent = `${playerState.health ?? 100}%`;
+
+    document.getElementById("combatLog").innerHTML = `
+    <p><strong>${attacker.name}</strong> hit <strong>${defender.name}</strong> for <strong>${attacker.lastDamage || 0}</strong> damage.</p>
+    <p>${defender.name} has ${defender.hp} HP left.</p>
+  `;
+  document.getElementById("zoneName").textContent =
+    `Zone: ${zoneInfo[mapData[playerY]?.[playerX]]?.label || "Unknown"} | Attack CD: ${attackCD}s | Move CD: ${moveCD}s`;
+}
+setInterval(updateStatsUI, 1000);
+
+// === Helper ===
+function createButton(text, btnClass, onClick) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = `btn ${btnClass} me-2`;
+  btn.textContent = text;
+  btn.onclick = onClick;
+  return btn;
+}
 
   // Listen for own player position changes
   const playerRef = doc(db, "players", uid);
@@ -300,36 +604,6 @@ function drawMap(scene) {
       }
     }
   }
-}
-
-async function tryMove(dx, dy, scene) {
-  const newX = Phaser.Math.Clamp(playerX + dx, 0, MAP_SIZE - 1);
-  const newY = Phaser.Math.Clamp(playerY + dy, 0, MAP_SIZE - 1);
-
-  if (mapData[newY]?.[newX] === "blocked") {
-    alert("🚧 You cannot move there! This area is blocked.");
-    return;
-  }
-
-  isMoving = true;
-
-  // Smooth move player sprite to new tile with tween
-  await movePlayerSmoothly(scene, newX, newY);
-
-  playerX = newX;
-  playerY = newY;
-  updateZoneName();
-
-  // Handle zone events
-  await handleZoneEvent(mapData[playerY]?.[playerX]);
-
-  // Update Firestore with position and timestamp
-  await setDoc(doc(db, "players", uid), {
-    position: { x: playerX, y: playerY },
-    updatedAt: new Date().toISOString()
-  }, { merge: true });
-
-  isMoving = false;
 }
 
 function movePlayerSmoothly(scene, x, y) {
