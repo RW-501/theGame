@@ -323,20 +323,12 @@
     }
   };
 
-  const player = {
-    name: "Player 1",
-    position: 0,
-    color: "#FF5722",
-    stats: { health: 80, money: 100, engagement: 50, karma: 0 },
-        name: "Player 2",
-    position: 0,
-    color: "#DD5722",
-    stats: { health: 80, money: 100, engagement: 50, karma: 0 },
-        name: "Player 3",
-    position: 0,
-    color: "#CC5722",
-    stats: { health: 80, money: 100, engagement: 50, karma: 0 }
-  };
+const player = [
+  { name: "Player 1", position: 0, color: "#FF5722", stats: { health: 80, money: 100, engagement: 50, karma: 0 } },
+  { name: "Player 2", position: 0, color: "#DD5722", stats: { health: 80, money: 100, engagement: 50, karma: 0 } },
+  { name: "Player 3", position: 0, color: "#CC5722", stats: { health: 80, money: 100, engagement: 50, karma: 0 } }
+];
+
 
   // Calculate tile coordinates in a square loop (top row left to right, right col top to bottom, bottom row right to left, left col bottom to top)
   function getTileCoordinates() {
@@ -488,8 +480,11 @@ function drawBoard() {
   boardTiles.forEach((tile, i) => {
     const { x, y } = positions[i];
     drawTile(x, y, tile);
-    if (player.position === i) drawPlayer(x, y, player);
-  });
+player.forEach(p => {
+  if (p.position === i) drawPlayer(x, y, p);
+});
+
+});
 
   ctx.restore();
 }
