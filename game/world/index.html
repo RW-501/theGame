@@ -127,54 +127,36 @@ import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://ww
 
 initializeFirebase();
 
+
+// === Game Constants ===
 const TILE_SIZE = 40;
 const MAP_SIZE = 25;
 const platformURL = "https://rw-501.github.io/theGame/game/platform/";
 
 let uid;
+let userData = {};
+let playerSprite;
+let isMoving = false;
+let playerX = 5, playerY = 5; // Default fallback
+let graphics, cursors;
+let mapData = [];
+let otherPlayerSprites = new Map();
 
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    uid = user.uid;
-
-    const userRef = doc(db, "users", uid);
-    const snap = await getDoc(userRef);
-    if (!snap.exists()) {
-      await setDoc(userRef, {
-        username: "Player" + Math.floor(Math.random() * 1000),
-        trainingMode: true,
-        cash: 10000,
-        level: 1,
-        techStrength: 1,
-        security: 1,
-        health: 100,
-        assets: { car: 0, home: 0 },
-        safe: true,
-        location: [5, 5],
-
-      });
-    }
-  } else {
-    await signInAnonymously(auth);
-  }
-});
-
+const tileTooltip = document.getElementById("tileTooltip");
 
 const playerState = {
-            inCombat: false,
+  inCombat: false,
   actionsLeft: 2,
-  
-  currentHealth: 75,
-  isInCombat: true,
-  movesLeft: 0,
+  currentHealth: 100,
+  movesLeft: 3,
   cooldowns: {
-    attack: 3,
+    attack: 0,
     dash: 0,
-    moves
-  },
+    move: 0
+  }
 };
 
-// Zone colors and icons (use emojis for fun)
+// === Zone Metadata ===
 const zoneInfo = {
   empty: { color: 0xffffff, label: "Wilderness", icon: "🌲" },
   home: { color: 0x90caf9, label: "Home Base", icon: "🏠" },
@@ -184,36 +166,64 @@ const zoneInfo = {
   blocked: { color: 0x555555, label: "Blocked Area", icon: "🚧" }
 };
 
-let mapData = []; // 2D array [y][x] = zoneType
-let playersData = new Map();
-
+// === Game Setup ===
 const config = {
   type: Phaser.AUTO,
   width: TILE_SIZE * MAP_SIZE,
   height: TILE_SIZE * MAP_SIZE,
   parent: "game-container",
   backgroundColor: "#222222",
-  scene: {
-    preload,
-    create,
-    update
-  }
+  scene: { preload, create, update }
 };
-
-let playerX = 0, playerY = 0;
-let playerSprite;
-let graphics;
-let cursors;
-let otherPlayerSprites = new Map();
-let isMoving = false;
-let moveTween;
-let tileTooltip = document.getElementById("tileTooltip");
 
 const game = new Phaser.Game(config);
 
+// === Firebase Login Check ===
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    uid = user.uid;
+
+    const userRef = doc(db, "users", uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        username: "Player" + Math.floor(Math.random() * 1000),
+        trainingMode: true,
+        cash: 10000,
+        level: 1,
+        techStrength: 1,
+        security: 1,
+        health: 100,
+        safe: true,
+        location: [5, 5],
+        inCombat: false,
+        avatar: "1"
+      });
+    }
+
+    userData = snap.data() || {};
+    const location = userData.location || [5, 5];
+    playerX = location[0];
+    playerY = location[1];
+
+    // Sync player state from DB
+    playerState.inCombat = userData.inCombat || false;
+    playerState.currentHealth = userData.health || 100;
+    playerState.movesLeft = 3;
+
+    console.log("✅ User loaded:", userData.name || "Unnamed");
+
+  } else {
+    await signInAnonymously(auth);
+  }
+});
+
+// === Phaser Scene Methods ===
 function preload() {
-  // load any assets here if you want later
+  // Preload assets here if needed
 }
+
 
 async function create() {
   graphics = this.add.graphics();
