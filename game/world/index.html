@@ -129,6 +129,51 @@
 </div>
 
 
+<!-- ATTACK Modal -->
+<div class="modal fade" id="attackModal" tabindex="-1" aria-labelledby="attackLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="attackLabel">💣 Attack Panel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <ul id="attackTargets" class="list-group mb-3" style="max-height: 250px; overflow-y: auto;"></ul>
+        <div class="mb-3">
+          <label for="attackMethod" class="form-label">Attack Method:</label>
+          <select id="attackMethod" class="form-select">
+            <option value="brute_force">Brute Force</option>
+            <option value="social_engineering">Social Engineering</option>
+            <option value="bot_attack">Bot Attack</option>
+          </select>
+        </div>
+        <button id="attackBtn" class="btn btn-danger w-100">Launch Attack</button>
+        <div id="attackMessage" class="mt-2 fw-semibold text-danger"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HACKER Modal -->
+<div class="modal fade" id="hackerModal" tabindex="-1" aria-labelledby="hackerLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="hackerLabel">👨‍💻 Hacker Tools</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="d-grid gap-2 mb-3">
+          <button id="spyBtn" class="btn btn-outline-primary">🕵️ Spy</button>
+          <button id="corruptBtn" class="btn btn-outline-warning">💼 Corrupt Trade</button>
+          <button id="stealBtn" class="btn btn-outline-danger">📂 Steal Data</button>
+        </div>
+        <div id="hackerStatus" class="fw-bold text-info"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import { initializeFirebase, auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -304,6 +349,123 @@ this.input.on('pointerdown', async pointer => {
   this.input.on('pointerout', () => {
     tileTooltip.style.display = "none";
   });
+
+
+  /*
+      case "attack":
+      loadAttackTargets();
+      new bootstrap.Modal(document.getElementById("attackModal")).show();
+      break;
+    case "hacker":
+      setupHackerPanel();
+      new bootstrap.Modal(document.getElementById("hackerModal")).show();
+      break;
+
+
+      
+// ====== ATTACK ======
+async function loadAttackTargets() {
+  document.getElementById("attackMessage").textContent = "";
+  const playersSnap = await getDocs(collection(db, "players"));
+  playersList = [];
+  playersSnap.forEach(doc => {
+    const data = doc.data();
+    if (doc.id !== uid) { // exclude current player
+      playersList.push({ id: doc.id, name: data.name || "Unnamed", security: data.security || 1 });
+    }
+  });
+
+  renderAttackTargets();
+}
+
+function renderAttackTargets() {
+  const attackTargetsEl = document.getElementById("attackTargets");
+  attackTargetsEl.innerHTML = "";
+  playersList.forEach(player => {
+    const li = document.createElement("li");
+    li.className = "list-group-item d-flex justify-content-between align-items-center";
+    li.textContent = `${player.name} (Security: ${player.security})`;
+    li.style.cursor = "pointer";
+    li.onclick = () => {
+      selectedAttackTarget = player;
+      // highlight selected
+      Array.from(attackTargetsEl.children).forEach(child => child.classList.remove("active"));
+      li.classList.add("active");
+    };
+    attackTargetsEl.appendChild(li);
+  });
+}
+
+document.getElementById("attackBtn").addEventListener("click", async () => {
+  if (!selectedAttackTarget) {
+    document.getElementById("attackMessage").textContent = "Select a target first.";
+    return;
+  }
+
+  const method = document.getElementById("attackMethod").value;
+  // For example, attacks are logged in a collection "attacks"
+  const attackDoc = {
+    attacker: uid,
+    target: selectedAttackTarget.id,
+    method,
+    timestamp: new Date()
+  };
+
+  try {
+    await setDoc(doc(collection(db, "attacks")), attackDoc);
+    document.getElementById("attackMessage").textContent = `Attack launched against ${selectedAttackTarget.name} using ${method}.`;
+  } catch (err) {
+    document.getElementById("attackMessage").textContent = "Failed to launch attack: " + err.message;
+  }
+});
+
+// ====== HACKER ======
+function setupHackerPanel() {
+  document.getElementById("hackerStatus").textContent = "";
+}
+
+document.getElementById("spyBtn").addEventListener("click", () => {
+  performHackAction("spy");
+});
+
+document.getElementById("corruptBtn").addEventListener("click", () => {
+  performHackAction("corrupt_trade");
+});
+
+document.getElementById("stealBtn").addEventListener("click", () => {
+  performHackAction("steal_data");
+});
+
+async function performHackAction(action) {
+  // Dummy cooldown + success simulation
+  const hackerStatus = document.getElementById("hackerStatus");
+  hackerStatus.textContent = `Performing ${action}...`;
+
+  // Simulate delay
+  await new Promise(r => setTimeout(r, 1500));
+
+  // Success chance based on player techStrength and security, just an example
+  const successChance = playerData.techStrength / (playerData.security + 1);
+  const success = Math.random() < successChance;
+
+  if (success) {
+    hackerStatus.textContent = `${action} succeeded!`;
+    // Record hack event in Firestore, e.g. in "hacks" collection
+    await setDoc(doc(collection(db, "hacks")), {
+      user: uid,
+      action,
+      success,
+      timestamp: new Date()
+    });
+  } else {
+    hackerStatus.textContent = `${action} failed. Try again later.`;
+  }
+}
+
+
+      */
+     
+
 
 // === Tile Modal ===
 async function showTileActionModal(x, y, tileType, otherPlayerId) {
