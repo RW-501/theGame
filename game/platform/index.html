@@ -300,6 +300,27 @@
   </div>
 </div>
 
+
+
+<!-- Stock Modal -->
+<div class="modal fade" id="stockModal" tabindex="-1" aria-labelledby="stockModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="stockModalLabel">Stock Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <canvas id="priceChart" height="100"></canvas>
+        <div id="stockInfo" class="mt-3"></div>
+        <!-- Optionally reuse your trade form here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 <script type="module">
 import {  auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
@@ -781,23 +802,64 @@ window.healPlayer = healPlayer;
 let stocks;
 let portfolio;
 
-// ====== MARKET ======
-async function loadMarketData() {
-  document.getElementById("tradeMessage").textContent = "";
-  // Load stocks from Firestore
-  const snapshot = await getDocs(collection(db, "stocks"));
-  stocks = {};
-  snapshot.forEach(doc => {
-    stocks[doc.id] = doc.data();
+let priceChart;
+
+function showStockModal(symbol) {
+  const stock = stocks[symbol];
+  const prices = stock.history || [stock.price]; // assume you store last 5 prices in Firestore
+
+  // Update modal content
+  document.getElementById("stockModalLabel").textContent = `${symbol} - $${stock.price.toFixed(2)}`;
+  document.getElementById("stockInfo").innerHTML = `
+    <p>Last Price: $${stock.price.toFixed(2)}</p>
+    <p>Trend: ${prices.join(', ')}</p>
+  `;
+
+  // Draw chart
+  if (priceChart) priceChart.destroy(); // avoid duplicates
+  const ctx = document.getElementById("priceChart").getContext("2d");
+  priceChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: prices.map((_, i) => `T-${prices.length - i}`),
+      datasets: [{
+        label: `${symbol} Price`,
+        data: prices,
+        fill: false,
+        borderColor: 'rgb(75, 192, 192)',
+        tension: 0.3
+      }]
+    }
   });
 
-  // Load player's portfolio
-  const userRef = doc(db, "users", uid);
-  const userSnap = await getDoc(userRef);
-  portfolio = (userSnap.exists() && userSnap.data().portfolio) || {};
-
-  renderMarket();
+  // Show modal
+  const modal = new bootstrap.Modal(document.getElementById("stockModal"));
+  modal.show();
 }
+
+// ====== MARKET ======
+
+function loadMarketData() {
+  document.getElementById("tradeMessage").textContent = "";
+
+  // Listen to real-time stock updates
+  const unsubscribe = onSnapshot(collection(db, "stocks"), async (snapshot) => {
+    stocks = {};
+    snapshot.forEach(doc => {
+      stocks[doc.id] = doc.data();
+    });
+
+    // Reload portfolio (could cache if performance becomes an issue)
+    const userRef = doc(db, "users", uid);
+    const userSnap = await getDoc(userRef);
+    portfolio = (userSnap.exists() && userSnap.data().portfolio) || {};
+
+    renderMarket();
+  });
+
+  return unsubscribe; // you can call this later to stop listening
+}
+
 
 function renderMarket() {
   const stockListEl = document.getElementById("stockList");
@@ -813,13 +875,15 @@ for (const [symbol, stock] of Object.entries(stocks)) {
   li.textContent = `${symbol} - $${price}`;
 
   // ✅ Click to populate form
-  li.addEventListener("click", () => {
-    if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
-    li.classList.add("active");
-    lastSelectedStockLi = li;
+li.addEventListener("click", () => {
+  if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
+  li.classList.add("active");
+  lastSelectedStockLi = li;
 
-    populateTradeForm(symbol);
-  });
+  populateTradeForm(symbol);
+  showStockModal(symbol); // 👈 open modal
+});
+
 
   stockListEl.appendChild(li);
 }
@@ -849,12 +913,15 @@ for (const [symbol, stockData] of Object.entries(portfolio)) {
     <div>Now: $${currentPriceFixed}</div>
   `;
 
-  li.addEventListener("click", () => {
-    if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
-    li.classList.add("active");
-    lastSelectedStockLi = li;
-    populateTradeForm(symbol, qty);
-  });
+li.addEventListener("click", () => {
+  if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
+  li.classList.add("active");
+  lastSelectedStockLi = li;
+
+  populateTradeForm(symbol);
+  showStockModal(symbol); // 👈 open modal
+});
+
 
   portfolioListEl.appendChild(li);
 }
