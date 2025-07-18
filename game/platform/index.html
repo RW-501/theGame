@@ -802,13 +802,26 @@ function renderMarket() {
   const portfolioListEl = document.getElementById("portfolioList");
 
   stockListEl.innerHTML = "";
-  for (const [symbol, stock] of Object.entries(stocks)) {
-    const price = stock.price.toFixed(2);
-    const li = document.createElement("li");
-    li.className = "list-group-item d-flex justify-content-between align-items-center";
-    li.textContent = `${symbol} - $${price}`;
-    stockListEl.appendChild(li);
-  }
+let lastSelectedStockLi = null;
+
+for (const [symbol, stock] of Object.entries(stocks)) {
+  const price = stock.price.toFixed(2);
+  const li = document.createElement("li");
+  li.className = "list-group-item d-flex justify-content-between align-items-center";
+  li.textContent = `${symbol} - $${price}`;
+
+  // ✅ Click to populate form
+  li.addEventListener("click", () => {
+    if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
+    li.classList.add("active");
+    lastSelectedStockLi = li;
+
+    populateTradeForm(symbol);
+  });
+
+  stockListEl.appendChild(li);
+}
+
 
   portfolioListEl.innerHTML = "";
   for (const [symbol, qty] of Object.entries(portfolio)) {
@@ -816,16 +829,7 @@ function renderMarket() {
     const li = document.createElement("li");
     li.className = "list-group-item d-flex justify-content-between align-items-center";
     li.textContent = `${symbol}: ${qty} shares (Value: $${(qty * price).toFixed(2)})`;
-    portfolioListEl.appendChild(li);
-  }
-
-  for (const [symbol, stock] of Object.entries(stocks)) {
-  const price = stock.price.toFixed(2);
-  const li = document.createElement("li");
-  li.className = "list-group-item d-flex justify-content-between align-items-center";
-  li.textContent = `${symbol} - $${price}`;
-  
-  // ✅ Add click handler to populate form
+      // ✅ Add click handler to populate form
 let lastSelectedStockLi = null;
 
 li.addEventListener("click", () => {
@@ -836,9 +840,9 @@ li.addEventListener("click", () => {
   populateTradeForm(symbol);
 });
 
+    portfolioListEl.appendChild(li);
+  }
 
-  stockListEl.appendChild(li);
-}
 
 }
 
