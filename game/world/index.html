@@ -194,8 +194,9 @@ let mapData = [];
 let otherPlayerSprites = new Map();
 
 const tileTooltip = document.getElementById("tileTooltip");
+let playerState = new Map();
 
-const playerState = {
+ playerState = set(uid, {
   inCombat: false,
   actionsLeft: 2,
   currentHealth: 100,
@@ -205,7 +206,7 @@ const playerState = {
     dash: 0,
     move: 0
   }
-};
+});
 
 // === Zone Metadata ===
 const zoneInfo = {
@@ -316,12 +317,19 @@ this.input.on('pointerdown', async pointer => {
 
   // Check if a player is on that tile (other than self)
   let otherPlayerId = null;
-  for (const [pid, pos] of playerState.entries()) {
+if (playerState && typeof playerState === "object") {
+  const entries = playerState instanceof Map
+    ? playerState.entries()
+    : Object.entries(playerState);
+
+  for (const [pid, pos] of entries) {
     if (pid !== uid && pos.x === clickedX && pos.y === clickedY) {
       otherPlayerId = pid;
       break;
     }
   }
+}
+
 
   // Show modal with options based on tile and player presence
   showTileActionModal(clickedX, clickedY, tileType, otherPlayerId);
