@@ -92,45 +92,6 @@ onSnapshot(collection(db, "stocks"), (snapshot) => {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 
-
-async function addStock() {
-  const name = document.getElementById("stockName").value.trim();
-  const symbol = document.getElementById("stockSymbol").value.trim().toUpperCase();
-  const price = parseFloat(document.getElementById("stockPrice").value);
-  const sector = document.getElementById("stockSector").value.trim();
-
-  if (!name || !symbol || isNaN(price)) {
-    alert("Please fill in all fields correctly.");
-    return;
-  }
-
-  try {
-    const docRef = await addDoc(collection(db, "stocks"), {
-      name,
-      symbol,
-      price,
-      sector,
-      createdAt: serverTimestamp()
-    });
-    alert(`Stock "${name}" added with ID: ${docRef.id}`);
-  } catch (e) {
-    console.error("Error adding stock: ", e);
-    alert("Failed to add stock.");
-  }
-}
-
-window.addStock = addStock;
-/*
-// addStock function:
-await addDoc(collection(db, "assets"), {
-  name,
-  symbol,
-  price,
-  type: "stock", // <-- this is new
-  sector,
-  createdAt: serverTimestamp()
-});
-*/
 </script>
 
 </body>
