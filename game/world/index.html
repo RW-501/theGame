@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stock Wars</title>
+
+  <!-- Bootstrap, Animate, Phaser -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+
+  <style>
+    body, html {
+      margin: 0;
+      height: 100%;
+      background: #e0f7fa;
+      font-family: sans-serif;
+    }
+
+    .info-box {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #fff8;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 10;
+      min-width: 220px;
+    }
+
+    #zoneName {
+      margin-top: 6px;
+      font-weight: bold;
+      font-size: 16px;
+      color: #333;
+    }
+
+    #game-container {
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-container"></div>
+
+<div id="statsBox" class="info-box">
+  💰 <span id="cash">$0</span> |
+  🔁 Trades Left: <span id="trades">2</span> |
+  ❤️ <span id="health">100%</span>
+  <div id="zoneName">Zone: Loading...</div>
+</div>
+
+<!-- Market Modal -->
+<div class="modal fade" id="marketModal" tabindex="-1" aria-labelledby="marketLabel" aria-hidden="true">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Market</h5></div>
+    <div class="modal-body">
+      <p>Buy stocks, check prices, and trade.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+    </div>
+  </div></div>
+</div>
+
+<script type="module">
+import { initializeFirebase, auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+initializeFirebase();
+
+const TILE_SIZE = 40;
+const MAP_SIZE = 25;
+let uid; // global variable to hold UID
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    uid = user.uid;  // assign uid here
+    
+    const userRef = doc(db, "users", uid);
+    const snap = await getDoc(userRef);
+
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        username: "Player" + Math.floor(Math.random() * 1000),
+        trainingMode: true,
+        cash: 10000,
+        level: 1,
+        techStrength: 1,
+        security: 1,
+        health: 100,
+        assets: { car: 0, home: 0 },
+        safe: true,
+        location: [5, 5],
+      });
+    }
+  } else {
+    // User is signed out, sign in anonymously and wait for that event
+    await signInAnonymously(auth);
+  }
+});
+
+const zoneColors = {
+  home: 0x90caf9,
+  market: 0xa5d6a7,
+  training: 0xffcc80,
+  safe: 0xce93d8,
+  blocked: 0x555555,
+  empty: 0xffffff
+};
+
+let mapData = []; // 2D array [y][x] = zoneType
+let playersData = new Map(); // uid => { x, y }
+
+const config = {
+  type: Phaser.AUTO,
+  width: TILE_SIZE * MAP_SIZE,
+  height: TILE_SIZE * MAP_SIZE,
+  parent: "game-container",
+  backgroundColor: "#f5f5f5",
+  scene: {
+    create,
+    update
+  }
+};
+
+let playerX = 0, playerY = 0;
+let playerRect, graphics, cursors;
+let otherPlayerSprites = new Map();
+
+new Phaser.Game(config);
+
+async function create() {
+  graphics = this.add.graphics();
+
+  await loadMapFromFirebase();
+  drawMap();
+
+  // Create player rectangle with a distinct color (black)
+  playerRect = this.add.rectangle(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2, TILE_SIZE * 0.8, TILE_SIZE * 0.8, 0x000000);
+
+  cursors = this.input.keyboard.createCursorKeys();
+
+  // Keyboard movement
+  this.input.keyboard.on('keydown', (event) => {
+    switch(event.code) {
+      case 'ArrowLeft': tryMove(-1, 0); break;
+      case 'ArrowRight': tryMove(1, 0); break;
+      case 'ArrowUp': tryMove(0, -1); break;
+      case 'ArrowDown': tryMove(0, 1); break;
+    }
+  });
+
+  // Click / tap movement
+  this.input.on('pointerdown', pointer => {
+    const clickedX = Math.floor(pointer.x / TILE_SIZE);
+    const clickedY = Math.floor(pointer.y / TILE_SIZE);
+    if (isAdjacent(playerX, playerY, clickedX, clickedY)) {
+      tryMove(clickedX - playerX, clickedY - playerY);
+    }
+  });
+
+  // Listen to own player position changes and update UI zone name
+  const playerRef = doc(db, "players", uid);
+  onSnapshot(playerRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const pos = docSnap.data().position;
+      if (pos) {
+        playerX = pos.x;
+        playerY = pos.y;
+        playerRect.setPosition(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2);
+        updateZoneName();
+      }
+    }
+  });
+
+  // Listen for all players' data changes for real-time multiplayer sync
+  const playersCollection = collection(db, "players");
+  onSnapshot(playersCollection, (querySnapshot) => {
+    playersData.clear();
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.position) {
+        playersData.set(doc.id, data.position);
+      }
+    });
+    renderAllPlayers(this);
+  });
+
+  updateZoneName();
+}
+
+function isAdjacent(x1, y1, x2, y2) {
+  const dx = Math.abs(x1 - x2);
+  const dy = Math.abs(y1 - y2);
+  return (dx + dy) === 1;
+}
+
+function drawMap() {
+  graphics.clear();
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const type = mapData[y]?.[x] || "empty";
+      const color = zoneColors[type] || 0xffffff;
+      graphics.fillStyle(color, 1);
+      graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      graphics.lineStyle(1, 0xcccccc);
+      graphics.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    }
+  }
+}
+
+function update() {
+  // no logic needed here for now
+}
+
+async function tryMove(dx, dy) {
+  const newX = Phaser.Math.Clamp(playerX + dx, 0, MAP_SIZE - 1);
+  const newY = Phaser.Math.Clamp(playerY + dy, 0, MAP_SIZE - 1);
+
+  if (mapData[newY]?.[newX] === "blocked") {
+    alert("You cannot move there! This area is blocked.");
+    return;
+  }
+
+  playerX = newX;
+  playerY = newY;
+
+  playerRect.setPosition(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2);
+
+  updateZoneName();
+
+  handleZoneEvent(mapData[playerY]?.[playerX]);
+
+  // Update Firestore with new position and timestamp
+  await setDoc(doc(db, "players", uid), {
+    position: { x: playerX, y: playerY },
+    updatedAt: new Date().toISOString()
+  }, { merge: true });
+}
+
+function updateZoneName() {
+  const zoneType = mapData[playerY]?.[playerX] || "empty";
+  const zoneText = zoneType === "empty" ? "Wilderness" : capitalize(zoneType);
+  document.getElementById("zoneName").textContent = `Zone: ${zoneText}`;
+}
+
+// Custom logic for different zones — extend this as you want
+function handleZoneEvent(zoneType) {
+  if (!zoneType) return;
+
+  switch(zoneType) {
+    case "market":
+      new bootstrap.Modal(document.getElementById("marketModal")).show();
+      break;
+    case "training":
+      alert("You have entered the Training Center! Time to improve your skills.");
+      break;
+    case "safe":
+      alert("You are in a Safe House. Take a moment to rest.");
+      break;
+    case "home":
+      console.log("Welcome home!");
+      break;
+    // Add more zone logic here: e.g. battles, rewards, quests...
+  }
+}
+
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+async function loadMapFromFirebase() {
+  try {
+    const snapshot = await getDocs(collection(db, "mapTiles"));
+    if (snapshot.empty) {
+      setDefaultMapData();
+      return;
+    }
+
+    mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
+
+    snapshot.forEach(doc => {
+      const { x, y, type } = doc.data();
+      if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+        mapData[y][x] = type || "empty";
+      }
+    });
+  } catch (e) {
+    console.error("Failed to load map from Firebase, using default.", e);
+    setDefaultMapData();
+  }
+}
+
+function setDefaultMapData() {
+  mapData = [];
+  for(let y=0; y<MAP_SIZE; y++) {
+    const row = [];
+    for(let x=0; x<MAP_SIZE; x++) {
+      if(x === 2 && y === 2) row.push("home");
+      else if(x === 10 && y === 5) row.push("market");
+      else if(x === 20 && y === 10) row.push("training");
+      else if(x === 25 && y === 25) row.push("safe");
+      else if(x === 15 && y >= 15 && y <= 20) row.push("blocked");
+      else row.push("empty");
+    }
+    mapData.push(row);
+  }
+}
+
+// Render all players except local player rectangle, which is separate
+function renderAllPlayers(scene) {
+  // Remove old sprites that don't exist anymore
+  for (const [key, sprite] of otherPlayerSprites) {
+    if (!playersData.has(key) || key === uid) {
+      sprite.destroy();
+      otherPlayerSprites.delete(key);
+    }
+  }
+
+  // Draw other players
+  for (const [playerId, pos] of playersData.entries()) {
+    if (playerId === uid) continue; // local player handled separately
+
+    if (!pos) continue;
+
+    let sprite = otherPlayerSprites.get(playerId);
+    if (!sprite) {
+      // Create a container with colored square and initials
+      sprite = scene.add.container(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2);
+
+      const rect = scene.add.rectangle(0, 0, TILE_SIZE * 0.8, TILE_SIZE * 0.8, 0xff4444);
+      const text = scene.add.text(0, 0, playerId.substring(0, 2).toUpperCase(), {
+        fontSize: '14px',
+        color: '#fff',
+        fontStyle: 'bold'
+      }).setOrigin(0.5);
+
+      sprite.add([rect, text]);
+      otherPlayerSprites.set(playerId, sprite);
+    } else {
+      // Update position smoothly
+      sprite.setPosition(pos.x * TILE_SIZE + TILE_SIZE / 2, pos.y * TILE_SIZE + TILE_SIZE / 2);
+    }
+  }
+}
+
+</script>
+
+</body>
+</html>
