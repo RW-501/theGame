@@ -15,7 +15,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 let db;
 
-export { auth, db, onAuthStateChanged  };
+export { auth, db, onAuthStateChanged, signInAnonymously };
 
 export function initializeFirebase() {
   const app = initializeApp(firebaseConfig);
