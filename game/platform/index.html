@@ -417,10 +417,10 @@ async function loadMap() {
 function setDefaultMap() {
   mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
   // Place zones in an intuitive layout
-  mapData[2][2] = "market";
-  mapData[3][2] = "shop";
-  mapData[2][3] = "attack";
-  mapData[2][4] = "hacker";
+  mapData[1][1] = "market";
+  mapData[2][2] = "shop";
+  mapData[1][3] = "attack";
+  mapData[2][3] = "hacker";
 }
 
 async function loadPlayerData() {
