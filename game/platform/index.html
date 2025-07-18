@@ -142,6 +142,11 @@
         width: 95vw;
       }
     }
+
+    /* Style suggestion */
+.modal.hidden { display: none; }
+.modal { position: fixed; top: 20%; left: 30%; background: #fff; padding: 1rem; border-radius: 12px; box-shadow: 0 0 15px #0004; }
+
   </style>
 </head>
 <body>
@@ -263,6 +268,49 @@
     </div>
   </div>
 </div>
+
+<!-- Learn Modal -->
+<div class="modal fade" id="learnModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Learning Center</h5></div><div class="modal-body"><div id="learningCenter" class="p-3 rounded shadow bg-light"></div>
+</div></div></div></div>
+
+<!-- Safe Mode Modal -->
+<div class="modal fade" id="safeModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Safe Mode</h5></div><div class="modal-body">    <p>Safe Mode protects you from combat but reduces rewards.</p>
+    <label>
+      <input type="checkbox" id="safeModeToggle" />
+      Enable Safe Mode
+    </label>
+     <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div></div></div></div>
+
+<!-- Assets Modal -->
+<div class="modal fade" id="assetsModal" tabindex="-1" aria-labelledby="assetsModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded">
+      <div class="modal-header">
+        <h5 class="modal-title" id="assetsModalLabel">Your Assets</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Dynamic content goes here -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Health Clinic Modal -->
+<div class="modal fade" id="healthClinicModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Health Clinic</h5></div>
+<div class="modal-body">
+  Get healed here!<br />
+  <button class="btn btn-success mt-2" onclick="healPlayer()">Heal Me</button>
+  <div id="healResult" class="mt-2"></div>
+</div>
+</div></div></div>
+
 
 <script type="module">
 import { initializeFirebase, auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
@@ -416,12 +464,18 @@ async function loadMap() {
 
 function setDefaultMap() {
   mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
-  // Place zones in an intuitive layout
+
+  // Example layout
   mapData[1][1] = "market";
-  mapData[2][2] = "shop";
-  mapData[1][3] = "attack";
-  mapData[2][3] = "hacker";
+  mapData[2][1] = "shop";
+  mapData[1][2] = "attack";
+  mapData[2][2] = "hacker";
+  mapData[3][1] = "learn";
+  mapData[3][2] = "safe";
+  mapData[4][1] = "assets";
+  mapData[4][2] = "healthClinic";
 }
+
 
 async function loadPlayerData() {
   await new Promise(res => {
@@ -470,11 +524,226 @@ function openZoneModal(zoneType) {
       setupHackerPanel();
       new bootstrap.Modal(document.getElementById("hackerModal")).show();
       break;
+    case "learn":
+      loadLearningCenter();
+      new bootstrap.Modal(document.getElementById("learnModal")).show();
+      break;
+    case "safe":
+      toggleSafeModeUI();
+      new bootstrap.Modal(document.getElementById("safeModal")).show();
+      break;
+    case "assets":
+      showAssetSummary();
+      new bootstrap.Modal(document.getElementById("assetsModal")).show();
+      break;
+    case "healthClinic":
+      visitHealthClinic();
+      new bootstrap.Modal(document.getElementById("healthClinicModal")).show();
+      break;
     default:
-      // Optional: Toast or subtle notification instead of alert
       console.log("Empty zone clicked.");
   }
 }
+
+async function loadLearningCenter() {
+  const uid = auth.currentUser?.uid;
+  if (!uid) {
+    alert("You must be signed in to access the Learning Center.");
+    return;
+  }
+
+  try {
+    const userDoc = await getDoc(doc(db, "users", uid));
+    if (!userDoc.exists()) {
+      console.error("User not found");
+      return;
+    }
+
+    const userData = userDoc.data();
+    const level = userData.level || 1;
+
+    // Clear and build the UI
+    const container = document.getElementById("learningCenter");
+    container.innerHTML = `<h3>Learning Center - Level ${level}</h3>`;
+
+    const upgrades = [
+      { name: "Time Management", requiredLevel: 1, key: "timeSkill" },
+      { name: "Basic Finance", requiredLevel: 2, key: "financeSkill" },
+      { name: "Leadership", requiredLevel: 4, key: "leadershipSkill" },
+    ];
+
+    upgrades.forEach(upgrade => {
+      const unlocked = level >= upgrade.requiredLevel;
+      const btn = document.createElement("button");
+      btn.textContent = `${upgrade.name} ${unlocked ? "" : `(Requires Level ${upgrade.requiredLevel})`}`;
+      btn.disabled = !unlocked;
+      btn.onclick = () => applyUpgrade(uid, upgrade.key);
+      container.appendChild(btn);
+    });
+
+  } catch (err) {
+    console.error("Error loading learning center:", err);
+  }
+}
+
+async function applyUpgrade(uid, upgradeKey) {
+  try {
+    const userRef = doc(db, "users", uid);
+    await updateDoc(userRef, {
+      [`upgrades.${upgradeKey}`]: true,
+    });
+    alert(`Upgrade "${upgradeKey}" unlocked!`);
+  } catch (err) {
+    console.error("Upgrade failed:", err);
+  }
+}
+
+function loadShopData() {
+  const shopItems = [
+    { name: "Security Boost", type: "securityBoost", price: 150, currency: "coins" },
+    { name: "Health Pack", type: "healthPack", price: 100, currency: "coins" },
+    { name: "Hacking Tool", type: "hackingTool", price: 300, currency: "gems" },
+  ];
+
+  const shopContainer = document.getElementById("shopItemsList");
+  shopContainer.innerHTML = ""; // Clear existing items
+
+  shopItems.forEach(item => {
+    const itemCard = document.createElement("div");
+    itemCard.className = "card mb-2 p-2";
+
+    itemCard.innerHTML = `
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <strong>${item.name}</strong><br>
+          <small>Type: ${item.type}</small>
+        </div>
+        <div>
+          <span class="badge bg-secondary">${item.price} ${item.currency}</span><br>
+          <button class="btn btn-sm btn-success mt-1" onclick="purchaseItem('${item.type}', ${item.price}, '${item.currency}')">Buy</button>
+        </div>
+      </div>
+    `;
+
+    shopContainer.appendChild(itemCard);
+  });
+}
+function purchaseItem(type, price, currency) {
+  console.log(`Attempting to buy ${type} for ${price} ${currency}`);
+
+  if (!playerData || !playerData.stats || typeof playerData.stats[currency] === "undefined") {
+    alert("Player data or currency not found.");
+    return;
+  }
+
+  const balance = playerData.stats[currency];
+
+  if (balance < price) {
+    alert("Not enough " + currency + "!");
+    return;
+  }
+
+  // Deduct price
+  playerData.stats[currency] -= price;
+
+  // Apply item effect
+  switch (type) {
+    case "securityBoost":
+      playerData.stats.security = (playerData.stats.security || 0) + 10;
+      alert("Security boosted!");
+      break;
+    case "healthPack":
+      playerData.stats.health = Math.min(100, (playerData.stats.health || 0) + 25);
+      alert("Health restored!");
+      break;
+    case "hackingTool":
+      playerData.stats.hacking = (playerData.stats.hacking || 0) + 5;
+      alert("Hacking power increased!");
+      break;
+    default:
+      alert("Unknown item type: " + type);
+  }
+
+  updateHUD(); // optional: update UI display
+  console.log("Purchase complete. New stats:", playerData.stats);
+}
+window.purchaseItem = purchaseItem;
+
+
+
+function toggleSafeModeUI() {
+  const modal = document.getElementById("safeModal");
+  const checkbox = document.getElementById("safeModeToggle");
+
+  if (!playerState) return alert("Player not loaded.");
+
+  // Show UI
+  modal.classList.remove("hidden");
+
+  // Set current state
+  checkbox.checked = playerState.safeMode ?? false;
+
+  // Handle toggle change
+  checkbox.onchange = async () => {
+    const newValue = checkbox.checked;
+    playerState.safeMode = newValue;
+    await updatePlayerSetting("safeMode", newValue);
+    alert("Safe mode " + (newValue ? "enabled" : "disabled"));
+  };
+}
+
+function closeSafeModeUI() {
+  document.getElementById("safeModal").classList.add("hidden");
+}
+
+async function updatePlayerSetting(key, value) {
+  if (!playerState || !playerState.uid) return;
+  const playerRef = doc(firestore, "players", playerState.uid);
+  await updateDoc(playerRef, { [key]: value });
+}
+
+
+function showAssetSummary() {
+  console.log("Showing assets summary...");
+
+  // Optionally populate modal with user data here
+  const modalBody = document.querySelector("#assetsModal .modal-body");
+  modalBody.innerHTML = `
+    <ul>
+      <li><strong>Car:</strong> Toyota Camry (2019)</li>
+      <li><strong>Home:</strong> 2 Bedroom Apartment</li>
+      <li><strong>Stock Portfolio:</strong> $8,250</li>
+    </ul>
+  `;
+
+  // Show the modal (requires Bootstrap JS)
+  const modal = new bootstrap.Modal(document.getElementById('assetsModal'));
+  modal.show();
+}
+
+
+function visitHealthClinic() {
+  console.log("Health clinic active...");
+  const modal = new bootstrap.Modal(document.getElementById('healthClinicModal'));
+  modal.show();
+}
+
+function healPlayer() {
+  if (player.health < player.maxHealth) {
+    const cost = 50;
+    if (player.money >= cost) {
+      player.health = Math.min(player.maxHealth, player.health + 30);
+      player.money -= cost;
+      document.getElementById("healResult").innerText = "You have been healed!";
+      updateStatsUI(); // optional: if you have a stats display
+    } else {
+      document.getElementById("healResult").innerText = "Not enough money!";
+    }
+  } else {
+    document.getElementById("healResult").innerText = "You're already at full health.";
+  }
+}
+window.healPlayer = healPlayer;
 
 // ====== MARKET ======
 async function loadMarketData() {
