@@ -84,6 +84,10 @@
   💰 <span id="cash">$0</span> |
   🔁 Trades Left: <span id="trades">2</span> |
   ❤️ <span id="health">100%</span>
+    💰 <span id="security">0</span> |
+    💰 <span id="techStrength">0</span> |
+    💰 <span id="crypto">0</span> |
+
   <div id="zoneName">Zone: Loading...</div>
 </div>
 
@@ -160,9 +164,6 @@ const playerState = {
 const zoneInfo = {
   empty: { color: 0xffffff, label: "Wilderness", icon: "🌲" },
   home: { color: 0x90caf9, label: "Home Base", icon: "🏠" },
-  market: { color: 0xa5d6a7, label: "Market", icon: "🛒" },
-  training: { color: 0xffcc80, label: "Training Center", icon: "🎯" },
-  safe: { color: 0xce93d8, label: "Safe House", icon: "🛡️" },
   blocked: { color: 0x555555, label: "Blocked Area", icon: "🚧" }
 };
 
@@ -530,6 +531,9 @@ function updateStatsUI() {
   document.getElementById("cash").textContent = `$${playerData.cash ?? 0}`;
   document.getElementById("trades").textContent = playerState.actionsLeft ?? 0;
   document.getElementById("health").textContent = `${playerState.health ?? 100}%`;
+  document.getElementById("security").textContent = `${playerState.security ?? 100}%`;
+  document.getElementById("techStrength").textContent = `${playerState.techStrength ?? 100}%`;
+  document.getElementById("crypto").textContent = `${playerState.crypto ?? 5}`;
 
     document.getElementById("combatLog").innerHTML = `
     <p><strong>${attacker.name}</strong> hit <strong>${defender.name}</strong> for <strong>${attacker.lastDamage || 0}</strong> damage.</p>
