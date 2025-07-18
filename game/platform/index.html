@@ -818,6 +818,40 @@ function renderMarket() {
     li.textContent = `${symbol}: ${qty} shares (Value: $${(qty * price).toFixed(2)})`;
     portfolioListEl.appendChild(li);
   }
+
+  for (const [symbol, stock] of Object.entries(stocks)) {
+  const price = stock.price.toFixed(2);
+  const li = document.createElement("li");
+  li.className = "list-group-item d-flex justify-content-between align-items-center";
+  li.textContent = `${symbol} - $${price}`;
+  
+  // ✅ Add click handler to populate form
+let lastSelectedStockLi = null;
+
+li.addEventListener("click", () => {
+  if (lastSelectedStockLi) lastSelectedStockLi.classList.remove("active");
+  li.classList.add("active");
+  lastSelectedStockLi = li;
+
+  populateTradeForm(symbol);
+});
+
+
+  stockListEl.appendChild(li);
+}
+
+}
+
+function populateTradeForm(symbol) {
+  const ownsStock = portfolio[symbol] && portfolio[symbol] > 0;
+
+  document.getElementById("tradeSymbol").value = symbol;
+  document.getElementById("tradeQuantity").value = "1"; // default qty
+  document.getElementById("tradeType").value = ownsStock ? "sell" : "buy";
+
+  document.getElementById("tradeMessage").textContent = ownsStock
+    ? `You own ${portfolio[symbol]} shares of ${symbol}.`
+    : `You don't own any ${symbol}. Buying?`;
 }
 
 // Trade button event
