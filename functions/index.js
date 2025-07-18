@@ -1,12 +1,10 @@
-const functions = require("firebase-functions");
+const {onSchedule} = require("firebase-functions/v2/scheduler");
+const functions = require("firebase-functions"); // still needed for other features
 const admin = require("firebase-admin");
 admin.initializeApp();
 const db = admin.firestore();
 
-/**
- * Scheduled function to update stock prices every 2 minutes
- */
-exports.updateStockPrices = functions.pubsub.schedule("every 2 minutes").onRun(async () => {
+exports.updateStockPrices = onSchedule("every 2 minutes", async () => {
   const snapshot = await db.collection("stocks").get();
 
   const updates = snapshot.docs.map(async (doc) => {
@@ -20,7 +18,7 @@ exports.updateStockPrices = functions.pubsub.schedule("every 2 minutes").onRun(a
     await db.collection("stocks").doc(symbol).set({
       price: newPrice,
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-    }, { merge: true });
+    }, {merge: true});
 
     console.log(`Updated ${symbol} to $${newPrice}`);
   });
@@ -28,12 +26,3 @@ exports.updateStockPrices = functions.pubsub.schedule("every 2 minutes").onRun(a
   await Promise.all(updates);
   return null;
 });
-
-/**
- * Generates a random stock price between min and max, with a slight fluctuation.
- */
-function generateRandomPrice(min, max) {
-  const base = Math.random() * (max - min) + min;
-  const change = (Math.random() - 0.5) * 10; // +/- 5
-  return Math.round((base + change) * 100) / 100;
-}
