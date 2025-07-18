@@ -79,7 +79,8 @@
     let selectedAvatar = "1";
 
 
-    const playerState = new Map();
+// === GLOBAL STATE ===
+const playerState = new Map();
 
 function initializePlayerState(uid) {
   if (!playerState.has(uid)) {
@@ -87,9 +88,9 @@ function initializePlayerState(uid) {
       inCombat: false,
       actionsLeft: 2,
       currentHealth: 100,
-        portfolio: {},
-  loans: [],
-  history: [],
+      portfolio: {},
+      loans: [],
+      history: [],
       movesLeft: 3,
       cooldowns: {
         attack: 0,
@@ -100,6 +101,7 @@ function initializePlayerState(uid) {
   }
 }
 
+
     // Handle avatar selection
     avatarOptions.forEach(avatar => {
       avatar.addEventListener('click', () => {
@@ -109,70 +111,69 @@ function initializePlayerState(uid) {
       });
     });
 
-    loginBtn.addEventListener('click', async () => {
-      const username = usernameInput.value.trim();
-      if (!username) {
-        statusMsg.textContent = "Please enter a username.";
-        return;
-      }
+   loginBtn.addEventListener('click', async () => {
+  const username = usernameInput.value.trim();
+  if (!username) {
+    statusMsg.textContent = "Please enter a username.";
+    return;
+  }
 
-      statusMsg.textContent = "Logging in...";
+  statusMsg.textContent = "Logging in...";
 
-      try {
-        const cred = await signInAnonymously(auth);
-        const uid = cred.user.uid;
+  try {
+    const cred = await signInAnonymously(auth);
+    const uid = cred.user.uid;
 
-        localStorage.setItem("theGame_uid", uid);
-        localStorage.setItem("theGame_username", username);
-        localStorage.setItem("theGame_avatar", selectedAvatar);
+    localStorage.setItem("theGame_uid", uid);
+    localStorage.setItem("theGame_username", username);
+    localStorage.setItem("theGame_avatar", selectedAvatar);
 
-        const userRef = doc(db, "users", uid);
-        const docSnap = await getDoc(userRef);
+    const userRef = doc(db, "users", uid);
+    const docSnap = await getDoc(userRef);
 
-        if (!docSnap.exists()) {
-          // Create player with playerState
-          const newPlayer = {
-            name: username,
-            avatar: selectedAvatar,
-            createdAt: Date.now(),
-            isNew: true,
-            cash: 1000,
-            health: 100,
-            attack: 10,
-            defense: 5,
-        avatar: "1",
+    if (!docSnap.exists()) {
+      const newPlayer = {
+        name: username,
+        avatar: selectedAvatar,
+        createdAt: Date.now(),
+        isNew: true,
+        cash: 1000,
+        health: 100,
+        attack: 10,
+        defense: 5,
         crypto: 5,
         xp: 0,
         level: 1,
         techStrength: 1,
-                    inCombat: false,
-            assets: { car: 0, home: 0, gear: 0 },
-            playerState: {
-              location: "start",
-              movesLeft: 3,
-              cooldown: 0,
-              currentTarget: null,
-              buffs: [],
-              debuffs: [],
-              inventory: [],
-            }
-          };
-
-          await setDoc(userRef, newPlayer);
-          console.log("✅ New player created.");
+        inCombat: false,
+        assets: { car: 0, home: 0, gear: 0 },
+        playerState: {
+          location: "start",
+          movesLeft: 3,
+          cooldown: 0,
+          currentTarget: null,
+          buffs: [],
+          debuffs: [],
+          inventory: [],
         }
+      };
 
-        initializePlayerState(uid);
+      await setDoc(userRef, newPlayer);
+      console.log("✅ New player created.");
+    }
 
+    // ✅ Initialize playerState memory cache
+    initializePlayerState(uid);
 
-        statusMsg.textContent = `Welcome, ${username}! Redirecting...`;
-        setTimeout(() => window.location.href = "https://rw-501.github.io/theGame/game/world/", 1500);
+    statusMsg.textContent = `Welcome, ${username}! Redirecting...`;
+    setTimeout(() => window.location.href = "https://rw-501.github.io/theGame/game/world/", 1500);
 
-      } catch (error) {
-        console.error(error);
-        statusMsg.textContent = "Login failed. Try again.";
-      }
-    });
+  } catch (error) {
+    console.error(error);
+    statusMsg.textContent = "Login failed. Try again.";
+  }
+});
+
 
     onAuthStateChanged(auth, (user) => {
       const username = localStorage.getItem("theGame_username");

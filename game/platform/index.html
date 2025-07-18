@@ -333,19 +333,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/fi
 const TILE_SIZE = 100;
 const MAP_SIZE = 8; // home base size
 
-let uid;
-const playerState = {
-  inCombat: false,
-  actionsLeft: 2,
-  currentHealth: 100,
-  movesLeft: 3,
-  cooldowns: {
-    attack: 0,
-    dash: 0,
-    move: 0
-  }
-};
-
 
 const zoneColors = {
   market: 0xa5d6a7,
@@ -371,22 +358,6 @@ const zoneNames = {
 
 
 let mapData = [];
-let playerData = {
-  cash: 0,
-        techStrength: 1,
-        security: 1,
-        health: 100,
-  assets: { car: 0, home: 0 },
-  safe: true,
-  trainingMode: false,
-  level: 1,
-    inCombat: false,
-  actionsLeft: 2,
-  cooldowns: { attack: 0, move: 0 },
-          avatar: "1",
-        crypto: 5,
-        xp: 0
-};
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -403,6 +374,63 @@ const game = new Phaser.Game({
 
 let graphics;
 let zoneTooltip = document.getElementById("zoneTooltip");
+
+
+let uid;
+
+// Centralized player state
+let playerData = {
+  cash: 0,
+  techStrength: 1,
+  security: 1,
+  health: 100,
+  assets: { car: 0, home: 0 },
+  safe: true,
+  trainingMode: false,
+  level: 1,
+  inCombat: false,
+  actionsLeft: 2,
+  cooldowns: { attack: 0, move: 0, dash: 0 },
+  avatar: "1",
+  crypto: 5,
+  xp: 0,
+  movesLeft: 3
+};
+
+// Optional: separate local-only state (if needed)
+const localPlayerState = {
+  // can use this for temporary values not saved to db
+};
+
+async function loadPlayerData() {
+  await new Promise(res => {
+    const unsub = onAuthStateChanged(auth, user => {
+      if (user) {
+        uid = user.uid;
+        unsub();
+        res();
+      }
+    });
+  });
+
+  const userRef = doc(db, "users", uid);
+  const docSnap = await getDoc(userRef);
+
+  if (docSnap.exists()) {
+    // Merge server data into playerData
+    Object.assign(playerData, docSnap.data());
+
+    // Fallback defaults if values are missing
+    playerData.cooldowns ??= { attack: 0, move: 0, dash: 0 };
+    playerData.assets ??= { car: 0, home: 0 };
+    playerData.actionsLeft ??= 2;
+    playerData.movesLeft ??= 3;
+
+    updateStatsUI?.(); // Make sure this exists
+  } else {
+    console.warn("No player data found for:", uid);
+  }
+}
 
 async function create() {
   graphics = this.add.graphics();
@@ -450,6 +478,7 @@ async function create() {
     }
   });
 }
+
 
 function drawMap() {
   graphics.clear();
@@ -510,23 +539,7 @@ function setDefaultMap() {
 }
 
 
-async function loadPlayerData() {
-  await new Promise(res => {
-    const unsub = onAuthStateChanged(auth, user => {
-      if(user) {
-        uid = user.uid;
-        unsub();
-        res();
-      }
-    });
-  });
-  const userRef = doc(db, "users", uid);
-  const docSnap = await getDoc(userRef);
-  if(docSnap.exists()) {
-    Object.assign(playerData, docSnap.data());
-    updateStatsUI();
-  }
-}
+
 
 /*
 const userRef = doc(db, "users", uid);
@@ -539,7 +552,7 @@ const userUnsub = onSnapshot(userRef, (doc) => {
   }
 });
 
-*/MAP_SIZE
+*/
 
 function updateStatsUI() {
 document.getElementById("playerCashLabel").textContent = `Cash: $${playerData.cash.toFixed(2)}`;
@@ -1005,10 +1018,27 @@ function populateTradeForm(symbol, qty = 1) {
 if (window.priceChart && typeof window.priceChart.destroy === "function") {
   window.priceChart.destroy();
 }
+ populateTradeForm(symbol);
+}
 
+
+function populateTradeForm(symbol) {
   const ctx = document.getElementById("priceTrendChart").getContext("2d");
-const stock = stocks[symbol];
+  const stock = stocks[symbol];
+
+  const priceHistory = stock?.priceHistory || [];
+
+  if (!Array.isArray(priceHistory) || priceHistory.length === 0) {
+    console.warn(`No price history found for symbol: ${symbol}`);
+    return;
+  }
+
   const labels = priceHistory.map((_, i) => `T-${priceHistory.length - i}`);
+
+  if (window.priceChart) {
+    window.priceChart.destroy(); // destroy old chart if it exists
+  }
+
   window.priceChart = new Chart(ctx, {
     type: 'line',
     data: {

@@ -294,20 +294,18 @@ onAuthStateChanged(auth, async (user) => {
     playerX = location[0];
     playerY = location[1];
 
-    // Sync player state from DB
-    playerState.inCombat = userData.inCombat || false;
-    playerState.currentHealth = userData.health || 100;
-    playerState.movesLeft = 3;
+    // ✅ Initialize state correctly
+    initializePlayerState(uid);
+    const state = playerState.get(uid);
+    state.inCombat = userData.inCombat || false;
+    state.currentHealth = userData.health || 100;
+    state.movesLeft = 3;
 
-    console.log("✅ User loaded:", userData.name || "Unnamed");
-
-
+    console.log("✅ User loaded:", userData.username || "Unnamed");
 
   } else {
     await signInAnonymously(auth);
   }
-      initializePlayerState(userData);
-
 });
 
 // === Phaser Scene Methods ===
@@ -555,7 +553,7 @@ async function showTileActionModal(x, y, tileType, otherPlayerId) {
   modalFooter.innerHTML = "";
 
 
-  if (tileType === "wilderness") {
+  if (tileType === "Wilderness") {
     // Add "Move Here" button
     const moveBtn = document.createElement("button");
     moveBtn.className = "btn btn-success";
