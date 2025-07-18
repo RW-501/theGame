@@ -151,15 +151,28 @@ onAuthStateChanged(auth, async (user) => {
         assets: { car: 0, home: 0 },
         safe: true,
         location: [5, 5],
-          inCombat: false,
-  actionsLeft: 2,
-  cooldowns: { attack: 0, move: 0 },
+
       });
     }
   } else {
     await signInAnonymously(auth);
   }
 });
+
+
+const playerState = {
+            inCombat: false,
+  actionsLeft: 2,
+  
+  currentHealth: 75,
+  isInCombat: true,
+  movesLeft: 0,
+  cooldowns: {
+    attack: 3,
+    dash: 0,
+    moves
+  },
+};
 
 // Zone colors and icons (use emojis for fun)
 const zoneInfo = {
