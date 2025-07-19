@@ -427,7 +427,7 @@ const zoneInfo = {
         income: 50 + incomeStep * (i - 1),
         taxRate: parseFloat((baseTax + i * 0.01).toFixed(2)),
         value: 500 + valueStep * (i - 1),
-        unlocked: i >= 10 // unlock first 3 zones by default
+        unlocked: i <= 3 // unlock first 3 zones by default
       };
     }
     return zones;
