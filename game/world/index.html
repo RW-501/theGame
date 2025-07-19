@@ -892,12 +892,11 @@ async function tryMove(dx, dy, scene) {
 
   isMoving = false;
 }
-
-async function handleMoveAndPurchase(x, y, price) {
+async function handleMoveAndPurchase(x, y, price = 100) {
   try {
     console.log(`Purchasing tile at (${x}, ${y})...`);
 
-const user = auth.currentUser;
+    const user = auth.currentUser;
     if (!user) {
       throw new Error("User not logged in");
     }
@@ -911,18 +910,17 @@ const user = auth.currentUser;
     ]);
 
     if (!userSnap.exists()) throw new Error("User data not found");
-    if (!tileSnap.exists()) throw new Error("Tile data not found");
 
     const userData = userSnap.data();
-    const tileData = tileSnap.data();
+    const tileData = tileSnap.exists() ? tileSnap.data() : null;
 
     // Check if already owned
-    if (tileData.owner && tileData.owner !== user.uid) {
+    if (tileData && tileData.owner && tileData.owner !== user.uid) {
       alert("Tile already owned by someone else.");
       return;
     }
 
-    const cost = tileData.price || price;
+    const cost = tileData?.price || price;
 
     if (userData.balance < cost) {
       alert("Not enough funds to purchase tile.");
@@ -934,11 +932,14 @@ const user = auth.currentUser;
       updateDoc(userRef, {
         balance: userData.balance - cost
       }),
-      updateDoc(tileRef, {
+      setDoc(tileRef, {
         owner: user.uid,
-        type: "owned", // optional: update type
-        ownerName: userData.displayName || user.email
-      })
+        type: "owned",
+        ownerName: userData.displayName || user.email,
+        price: cost,
+        x,
+        y
+      }, { merge: true }) // merge to avoid overwriting existing data
     ]);
 
     console.log(`Tile at (${x}, ${y}) successfully purchased!`);
@@ -949,7 +950,6 @@ const user = auth.currentUser;
     alert("Failed to purchase tile: " + error.message);
   }
 }
-
 
 // === Helper ===
 function createButton(text, btnClass, onClick) {
