@@ -367,11 +367,12 @@ onAuthStateChanged(auth, async (user) => {
     playerY = userData.location?.[1] ?? 5;
 
     console.log("✅ User loaded:", userData.username || "Unnamed");
+      updateStatsUI();
+
   } else {
     await signInAnonymously(auth);
   }
 
-  updateStatsUI();
 });
 
 // === Phaser Scene Methods ===
