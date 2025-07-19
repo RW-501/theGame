@@ -370,6 +370,8 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     await signInAnonymously(auth);
   }
+
+  updateStatsUI();
 });
 
 // === Phaser Scene Methods ===
