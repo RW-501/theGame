@@ -363,8 +363,9 @@ onAuthStateChanged(auth, async (user) => {
       }
     });
 
-    playerX = userData.location || 5;
-    playerY = userData.location || 5;
+playerX = userData.location?.[0] || 5;
+playerY = userData.location?.[1] || 5;
+
 
     console.log("✅ User loaded:", userData || "Unnamed");
       updateStatsUI();
@@ -372,6 +373,7 @@ onAuthStateChanged(auth, async (user) => {
   } else {
     await signInAnonymously(auth);
   }
+//              location: userData.location;
 
 });
 
