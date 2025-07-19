@@ -119,6 +119,10 @@ button:hover {
 
 }
 
+.tile-highlight {
+  outline: 3px solid gold;
+  z-index: 999;
+}
 
   </style>
 </head>
@@ -151,6 +155,7 @@ button:hover {
 <div id="userTool">
   <button id="returnToLocationBtn">📍 Return to My Location</button>
   <button id="goToPlatformBtn">🌐 Go to Platform</button>
+<button id="openOwnedBtn">Asset</button>
 
 </div>
 
@@ -268,9 +273,44 @@ button:hover {
 </div>
 
 
+<!-- Asset Viewer Modal -->
+<!-- Owned Assets Modal -->
+<div class="modal fade" id="ownedModal" tabindex="-1" aria-labelledby="ownedModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="ownedModalLabel">Your Owned Land & Companies</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label for="sortFilter" class="form-label">Sort By:</label>
+          <select class="form-select" id="sortFilter">
+            <option value="value">Value</option>
+            <option value="taxRate">Tax Rate</option>
+          </select>
+        </div>
+
+        <ul id="ownedList" class="list-group">
+          <!-- Dynamically generated list items will be injected here -->
+        </ul>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
-import { collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import {   getFirestore,  query,
+  where,
+  arrayRemove, increment,
+  arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 
 // === Game Constants ===
@@ -279,7 +319,7 @@ const MAP_SIZE = 25;
 const platformURL = "https://rw-501.github.io/theGame/game/platform/";
 
 let uid;
-let userData = {};
+let playerData = {};
 let playerSprite;
 let isMoving = false;
 let playerX = 5, playerY = 5; // Default fallback
@@ -290,6 +330,7 @@ let otherPlayerSprites = new Map();
 let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
+let isDraggingMap = false;
 
 
 
@@ -421,7 +462,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 
   uid = user.uid;
-  playerData;
 
   try {
     // Query the player with userID === uid and server === "main"
@@ -730,6 +770,7 @@ modalBody.innerHTML = `
     <p><strong>📈 Value:</strong> $${value.toLocaleString()}</p>
     <p><strong>🏦 Income:</strong> $${income.toLocaleString()} / Weekly</p>
     <p><strong>💸 Tax Rate:</strong> ${taxRate}%</p>
+    <p><strong>💸 Level:</strong> ${info.level}</p>
     <p><strong>🔓 Status:</strong> ${isUnlocked ? "Unlocked" : "<span style='color:red'>Locked</span>"}</p>
   </div>
 `;
@@ -845,7 +886,7 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
     const tileSnap = await getDoc(tileRef);
     const tileData = tileSnap.exists() ? tileSnap.data() : info;
 
-    if (tileData.owner && tileData.owner !== uid) {
+    if (tileData.owner && tileData.owner !== playerData.userID) {
       return showMessageModal("Oops!", "Tile already owned by someone else.");
     }
 
@@ -857,9 +898,11 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
     // Deduct money and write tile data
     const updatedBank = playerData.bank - cost;
     const newTile = {
-      owner: uid,
+      ownerID: playerData.userID,
       status: "owned",
+      note: 'new',
       ownerName: playerData.playerName || 'Player',
+      tileImage: '',
       color: info.color,
       label: info.label,
       type: "blocked", // prevent re-buying
@@ -870,24 +913,39 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
       taxRate:  info.taxRate,
       value:  info.value,
       forSale: false,
-      unlocked: false,
+      unlocked: true,
+      level: 1,
       x,
       y,
       tileHistory: info,
     };
 
-    const updates = [
-      updateDoc(doc(db, "players", uid), {
-        bank: updatedBank,
-        ...(shouldMove ? { location: [x, y] } : {}),
-        landOwned: arrayUnion(`${x}_${y}`)
-      }),
-      setDoc(tileRef, newTile, { merge: true })
-    ];
+const tileId = `${x}_${y}`;
 
-    await Promise.all(updates);
+// Update Firestore
+const updates = [
+  updateDoc(doc(db, "players", playerData.userID), {
+    bank: updatedBank,
+    ...(shouldMove ? { location: [x, y] } : {}),
+    landOwned: arrayUnion(tileId)
+  }),
+  setDoc(tileRef, newTile, { merge: true })
+];
 
-    // Update local playerData if needed
+await Promise.all(updates);
+
+// Update local playerData
+if (!playerData.landOwned) playerData.landOwned = [];
+if (!playerData.companiesOwned) playerData.companiesOwned = [];
+
+if (type === 'zone' && !playerData.landOwned.includes(tileId)) {
+  playerData.landOwned.push(tileId);
+}
+
+if (type === 'company' && !playerData.companiesOwned.includes(tileId)) {
+  playerData.companiesOwned.push(tileId);
+}
+
     playerData.bank = updatedBank;
     if (shouldMove) {
       playerData.location = [x, y];
@@ -905,6 +963,190 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
 }
 
 window.purchaseTile = purchaseTile;
+
+
+
+async function getTileDataAt(x, y) {
+  try {
+    // Get the tile type from mapData
+    const tileType = mapData[y]?.[x] || "empty";
+
+    // Get static zone info (default fallback data)
+    const defaultInfo = zoneInfo[tileType] || zoneInfo.empty;
+
+    // Get live data from Firestore (tiles collection)
+    const tileRef = doc(db, "tiles", `${x}_${y}`);
+    const tileSnap = await getDoc(tileRef);
+
+    // If Firestore has data, merge it with static info
+    if (tileSnap.exists()) {
+      const firestoreData = tileSnap.data();
+      return { ...defaultInfo, ...firestoreData, x, y };
+    } else {
+      // Use default zone info if no Firestore document exists
+      return { ...defaultInfo, x, y };
+    }
+
+  } catch (error) {
+    console.error("Error fetching tile data:", error);
+    return { ...zoneInfo.empty, x, y };
+  }
+}
+
+
+
+let ownedTiles = [];///  = [ playerData.companiesOwned playerData.landOwned]; // Loaded from player data
+
+function openOwnedModal() {
+  renderOwnedList();
+  document.getElementById("ownedModal").style.display = "block";
+}
+
+document.getElementById("openOwnedBtn").addEventListener("click", openOwnedModal);
+
+window.openOwnedModal = openOwnedModal;
+
+
+
+
+document.getElementById("sortFilter").addEventListener("change", renderOwnedList);
+
+function renderOwnedList() {
+  const listEl = document.getElementById("ownedList");
+  const sortBy = document.getElementById("sortFilter").value;
+
+  let sorted = [...ownedTiles];
+  sorted.sort((a, b) => {
+    if (sortBy === "value") return b.value - a.value;
+    if (sortBy === "tax") return b.taxRate - a.taxRate;
+    return 0;
+  });
+
+  listEl.innerHTML = "";
+  sorted.forEach(tile => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <strong>${tile.name}</strong> (${tile.x}, ${tile.y})<br>
+      💰 Value: $${tile.value} | 📊 Tax: ${tile.taxRate}% | 🔓 ${tile.unlocked ? "Unlocked" : "Locked"}
+      <br>
+      <button class="view-btn" data-x="${tile.x}" data-y="${tile.y}">View</button>
+      <button class="sell-btn" data-id="${tile.id}">Sell</button>
+      <button class="upgrade-btn" data-id="${tile.id}">Upgrade</button>
+    `;
+    listEl.appendChild(li);
+  });
+
+  attachOwnedListeners();
+}
+
+function attachOwnedListeners() {
+  document.querySelectorAll(".view-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const x = parseInt(e.target.dataset.x);
+      const y = parseInt(e.target.dataset.y);
+      centerCameraOnTile(x, y);
+      openTileDetails(x, y);
+      highlightTile(x, y);
+    });
+  });
+
+  document.querySelectorAll(".sell-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      const tileId = e.target.dataset.id;
+      await sellTile(tileId);
+      showMessageModal("Success","Tile sold!");
+      refreshOwnedTiles();
+    });
+  });
+
+  document.querySelectorAll(".upgrade-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      const tileId = e.target.dataset.id;
+      await upgradeTile(tileId);
+      showMessageModal("Success","Tile upgraded!");
+      refreshOwnedTiles();
+    });
+  });
+}
+
+function highlightTile(x, y) {
+  // Optional: remove previous highlights
+  document.querySelectorAll(".tile-highlight").forEach(el => el.classList.remove("tile-highlight"));
+
+  const tileEl = document.querySelector(`[data-x="${x}"][data-y="${y}"]`);
+  if (tileEl) tileEl.classList.add("tile-highlight");
+}
+
+function centerCameraOnTile(x, y) {
+  playerX = x;
+  playerY = y;
+  drawBoard();
+}
+
+function openTileDetails(x, y) {
+  const tile = getTileDataAt(x, y); // implement this based on your tile structure
+  showTileModal(tile); // your modal function
+}
+
+
+async function upgradeTile(tileId) {
+  // Firebase logic to apply upgrades
+  const ref = doc(db, "tiles", tileId);
+  await updateDoc(ref, { level: increment(1) });
+}
+
+async function refreshOwnedTiles() {
+  // Pull owned tiles again
+  const snap = await getDocs(query(collection(db, "tiles"), where("ownerId", "==", playerData.userID)));
+  ownedTiles = snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
+  renderOwnedList();
+}
+
+
+async function sellTile(x, y, playerData) {
+  const tile = await getTileDataAt(x, y);
+  const tileId = tile.tileId;
+  const ref = doc(db, "tiles", tileId);
+  const playerRef = doc(db, "players", playerData.userID);
+
+   // Build update payload (merge style)
+    const updatePayload = {
+      ownerID: null,
+      status: "available",
+      note: "Sold",
+      tileHistory: `${tile.tileHistory || ""} | Sold on ${new Date().toLocaleDateString()}`,
+      type: tile.type || "empty",
+      ...newData, // allow overrides or additions
+    };
+
+
+  try {
+    // Determine which array to remove from
+    const isCompany = tile.type === "market" || tile.type === "company"; // adjust types as needed
+    const fieldToRemove = isCompany ? "companiesOwned" : "landOwned";
+
+    // Remove from player data and update bank
+    await updateDoc(playerRef, {
+      [fieldToRemove]: arrayRemove(tileId),
+      bank: increment(tile.value || 100), // Default fallback value
+    });
+
+   
+    
+ 
+    // Update Firestore
+    await updateDoc(ref, updatePayload);
+    console.log(`Tile ${x},${y} updated successfully.`);
+    console.log(`Tile ${tileId} sold and removed from ${fieldToRemove}`);
+  } catch (error) {
+    console.error("Error selling tile:", error);
+  }
+}
+
+
+
+
+
 
 
 
