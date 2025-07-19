@@ -796,7 +796,7 @@ modalBody.innerHTML = `
     <p><strong>📈 Value:</strong> $${value.toLocaleString()}</p>
     <p><strong>🏦 Income:</strong> $${income.toLocaleString()} / Weekly</p>
     <p><strong>💸 Tax Rate:</strong> ${taxRate}%</p>
-    <p><strong>💸 Level:</strong> ${info.level || 1}</p>
+    <p><strong>🎖️ Level:</strong> ${info.level || 1}</p>
     <p><strong>🔓 Status:</strong> ${isUnlocked ? "Unlocked" : "<span style='color:red'>Locked</span>"}</p>
   </div>
 `;
@@ -892,7 +892,13 @@ if (!otherPlayerId && trueType === "zone") {
   modalFooter.appendChild(moveAndBuyBtn);
 }
 
-
+if (trueType === "zone") {
+  const moveAndBuyBtn = createButton(`Move Here (Buy for $${info.price})`, "btn btn-primary", async () => {
+    await purchaseTile(x, y, "zone", true);
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  });
+  modalFooter.appendChild(moveAndBuyBtn);
+}
 
 
   new bootstrap.Modal(modalEl).show();
