@@ -78,6 +78,15 @@
       align-items: center;
       gap: 0.5rem;
     }
+
+    .zone-dropdown {
+  font-size: 12px;
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+}
+
   </style>
 </head>
 <body>
@@ -381,134 +390,150 @@ import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-50
     }
   };
 
-  // === Map Editor Section ===
-  const MAP_SIZE = 25;
-  const zoneTypes = ["empty", "home", "market", "training", "safe", "blocked"];
-  const mapGrid = document.getElementById("mapGrid");
-  const saveMapBtn = document.getElementById("saveMapBtn");
-  const mapStatus = document.getElementById("mapStatus");
+const MAP_SIZE = 25;
+const zoneTypes = ["empty", "home", "market", "training", "safe", "blocked"];
+const mapGrid = document.getElementById("mapGrid");
+const saveMapBtn = document.getElementById("saveMapBtn");
+const mapStatus = document.getElementById("mapStatus");
 
-  // 2D array to hold map zone types
-  let mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
+// 2D array to hold map zone types
+let mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
 
-  function createGrid() {
-    mapGrid.innerHTML = "";
-    for (let y = 0; y < MAP_SIZE; y++) {
-      for (let x = 0; x < MAP_SIZE; x++) {
-        const tileDiv = document.createElement("div");
-        tileDiv.classList.add("tile", "empty");
-        tileDiv.dataset.x = x;
-        tileDiv.dataset.y = y;
-        tileDiv.textContent = "E"; // E for empty
-        tileDiv.title = `(${x},${y}) - empty`;
-        tileDiv.setAttribute("role", "gridcell");
+function createGrid() {
+  mapGrid.innerHTML = "";
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const tileDiv = document.createElement("div");
+      tileDiv.classList.add("tile", "empty");
+      tileDiv.dataset.x = x;
+      tileDiv.dataset.y = y;
+      tileDiv.textContent = "E"; // Default
+      tileDiv.title = `(${x},${y}) - empty`;
+      tileDiv.setAttribute("role", "gridcell");
 
-        tileDiv.addEventListener("click", () => {
-          cycleZoneType(tileDiv);
-        });
-
-        mapGrid.appendChild(tileDiv);
-      }
-    }
-  }
-
-  function cycleZoneType(tileDiv) {
-    const x = parseInt(tileDiv.dataset.x);
-    const y = parseInt(tileDiv.dataset.y);
-    let currentType = mapData[y][x];
-    let currentIndex = zoneTypes.indexOf(currentType);
-    let nextIndex = (currentIndex + 1) % zoneTypes.length;
-    let nextType = zoneTypes[nextIndex];
-
-    mapData[y][x] = nextType;
-    updateTileUI(tileDiv, nextType);
-  }
-
-  function updateTileUI(tileDiv, zoneType) {
-    tileDiv.className = "tile " + zoneType;
-    tileDiv.textContent = zoneType.charAt(0).toUpperCase();
-    tileDiv.title = `(${tileDiv.dataset.x},${tileDiv.dataset.y}) - ${zoneType}`;
-  }
-
-  async function loadMapFromFirestore() {
-    mapStatus.textContent = "Loading map...";
-    try {
-      const snapshot = await getDocs(collection(db, "mapTiles"));
-      if (snapshot.empty) {
-        mapStatus.textContent = "No map data found. Starting fresh.";
-        return;
-      }
-
-      mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
-
-      snapshot.forEach(doc => {
-        const { x, y, type } = doc.data();
-        if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE && zoneTypes.includes(type)) {
-          mapData[y][x] = type;
-        }
+      tileDiv.addEventListener("click", () => {
+        showZoneDropdown(tileDiv);
       });
 
-      Array.from(mapGrid.children).forEach(tileDiv => {
-        const x = parseInt(tileDiv.dataset.x);
-        const y = parseInt(tileDiv.dataset.y);
-        updateTileUI(tileDiv, mapData[y][x]);
+      mapGrid.appendChild(tileDiv);
+    }
+  }
+}
+
+function showZoneDropdown(tileDiv) {
+  const x = parseInt(tileDiv.dataset.x);
+  const y = parseInt(tileDiv.dataset.y);
+
+  // Remove existing dropdown if any
+  const existingDropdown = tileDiv.querySelector("select");
+  if (existingDropdown) return;
+
+  const select = document.createElement("select");
+  select.classList.add("zone-dropdown");
+
+  zoneTypes.forEach(type => {
+    const option = document.createElement("option");
+    option.value = type;
+    option.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+    if (mapData[y][x] === type) option.selected = true;
+    select.appendChild(option);
+  });
+
+  select.addEventListener("change", () => {
+    const selectedType = select.value;
+    mapData[y][x] = selectedType;
+    updateTileUI(tileDiv, selectedType);
+    select.remove();
+  });
+
+  tileDiv.textContent = "";
+  tileDiv.appendChild(select);
+  select.focus();
+}
+
+function updateTileUI(tileDiv, zoneType) {
+  tileDiv.className = "tile " + zoneType;
+  tileDiv.textContent = zoneType.charAt(0).toUpperCase();
+  tileDiv.title = `(${tileDiv.dataset.x},${tileDiv.dataset.y}) - ${zoneType}`;
+}
+
+async function loadMapFromFirestore() {
+  mapStatus.textContent = "Loading map...";
+  try {
+    const snapshot = await getDocs(collection(db, "mapTiles"));
+    if (snapshot.empty) {
+      mapStatus.textContent = "No map data found. Starting fresh.";
+      return;
+    }
+
+    mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
+
+    snapshot.forEach(doc => {
+      const { x, y, type } = doc.data();
+      if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE && zoneTypes.includes(type)) {
+        mapData[y][x] = type;
+      }
+    });
+
+    Array.from(mapGrid.children).forEach(tileDiv => {
+      const x = parseInt(tileDiv.dataset.x);
+      const y = parseInt(tileDiv.dataset.y);
+      updateTileUI(tileDiv, mapData[y][x]);
+    });
+
+    mapStatus.textContent = "Map loaded.";
+  } catch (e) {
+    console.error("Error loading map:", e);
+    mapStatus.textContent = "Error loading map.";
+  }
+}
+
+async function saveMapToFirestore() {
+  mapStatus.textContent = "Saving map...";
+  saveMapBtn.disabled = true;
+
+  const batchPromises = [];
+
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const zoneType = mapData[y][x];
+      const tileDoc = doc(db, "mapTiles", `${x}_${y}`);
+
+      batchPromises.push(
+        setDoc(tileDoc, {
+          x,
+          y,
+          type: zoneType,
+          updatedAt: serverTimestamp()
+        })
+      );
+    }
+  }
+
+  try {
+    await Promise.all(batchPromises);
+    mapStatus.textContent = "Map saved successfully! 🎉";
+    saveMapBtn.disabled = false;
+
+    if (typeof confetti === "function") {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
       });
-
-      mapStatus.textContent = "Map loaded.";
-    } catch (e) {
-      console.error("Error loading map:", e);
-      mapStatus.textContent = "Error loading map.";
     }
+  } catch (e) {
+    console.error("Failed to save map:", e);
+    mapStatus.textContent = "Failed to save map.";
+    saveMapBtn.disabled = false;
   }
+}
 
-  async function saveMapToFirestore() {
-    mapStatus.textContent = "Saving map...";
-    saveMapBtn.disabled = true;
+saveMapBtn.addEventListener("click", saveMapToFirestore);
 
-    const batchPromises = [];
-
-    for (let y = 0; y < MAP_SIZE; y++) {
-      for (let x = 0; x < MAP_SIZE; x++) {
-        const zoneType = mapData[y][x];
-        const tileDoc = doc(db, "mapTiles", `${x}_${y}`);
-
-        batchPromises.push(
-          setDoc(tileDoc, {
-            x,
-            y,
-            type: zoneType,
-            updatedAt: serverTimestamp()
-          })
-        );
-      }
-    }
-
-    try {
-      await Promise.all(batchPromises);
-      mapStatus.textContent = "Map saved successfully! 🎉";
-      saveMapBtn.disabled = false;
-
-      // Optional confetti (include canvas-confetti script in your HTML if you want)
-      if (typeof confetti === "function") {
-        confetti({
-          particleCount: 100,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-      }
-    } catch (e) {
-      console.error("Failed to save map:", e);
-      mapStatus.textContent = "Failed to save map.";
-      saveMapBtn.disabled = false;
-    }
-  }
-
-  saveMapBtn.addEventListener("click", saveMapToFirestore);
-
-  // Initialize page
-  createGrid();
-  loadMapFromFirestore();
-
+// Initialize
+createGrid();
+loadMapFromFirestore();
 
 
 
