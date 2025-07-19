@@ -942,6 +942,8 @@ async function handleMoveAndPurchase(x, y, price = 100) {
       }, { merge: true }) // merge to avoid overwriting existing data
     ]);
 
+            movePlayerSmoothly(this, playerX, playerY);
+
     console.log(`Tile at (${x}, ${y}) successfully purchased!`);
     alert("Purchase successful!");
     // Optional: update UI
