@@ -305,11 +305,37 @@ button:hover {
 </div>
 
 
+
+<div class="modal fade" id="startCompanyModal" tabindex="-1" aria-labelledby="startCompanyLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="startCompanyLabel">Start a Company</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <label for="sectorSelect">Choose a Sector:</label>
+        <select class="form-select" id="sectorSelect">
+          <option value="tech">Tech</option>
+          <option value="energy">Energy</option>
+          <option value="healthcare">Healthcare</option>
+          <option value="finance">Finance</option>
+          <option value="transport">Transportation</option>
+        </select>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-success" id="confirmStartCompanyBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import {   getFirestore,  query,
   where, limit, 
-  arrayRemove, increment,
+  arrayRemove, increment, serverTimestamp, 
   arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 
@@ -776,8 +802,10 @@ async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
 
   if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) return;
 
+    const dbTileInfo = await getTileDataAt(x, y);
+
 const tileInfo = mapData[y]?.[x] || "empty";
-const info = zoneInfo[tileInfo] || zoneInfo.empty;
+const info = dbTileInfo ? dbTileInfo : zoneInfo[tileInfo] || zoneInfo.empty;
 
 const trueType = info.type;
 const now = Date.now();
@@ -797,6 +825,7 @@ modalBody.innerHTML = `
     <p><strong>🏦 Income:</strong> $${income.toLocaleString()} / Weekly</p>
     <p><strong>💸 Tax Rate:</strong> ${taxRate}%</p>
     <p><strong>🎖️ Level:</strong> ${info.level || 1}</p>
+    <p><strong> Owner:</strong> ${info.ownerName || "None"}</p>
     <p><strong>🔓 Status:</strong> ${isUnlocked ? "Unlocked" : "<span style='color:red'>Locked</span>"}</p>
   </div>
 `;
@@ -868,7 +897,7 @@ modalBody.innerHTML = `
 
 
     // === Buy Land button ===
-if (!otherPlayerId && trueType === "zone") {
+if (!otherPlayerId && trueType === "zone" || trueType === "empty") {
   const buyLandBtn = createButton(`Buy Land $${info.price}`, "btn btn-success", async () => {
     await purchaseTile(x, y, "zone", false);
     bootstrap.Modal.getInstance(modalEl)?.hide();
@@ -884,7 +913,7 @@ if (!otherPlayerId && trueType === "company") {
   modalFooter.appendChild(buyCompanyBtn);
 }
 
-if (!otherPlayerId && trueType === "zone") {
+if (!otherPlayerId && trueType === "zone" || trueType === "empty") {
   const moveAndBuyBtn = createButton(`Move Here (Buy for $${info.price})`, "btn btn-primary", async () => {
     await purchaseTile(x, y, "zone", true);
     bootstrap.Modal.getInstance(modalEl)?.hide();
@@ -892,13 +921,15 @@ if (!otherPlayerId && trueType === "zone") {
   modalFooter.appendChild(moveAndBuyBtn);
 }
 
-if (trueType === "zone") {
-  const moveAndBuyBtn = createButton(`Move Here (Buy for $${info.price})`, "btn btn-primary", async () => {
-    await purchaseTile(x, y, "zone", true);
-    bootstrap.Modal.getInstance(modalEl)?.hide();
+if (info.ownerName === playerData.username && info.unlocked && (trueType === "zone" || trueType === "empty")) {
+  const startCompanyBtn = createButton(`Start Company $${info.value}`, "btn btn-success", () => {
+    // Store coords globally or in a modal data attr
+    document.getElementById("confirmStartCompanyBtn").dataset.tile = `${x}_${y}`;
+    new bootstrap.Modal(document.getElementById("startCompanyModal")).show();
   });
-  modalFooter.appendChild(moveAndBuyBtn);
+  modalFooter.appendChild(startCompanyBtn);
 }
+
 
 
   new bootstrap.Modal(modalEl).show();
@@ -936,7 +967,65 @@ function createButton({ text, onClick, id, className, parent = document.body, st
   return button;
 }
 
+async function startCompany(x, y, tileData, uid, sector) {
+  const tileId = `${x}_${y}`;
+  const tileRef = doc(db, "tiles", tileId);
+  const playerRef = doc(db, "players", uid);
+const info = getTileDataAt(x, y);
 
+  const now = Date.now();
+  const companyPrice = info.value * 2;
+  const min = parseFloat((companyPrice * 0.7).toFixed(2));
+  const max = parseFloat((companyPrice * 2).toFixed(2));
+  const name = sector.charAt(0).toUpperCase() + sector.slice(1) + " Corp";
+
+  const updatedTile = {
+    type: "company",
+    stockMarketListed: true,
+    value: tileData.value * 2,
+    level: tileData.level,
+    sector: sector,
+    name,
+    employsIDs: [],
+    ownerID: uid,
+    createdAt: now,
+    event: "bigChange",
+    eventTimestamp: now,
+    stockLastPrice: randomPrice - 1,
+    price: companyPrice,
+    stockPrice: companyPrice / 10,
+    stockMinPrice: min,
+    stockMaxPrice: max,
+    stockMaxChangePercent: 0.05,
+    stockPriceHistory: [companyPrice],
+    companyStartedAt: now,
+  };
+
+  const newBankValue = playerData.bank - tileData.value;
+
+  await Promise.all([
+    updateDoc(tileRef, updatedTile),
+    updateDoc(playerRef, {
+      bank: newBankValue,
+      companiesOwned: arrayUnion(tileId)
+    })
+  ]);
+
+  // Update local player data
+  playerData.bank = newBankValue;
+  playerData.companiesOwned = playerData.companiesOwned || [];
+  playerData.companiesOwned.push(tileId);
+
+  console.log(`Company '${name}' started at tile ${tileId} in sector '${sector}'`);
+}
+
+document.getElementById("confirmStartCompanyBtn").addEventListener("click", async function () {
+  const sector = document.getElementById("sectorSelect").value;
+  const [x, y] = this.dataset.tile.split("_").map(Number);
+  const info = getTileDataAt(x, y);
+  await startCompany(x, y, info, uid, sector);
+  bootstrap.Modal.getInstance(document.getElementById("startCompanyModal"))?.hide();
+});
 
 
 async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
