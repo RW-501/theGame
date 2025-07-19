@@ -366,7 +366,7 @@ onAuthStateChanged(auth, async (user) => {
     playerX = userData.location || 5;
     playerY = userData.location || 5;
 
-    console.log("✅ User loaded:", userData.username || "Unnamed");
+    console.log("✅ User loaded:", userData || "Unnamed");
       updateStatsUI();
 
   } else {
