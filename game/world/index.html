@@ -240,15 +240,14 @@ function initializePlayerState(uid) {
 
 // === Zone Metadata ===
 const zoneInfo = {
-  empty: { color: 0xffffff, label: "Wilderness", icon: "🌲" },
-  home: { color: 0x90caf9, label: "Home Base", icon: "🏠" },
-  blocked: { color: 0x555555, label: "Blocked Area", icon: "🚧" },
-  stock: { color: 0xffd54f, label: "Stock Exchange", icon: "📈" },
-zone4: { color: 0x81c784, label: "Finance District (4)", icon: "💸" },
-zone3: { color: 0x4db6ac, label: "Finance District (3)", icon: "🏦" },
-zone2: { color: 0x4fc3f7, label: "Finance District (2)", icon: "💰" },
-zone1: { color: 0x9575cd, label: "Finance District (1)", icon: "🧠" },
-
+  empty: { color: 0xffffff, label: "Wilderness", icon: "🌲", price: 0 },
+  home: { color: 0x90caf9, label: "Home Base", icon: "🏠", price: 0 },
+  blocked: { color: 0x555555, label: "Blocked Area", icon: "🚧", price: 0 },
+  stock: { color: 0xffd54f, label: "Stock Exchange", icon: "📈", price: 150 },
+  zone4: { color: 0x81c784, label: "Finance District (4)", icon: "💸", price: 120 },
+  zone3: { color: 0x4db6ac, label: "Finance District (3)", icon: "🏦", price: 90 },
+  zone2: { color: 0x4fc3f7, label: "Finance District (2)", icon: "💰", price: 60 },
+  zone1: { color: 0x9575cd, label: "Finance District (1)", icon: "🧠", price: 30 },
 };
 
 // === Game Setup ===
