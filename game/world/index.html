@@ -308,7 +308,7 @@ button:hover {
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import {   getFirestore,  query,
-  where,
+  where, limit, 
   arrayRemove, increment,
   arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
@@ -423,10 +423,11 @@ const zoneInfo = {
         type: "zone",
         icon: zoneIcons[i - 1] || "🏙️",
         price,
+        level: 1,
         income: 50 + incomeStep * (i - 1),
         taxRate: parseFloat((baseTax + i * 0.01).toFixed(2)),
         value: 500 + valueStep * (i - 1),
-        unlocked: i <= 3 // unlock first 3 zones by default
+        unlocked: i >= 10 // unlock first 3 zones by default
       };
     }
     return zones;
@@ -795,7 +796,7 @@ modalBody.innerHTML = `
     <p><strong>📈 Value:</strong> $${value.toLocaleString()}</p>
     <p><strong>🏦 Income:</strong> $${income.toLocaleString()} / Weekly</p>
     <p><strong>💸 Tax Rate:</strong> ${taxRate}%</p>
-    <p><strong>💸 Level:</strong> ${info.level}</p>
+    <p><strong>💸 Level:</strong> ${info.level || 1}</p>
     <p><strong>🔓 Status:</strong> ${isUnlocked ? "Unlocked" : "<span style='color:red'>Locked</span>"}</p>
   </div>
 `;
