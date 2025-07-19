@@ -363,8 +363,8 @@ onAuthStateChanged(auth, async (user) => {
       }
     });
 
-    playerX = userData.location?.[0] ?? 5;
-    playerY = userData.location?.[1] ?? 5;
+    playerX = userData.location || 5;
+    playerY = userData.location || 5;
 
     console.log("✅ User loaded:", userData.username || "Unnamed");
       updateStatsUI();
