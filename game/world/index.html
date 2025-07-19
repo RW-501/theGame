@@ -16,15 +16,16 @@
       overflow: hidden;
     }
 
-    #game-container {
-      position: relative;
-      margin: auto;
-      width: 1000px;
-      max-width: 100vw;
-      height: 100vh;
-      background: #222;
-      box-shadow: 0 0 15px #333;
-    }
+#game-container {
+  position: relative;
+  margin: auto;
+  width: 1000px;
+  max-width: 100vw;
+  height: 100vh;
+  background: #222;
+  box-shadow: 0 0 15px #333;
+}
+
 
     .info-box {
       position: absolute;
@@ -40,8 +41,26 @@
       user-select: none;
       width: 260px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      user-select: none;
+
     }
 
+    .stats-row {
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.stats-row:last-child {
+  margin-bottom: 0;
+  font-weight: bold;
+  color: #ffd700; /* Gold color for zone */
+}
+
+.info-box span {
+  font-weight: 600;
+  color: #90caf9;
+  padding: 0 3px;
+}
     #zoneName {
       margin-top: 8px;
       font-size: 18px;
@@ -74,28 +93,69 @@
   100% { transform: translateY(-40px); opacity: 0; }
 }
 
+#userTool {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9999; /* ensure it stays on top of the canvas */
+}
+
+#userTool button {
+button {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+}
+
+
   </style>
 </head>
 <body>
 
+  <main>
 <div id="game-container"></div>
 
 <div class="info-box" id="statsBox">
-  <div>
-    💰 Cash: <span id="cash">$0</span> |
-    🔁 Trades Left: <span id="trades">2</span> |
-    ❤️ Health: <span id="health">100%</span>
+  <div class="stats-row">
+    🎖️ Level: <span id="level">0</span> |
+    💰 xp: <span id="xp">$0</span> |
+    🏦 Bank: <span id="bank">$0</span> |
+    🪙 Crypto: <span id="crypto">0</span> |
+    🔁 Trades Left: <span id="trades">2</span>
   </div>
-  <div>
+  <div class="stats-row">
+    ❤️ Health: <span id="health">100%</span> |
     🛡️ Security: <span id="security">0</span> |
-    🧠 Tech Strength: <span id="techStrength">0</span> |
-    🪙 Crypto: <span id="crypto">0</span>
+    🧠 Tech Strength: <span id="techStrength">0</span>
   </div>
-  <div id="zoneName">📍 Zone: <span>Loading...</span></div>
+  <div class="stats-row" id="zoneName">
+    📍 Zone: <span>Loading...</span>
+  </div>
 </div>
 
-
 <div id="tileTooltip"></div>
+
+
+<div id="userTool">
+  <button id="returnToLocationBtn">📍 Return to My Location</button>
+  <button id="goToPlatformBtn">🌐 Go to Platform</button>
+
+</div>
+
+</main>
+
 
 <!-- Market Modal -->
 <div class="modal fade" id="marketModal" tabindex="-1" aria-labelledby="marketLabel" aria-hidden="true">
@@ -189,13 +249,32 @@
 </div>
 
 
+<!-- Message Modal -->
+<div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="messageModalTitle">Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="messageModalBody">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import { collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 
 // === Game Constants ===
-const TILE_SIZE = 64; // was 40
+const TILE_SIZE = 64; 
 const MAP_SIZE = 25;
 const platformURL = "https://rw-501.github.io/theGame/game/platform/";
 
@@ -212,99 +291,225 @@ let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
 
-const tileTooltip = document.getElementById("tileTooltip");
-
 
 
 const playerState = new Map();
-
-function initializePlayerState(uid) {
-  if (!playerState.has(uid)) {
-    playerState.set(uid, {
-      inCombat: false,
-      actionsLeft: 2,
-      currentHealth: 100,
-        portfolio: {},
-  loans: [],
-  history: [],
-      movesLeft: 3,
-      cooldowns: {
-        attack: 0,
-        dash: 0,
-        move: 0
-      }
-    });
-  }
-}
-
 
 // === Zone Metadata ===
 const zoneInfo = {
   empty: {
     color: 0xffffff,
     label: "Wilderness",
+    type: "empty",
     icon: "🌲",
     price: 0,
     income: 0,
+    taxRate: 0,
+    value: 0,
     unlocked: true
   },
-  home: {
+  playerHome: {
     color: 0x90caf9,
     label: "Home Base",
+    type: "home",
     icon: "🏠",
     price: 0,
     income: 1,
+    taxRate: 0,
+    value: 10,
     unlocked: true
+  },
+  company: {
+    color: 0x90caf9,
+    label: "Company",
+    type: "company",
+    icon: "🏢",
+    price: 0,
+    income: 0,
+    taxRate: 0,
+    value: 0,
+    unlocked: false
   },
   blocked: {
     color: 0x555555,
     label: "Blocked Area",
+    type: "blocked",
     icon: "🚧",
     price: 0,
     income: 0,
+    taxRate: 0,
+    value: 0,
     unlocked: false
   },
-  stock: {
+  stockMarket: {
     color: 0xffd54f,
     label: "Stock Exchange",
+    type: "market",
     icon: "📈",
-    price: 150,
-    income: 25,
-    unlocked: false
-  },
-  zone4: {
-    color: 0x81c784,
-    label: "Finance District (4)",
-    icon: "💸",
-    price: 120,
-    income: 20,
-    unlocked: false
-  },
-  zone3: {
-    color: 0x4db6ac,
-    label: "Finance District (3)",
-    icon: "🏦",
-    price: 90,
-    income: 15,
-    unlocked: false
-  },
-  zone2: {
-    color: 0x4fc3f7,
-    label: "Finance District (2)",
-    icon: "💰",
-    price: 60,
-    income: 10,
+    price: 200,
+    income: 35,
+    taxRate: 0.25,
+    value: 85,
     unlocked: false
   },
   zone1: {
     color: 0x9575cd,
     label: "Finance District (1)",
+    type: "zone",
     icon: "🧠",
-    price: 30,
-    income: 5,
+    price: 180,
+    income: 30,
+    taxRate: 0.22,
+    value: 75,
     unlocked: true
+  },
+  zone2: {
+    color: 0x4fc3f7,
+    label: "Finance District (2)",
+    type: "zone",
+    icon: "💰",
+    price: 140,
+    income: 25,
+    taxRate: 0.20,
+    value: 65,
+    unlocked: false
+  },
+  zone3: {
+    color: 0x4db6ac,
+    label: "Finance District (3)",
+    type: "zone",
+    icon: "🏦",
+    price: 110,
+    income: 20,
+    taxRate: 0.17,
+    value: 50,
+    unlocked: false
+  },
+  zone4: {
+    color: 0x81c784,
+    label: "Finance District (4)",
+    type: "zone",
+    icon: "💸",
+    price: 80,
+    income: 15,
+    taxRate: 0.14,
+    value: 40,
+    unlocked: false
+  },
+  zone5: {
+    color: 0x81c784,
+    label: "Finance District (5)",
+    type: "zone",
+    icon: "💸",
+    price: 60,
+    income: 10,
+    taxRate: 0.12,
+    value: 30,
+    unlocked: false
   }
 };
+
+
+
+
+
+// === Firebase Login Check ===
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = 'https://rw-501.github.io/theGame';
+    return;
+  }
+
+  uid = user.uid;
+  playerData;
+
+  try {
+    // Query the player with userID === uid and server === "main"
+    const q = query(
+      collection(db, "players"),
+      where("userID", "==", uid),
+      where("server", "==", "main"),
+      limit(1)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      // Player found, store in playerData
+      playerData = querySnapshot.docs[0].data();
+      playerData.id = querySnapshot.docs[0].id; // Optional: store doc ID
+      playerData.isNew = false;
+    } else {
+      // No player found, create a new one
+      const newPlayer = {
+        userID: uid,
+        playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
+        avatar: 0,
+        status: "active",
+        lastUpdate: serverTimestamp(),
+        online: true,
+        server: "main",
+        location: [5, 5], // default start location
+        isNew: true,
+        trainingMode: true,
+
+        // Stats
+        crypto: 5,
+        xp: 0,
+        level: 1,
+        bank: 1000,
+        vault: [],
+        loans: [],
+        health: 100,
+        techStrength: 1,
+        security: 1,
+
+        landOwned: [],
+
+        // Game state
+        companiesOwned: [],
+        stocks: [],
+        trades: 0,
+        tradesTotal: 0,
+        portfolio: [],
+        inCombat: false,
+        attacks: 0,
+        attacked: 0,
+        inventory: [],
+        history: [],
+        createdAt: serverTimestamp()
+      };
+
+      const docRef = await addDoc(collection(db, "players"), newPlayer);
+      newPlayer.id = docRef.id;
+
+      playerData = newPlayer;
+    }
+
+    // Save player data locally
+    localStorage.setItem("theGame_currentPlayerData", JSON.stringify(playerData));
+
+    // Store in playerState map
+    playerState.set(uid, playerData);
+
+    // Initialize player location
+    const [x, y] = playerData.location || [5, 5];
+    playerX = x;
+    playerY = y;
+
+    console.log("✅ Player loaded:", playerData);
+    updateStatsUI();
+
+  } catch (error) {
+    console.error("❌ Error loading player:", error);
+  }
+});
+
+
+
+
+const tileTooltip = document.getElementById("tileTooltip");
+
 
 
 // === Game Setup ===
@@ -319,63 +524,84 @@ height: window.innerHeight,
 
 const game = new Phaser.Game(config);
 
-// === Firebase Login Check ===
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    uid = user.uid;
 
-    const userRef = doc(db, "users", uid);
-    let snap = await getDoc(userRef);
+async function initializeMap(scene) {
+  graphics = scene.add.graphics();
+  const cam = scene.cameras.main;
 
-    if (!snap.exists()) {
-      await setDoc(userRef, {
-        username: "Player" + Math.floor(Math.random() * 1000),
-        trainingMode: true,
-        cash: 10000,
-        level: 1,
-        techStrength: 1,
-        security: 1,
-        health: 100,
-        safe: true,
-        location: [5, 5],
-        inCombat: false,
-        avatar: "1",
-        crypto: 5,
-        xp: 0
-      });
+  await loadMapFromFirebase();
+  drawMap(scene);
 
-      // 🔄 Re-fetch data after creating it
-      snap = await getDoc(userRef);
-    }
+  playerSprite = scene.add.circle(
+    playerX * TILE_SIZE + TILE_SIZE / 2,
+    playerY * TILE_SIZE + TILE_SIZE / 2,
+    TILE_SIZE * 0.4,
+    0x0000ff
+  );
+  playerSprite.setStrokeStyle(3, 0xffffff);
 
-    userData = snap.data() || {};
+  const mapWidth = MAP_SIZE * TILE_SIZE;
+  const mapHeight = MAP_SIZE * TILE_SIZE;
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
 
-    // ✅ Also store in playerState map
-    playerState.set(uid, {
-      inCombat: userData.inCombat ?? false,
-      actionsLeft: 2,
-      currentHealth: userData.health ?? 100,
-      movesLeft: 3,
-      cooldowns: {
-        attack: 0,
-        dash: 0,
-        move: 0
-      }
-    });
+  // Calculate zoom to fit entire map
+  const zoomX = screenWidth / mapWidth;
+  const zoomY = screenHeight / mapHeight;
+  const zoom = Math.min(zoomX, zoomY);
 
-playerX = userData.location?.[0] || 5;
-playerY = userData.location?.[1] || 5;
+  cam.setBounds(0, 0, mapWidth, mapHeight);
+  cam.setZoom(zoom);
+
+  // Center camera on map
+  const centerX = mapWidth / 2;
+  const centerY = mapHeight / 2;
+  cam.centerOn(centerX, centerY);
 
 
-    console.log("✅ User loaded:", userData || "Unnamed");
-      updateStatsUI();
+  updateStatsUI();
+}
 
-  } else {
-    await signInAnonymously(auth);
+function drawMap(scene) {
+  graphics.clear();
+for (let y = 0; y < MAP_SIZE; y++) {
+  for (let x = 0; x < MAP_SIZE; x++) {
+    const zoneType = mapData[y][x] || "empty";
+    const info = zoneInfo[zoneType] || zoneInfo.empty;
+
+    graphics.fillStyle(info.color, 1);
+    graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+    scene.add.text(
+      x * TILE_SIZE + TILE_SIZE/2,
+      y * TILE_SIZE + TILE_SIZE/2,
+      info.icon,
+      { font: `${TILE_SIZE * 0.5}px Arial`, align: 'center' }
+    ).setOrigin(0.5);
+    //         setTimeout(() => info.destroy(), 5000);
+
   }
-//              location: userData.location;
+}
 
+}
+
+function returnToPlayerLocation(scene) {
+  const cam = scene.cameras.main;
+  const targetX = playerX * TILE_SIZE + TILE_SIZE / 2;
+  const targetY = playerY * TILE_SIZE + TILE_SIZE / 2;
+
+  cam.pan(targetX, targetY, 500, 'Sine.easeInOut');
+}
+
+
+document.getElementById("returnToLocationBtn").addEventListener("click", () => {
+  returnToPlayerLocation(game.scene.scenes[0]); // or pass in your current scene reference
 });
+
+document.getElementById("goToPlatformBtn").addEventListener("click", () => {
+    window.location.href = "https://rw-501.github.io/theGame/game/platform/";
+});
+
 
 // === Phaser Scene Methods ===
 function preload() {
@@ -383,130 +609,534 @@ function preload() {
 }
 
 
-async function create() {
-  graphics = this.add.graphics();
-const cam = this.cameras.main;
 
-  await loadMapFromFirebase();
-  drawMap(this);
 
-  // Player sprite: blue circle with white border
-  playerSprite = this.add.circle(playerX * TILE_SIZE + TILE_SIZE/2, playerY * TILE_SIZE + TILE_SIZE/2, TILE_SIZE * 0.4, 0x0000ff);
-  playerSprite.setStrokeStyle(3, 0xffffff);
 
-  cursors = this.input.keyboard.createCursorKeys();
 
-  this.input.keyboard.on('keydown', (event) => {
-    if (isMoving) return;
-    switch(event.code) {
-      case 'ArrowLeft': tryMove(-1, 0, this); break;
-      case 'ArrowRight': tryMove(1, 0, this); break;
-      case 'ArrowUp': tryMove(0, -1, this); break;
-      case 'ArrowDown': tryMove(0, 1, this); break;
+
+
+
+
+
+
+
+function setupMapMovement(scene) {
+  const cam = scene.cameras.main;
+
+  // Drag to move camera
+  scene.input.on("pointermove", pointer => {
+    if (pointer.isDown) {
+      cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
+      cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
     }
   });
 
-  // Pointer input: click adjacent tile to move
-this.input.on('pointerdown', async pointer => {
-  if (isMoving) return;
+  // Mouse wheel zoom
+  scene.input.on("wheel", (pointer, gameObjects, deltaX, deltaY) => {
+    const newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
+    cam.setZoom(newZoom);
+  });
+}
 
-  const worldPoint = this.cameras.main.getWorldPoint(pointer.x, pointer.y);
-  const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
-  const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
+function setupMapInteraction(scene) {
+  cursors = scene.input.keyboard.createCursorKeys();
 
-
-  if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
-
-  // Get tile info
-  const tileType = mapData[clickedY][clickedX] || "empty";
-
-  // Check if a player is on that tile (other than self)
-  let otherPlayerId = null;
-if (playerState && typeof playerState === "object") {
-  const entries = playerState instanceof Map
-    ? playerState.entries()
-    : Object.entries(playerState);
-
-  for (const [pid, pos] of entries) {
-    if (pid !== uid && pos.x === clickedX && pos.y === clickedY) {
-      otherPlayerId = pid;
-      break;
+  scene.input.keyboard.on("keydown", event => {
+    if (isMoving) return;
+    switch (event.code) {
+      case "ArrowLeft": tryMove(-1, 0, scene); break;
+      case "ArrowRight": tryMove(1, 0, scene); break;
+      case "ArrowUp": tryMove(0, -1, scene); break;
+      case "ArrowDown": tryMove(0, 1, scene); break;
     }
+  });
+
+  scene.input.on("pointerdown", async pointer => {
+    if (isMoving) return;
+
+    const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
+    const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
+
+    if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
+
+    let otherPlayerId = null;
+    const entries = playerState instanceof Map
+      ? playerState.entries()
+      : Object.entries(playerState);
+
+    for (const [pid, pos] of entries) {
+      if (pid !== uid && pos.x === clickedX && pos.y === clickedY) {
+        otherPlayerId = pid;
+        break;
+      }
+    }
+
+    const tileType = mapData[clickedY]?.[clickedX] || "empty";
+    showTileActionModal(clickedX, clickedY, tileType, otherPlayerId);
+  });
+
+  scene.input.on("pointermove", pointer => {
+    const cam = scene.cameras.main;
+    if (pointer.isDown) return;
+
+    const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
+    const x = Math.floor(worldPoint.x / TILE_SIZE);
+    const y = Math.floor(worldPoint.y / TILE_SIZE);
+
+    if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+      const zoneType = mapData[y]?.[x] || "empty";
+      const info = zoneInfo[zoneType] || zoneInfo.empty;
+      tileTooltip.style.left = pointer.x + 15 + "px";
+      tileTooltip.style.top = pointer.y + 15 + "px";
+      tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
+      tileTooltip.style.display = "block";
+    } else {
+      tileTooltip.style.display = "none";
+    }
+  });
+
+  scene.input.on("pointerout", () => {
+    tileTooltip.style.display = "none";
+  });
+
+
+async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
+  if (isDraggingMap) return; // Prevent modal while dragging map
+
+  const modalEl = document.getElementById("tileActionModal");
+  const modalBody = document.getElementById("tileActionBody");
+  const modalFooter = document.getElementById("tileActionFooter");
+
+  if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) return;
+
+const tileInfo = mapData[y]?.[x] || "empty";
+const info = zoneInfo[tileInfo] || zoneInfo.empty;
+
+const trueType = info.type;
+const now = Date.now();
+
+// Optional checks
+const isUnlocked = info.unlocked ?? true; // fallback to true if not specified
+const income = info.income ?? 0;
+const value = info.value ?? info.price ?? 0;
+const taxRate = info.taxRate ?? 0;
+
+modalBody.innerHTML = `
+  <div>
+    <p><strong>📍 Coordinates:</strong> (${x}, ${y})</p>
+    <p><strong>🗺️ Tile Type:</strong> ${info.label} ${info.icon ?? ''}</p>
+    <p><strong>💰 Price:</strong> $${info.price?.toLocaleString() ?? 'N/A'}</p>
+    <p><strong>📈 Value:</strong> $${value.toLocaleString()}</p>
+    <p><strong>🏦 Income:</strong> $${income.toLocaleString()} / Weekly</p>
+    <p><strong>💸 Tax Rate:</strong> ${taxRate}%</p>
+    <p><strong>🔓 Status:</strong> ${isUnlocked ? "Unlocked" : "<span style='color:red'>Locked</span>"}</p>
+  </div>
+`;
+
+  modalFooter.innerHTML = "";
+
+  if (trueType === "blocked") {
+    modalBody.innerHTML += "<p>This area is blocked. No actions available.</p>";
+    return new bootstrap.Modal(modalEl).show();
+  }
+
+  const isInCombat = playerData?.inCombat ?? false;
+  const hasActions = playerData?.actionsLeft > 0;
+
+  function isOnCooldown(action) {
+    return playerData?.cooldowns?.[action] && playerData.cooldowns[action] > now;
+  }
+
+  function cooldownLeft(action) {
+    return isOnCooldown(action) ? Math.ceil((playerData.cooldowns[action] - now) / 1000) : 0;
+  }
+
+  // === Player tile interaction ===
+  if (otherPlayerId) {
+  const playersRef = collection(db, "players");
+  const q = query(playersRef, where("userID", "==", otherPlayerId));
+
+  const otherSnap = await getDocs(q);
+    const data = otherSnap.exists() ? otherSnap.data() : {};
+    const info = {
+      playerName: data.playerName ?? otherPlayerId.substring(0, 6),
+      health: data.health ?? "??",
+      level: data.level ?? "?",
+      techStrength: data.techStrength ?? "?",
+      security: data.security ?? "?",
+      bank: data.bank ?? "?",
+    };
+
+    modalBody.innerHTML += `
+      <p>Player <strong>${info.playerName}</strong> is here.</p>
+      <p>Level: ${info.level}</p>
+      <p>Bank: ${info.bank}</p>
+
+      <p>Health: ${info.health}</p>
+      <p>Tech Strength: ${info.techStrength}</p>
+      <p>Security: ${info.security}</p>
+    `;
+
+    const attackBtn = createButton(
+      `Attack${isOnCooldown("attack") ? ` (${cooldownLeft("attack")}s)` : ""}`,
+      "btn btn-danger",
+      async () => {
+        if (isInCombat || !hasActions || isOnCooldown("attack")) return;
+        await performAttack(otherPlayerId);
+        bootstrap.Modal.getInstance(modalEl)?.hide();
+      }
+    );
+    attackBtn.disabled = isInCombat || !hasActions || isOnCooldown("attack");
+    modalFooter.appendChild(attackBtn);
+
+    const talkBtn = createButton("Talk", "btn btn-primary", () => {
+      alert(`Talking to ${info.playerName}...`);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    });
+    talkBtn.disabled = isInCombat;
+    modalFooter.appendChild(talkBtn);
+  }
+
+
+
+    // === Buy Land button ===
+if (!otherPlayerId && trueType === "zone") {
+  const buyLandBtn = createButton(`Buy Land $${info.price}`, "btn btn-success", async () => {
+    await purchaseTile(x, y, "zone", false);
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  });
+  modalFooter.appendChild(buyLandBtn);
+}
+
+if (!otherPlayerId && trueType === "company") {
+  const buyCompanyBtn = createButton(`Buy Company $${info.price}`, "btn btn-warning", async () => {
+    await purchaseTile(x, y, "company", false);
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  });
+  modalFooter.appendChild(buyCompanyBtn);
+}
+
+if (!otherPlayerId && trueType === "zone") {
+  const moveAndBuyBtn = createButton(`Move Here (Buy for $${info.price})`, "btn btn-primary", async () => {
+    await purchaseTile(x, y, "zone", true);
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  });
+  modalFooter.appendChild(moveAndBuyBtn);
+}
+
+
+
+
+  new bootstrap.Modal(modalEl).show();
+}
+
+
+async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
+  try {
+    const tileInfo = mapData[y]?.[x] || "empty";
+    const info = zoneInfo[tileInfo] || zoneInfo.empty;
+
+    const type = overrideType || info.type;
+    const uid = auth.currentUser?.uid;
+    if (!uid) throw new Error("User not logged in");
+
+    const tileRef = doc(db, "tiles", `${x}_${y}`);
+    const tileSnap = await getDoc(tileRef);
+    const tileData = tileSnap.exists() ? tileSnap.data() : info;
+
+    if (tileData.owner && tileData.owner !== uid) {
+      return showMessageModal("Oops!", "Tile already owned by someone else.");
+    }
+
+    const cost = tileData?.price ?? info.price;
+    if (playerData.bank < cost) {
+      return showMessageModal("Insufficient Funds", "You don't have enough funds.");
+    }
+
+    // Deduct money and write tile data
+    const updatedBank = playerData.bank - cost;
+    const newTile = {
+      owner: uid,
+      status: "owned",
+      ownerName: playerData.playerName || 'Player',
+      color: info.color,
+      label: info.label,
+      type: "blocked", // prevent re-buying
+      icon:  info.icon,
+      price:  info.price,
+      originalCost: info.price,
+      income:  info.income,
+      taxRate:  info.taxRate,
+      value:  info.value,
+      forSale: false,
+      unlocked: false,
+      x,
+      y,
+      tileHistory: info,
+    };
+
+    const updates = [
+      updateDoc(doc(db, "players", uid), {
+        bank: updatedBank,
+        ...(shouldMove ? { location: [x, y] } : {}),
+        landOwned: arrayUnion(`${x}_${y}`)
+      }),
+      setDoc(tileRef, newTile, { merge: true })
+    ];
+
+    await Promise.all(updates);
+
+    // Update local playerData if needed
+    playerData.bank = updatedBank;
+    if (shouldMove) {
+      playerData.location = [x, y];
+      playerX = x;
+      playerY = y;
+      movePlayerSmoothly(scene, x, y);
+    }
+
+    updateStatsUI();
+    showMessageModal("Success", `You purchased a ${type} tile!`);
+  } catch (err) {
+    console.error("Purchase failed:", err.message);
+    showMessageModal("Error", err.message);
+  }
+}
+
+window.purchaseTile = purchaseTile;
+
+
+
+
+
+  // Realtime sync for player movement and all players
+const playerRef = doc(db, "players", uid);
+onSnapshot(playerRef, (docSnap) => {
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+
+    // Update position and move player sprite if position changed
+    const pos = data.position;
+    if (pos && (pos.x !== playerX || pos.y !== playerY)) {
+      playerX = pos.x;
+      playerY = pos.y;
+      movePlayerSmoothly(scene, playerX, playerY);
+    }
+
+    // Update local playerData object with all fresh data from Firestore
+    playerData = {
+      ...playerData,  // keep previous keys if any
+      ...data         // overwrite with latest from Firestore
+    };
+
+    // Refresh UI after updating playerData
+    updateStatsUI();
+  }
+});
+
+
+  const playersCollection = collection(db, "players");
+  onSnapshot(playersCollection, (querySnapshot) => {
+    playerState.clear();
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      if (data.position) {
+        playerState.set(doc.id, data.position);
+      }
+    });
+    renderAllPlayers(scene);
+  });
+}
+
+
+let moveTween;
+
+function movePlayerSmoothly(scene, x, y) {
+  return new Promise(resolve => {
+    if (moveTween) moveTween.stop();
+
+    moveTween = scene.tweens.add({
+      targets: playerSprite,
+      x: x * TILE_SIZE + TILE_SIZE/2,
+      y: y * TILE_SIZE + TILE_SIZE/2,
+      duration: 300,
+      ease: 'Power2',
+      onComplete: () => {
+        resolve();
+      }
+    });
+  });
+}
+
+
+// === Stats UI ===
+function updateStatsUI() {
+  const state = playerState.get(uid);
+  if (!state) {
+    console.warn("Missing player state UID:", uid);
+    return;
+  }
+
+  const now = Date.now();
+
+
+  document.getElementById("level").textContent = `${state.level ?? 0}`;
+  document.getElementById("xp").textContent = `${state.xp ?? 0}`;
+
+  document.getElementById("bank").textContent = `$${state.bank ?? 0}`;
+  document.getElementById("trades").textContent = state.trades ?? 0;
+  document.getElementById("crypto").textContent = `${state.crypto ?? 5}`;
+
+  document.getElementById("health").textContent = `${state.health ?? 100}%`;
+  document.getElementById("security").textContent = `${state.security ?? 1}`;
+  document.getElementById("techStrength").textContent = `${state.techStrength ?? 1}`;
+
+
+  const zoneType = mapData[playerY]?.[playerX] || "empty";
+  const label = zoneInfo[zoneType]?.label || "Unknown";
+  document.getElementById("zoneName").innerHTML = `📍 Zone: <span>${label}</span>`;
+}
+
+
+
+
+
+
+async function create() {
+  const scene = this;
+
+  await initializeMap(scene);
+  setupMapMovement(scene);
+  setupMapInteraction(scene);
+}
+
+
+async function performAttack(targetPlayerId) {
+  if (!playerState.actionsLeft || playerState.inCombat) return;
+
+  playerState.inCombat = true;
+  playerState.actionsLeft--;
+  playerState.cooldowns.attack = Date.now() + 10000;
+
+  await setDoc(doc(db, "users", uid), {
+    inCombat: true,
+    actionsLeft: playerState.actionsLeft,
+    cooldowns: playerState.cooldowns
+  }, { merge: true });
+
+  await handleCombat(uid, targetPlayerId);
+
+  setTimeout(async () => {
+    playerState.inCombat = false;
+    await setDoc(doc(db, "users", uid), { inCombat: false }, { merge: true });
+  }, 15000);
+}
+
+
+async function handleCombat(attackerId, defenderId) {
+  const attackerRef = doc(db, "players", attackerId);
+  const defenderRef = doc(db, "players", defenderId);
+
+  const [attackerSnap, defenderSnap] = await Promise.all([
+    getDoc(attackerRef), getDoc(defenderRef)
+  ]);
+
+  if (!attackerSnap.exists() || !defenderSnap.exists()) return;
+
+  const attacker = attackerSnap.data();
+  const defender = defenderSnap.data();
+
+  const damage = calculateDamage(attacker, defender);
+  const newHp = Math.max((defender.hp ?? 10) - damage, 0);
+
+  await updateDoc(defenderRef, {
+    hp: newHp,
+    lastDamagedBy: attackerId,
+    lastCombat: serverTimestamp()
+  });
+
+  showCombatAnimation(attackerId, defenderId, damage);
+  updateCombatUI(attacker, { ...defender, hp: newHp });
+
+  if (newHp === 0) {
+    await updateDoc(defenderRef, { status: "defeated" });
+    alert(`${attacker.name ?? "Player"} defeated ${defender.name ?? "Enemy"}!`);
   }
 }
 
 
-  // Show modal with options based on tile and player presence
-  showTileActionModal(clickedX, clickedY, tileType, otherPlayerId);
-});
+function calculateDamage(attacker, defender) {
+  const atk = attacker.attack ?? 5;
+  const def = defender.defense ?? 2;
+  return Math.max(1, atk - def + Math.floor(Math.random() * 3));
+}
 
 
-  // Show tile tooltip on pointer move
-this.input.on('pointermove', pointer => {
-  const cam = this.cameras.main;
+function showCombatAnimation(attackerId, defenderId, damage) {
+  const scene = game.scene.scenes[0];
+  const targetGraphics = scene.add.graphics();
+  targetGraphics.lineStyle(3, 0xff0000, 1);
+  targetGraphics.strokeRect(playerX * TILE_SIZE, playerY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  setTimeout(() => targetGraphics.destroy(), 500);
 
-  // 🖱️ Drag the map if mouse is down
-  if (pointer.isDown) {
-    cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
-    cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
-    return; // 🛑 Skip tooltip while dragging
+  const tile = document.querySelector(`[data-player-id="${defenderId}"]`);
+  if (tile) {
+    const dmg = document.createElement("div");
+    dmg.className = "damage-popup";
+    dmg.innerText = `-${damage} HP`;
+    tile.appendChild(dmg);
+    setTimeout(() => dmg.remove(), 1200);
   }
-
-  // 🎯 Show tile tooltip when hovering
-  const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
-  const x = Math.floor(worldPoint.x / TILE_SIZE);
-  const y = Math.floor(worldPoint.y / TILE_SIZE);
-
-  if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
-    const zoneType = mapData[y]?.[x] || "empty";
-    const info = zoneInfo[zoneType] || zoneInfo.empty;
-
-    tileTooltip.style.left = (pointer.x + 15) + "px";
-    tileTooltip.style.top = (pointer.y + 15) + "px";
-    tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
-    tileTooltip.style.display = "block";
-  } else {
-    tileTooltip.style.display = "none";
-  }
-});
+}
 
 
-  this.input.on('pointerout', () => {
-    tileTooltip.style.display = "none";
+function updateCombatUI(attacker, defender) {
+  const attackerEl = document.getElementById(`${attacker.id}-hp`);
+  const defenderEl = document.getElementById(`${defender.id}-hp`);
+  if (attackerEl) attackerEl.textContent = attacker.hp;
+  if (defenderEl) defenderEl.textContent = defender.hp;
+
+  const isDisabled = attacker.inCombat || attacker.actionsLeft <= 0;
+  document.querySelectorAll(".action-button").forEach(btn => {
+    btn.disabled = isDisabled;
   });
+}
 
 
+async function performHackAction(action) {
+  const hackerStatus = document.getElementById("hackerStatus");
+  hackerStatus.textContent = `Performing ${action}...`;
 
-  // Setup camera bounds and initial zoom
-cam.setBounds(0, 0, MAP_SIZE * TILE_SIZE, MAP_SIZE * TILE_SIZE);
-cam.startFollow(playerSprite, true, 0.1, 0.1);
-cam.setZoom(1);
+  await new Promise(r => setTimeout(r, 1500)); // Fake delay
 
-// Enable drag (click & hold) to pan
-this.input.on('pointermove', pointer => {
-  if (!pointer.isDown) return;
-  cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
-  cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
-}, this);
+  const successChance = playerData.techStrength / (playerData.security + 1);
+  const success = Math.random() < successChance;
 
-// Mouse wheel to zoom
-this.input.on('wheel', (pointer, gameObjects, deltaX, deltaY) => {
-  const newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
-  cam.setZoom(newZoom);
-});
+  if (success) {
+    hackerStatus.textContent = `${action} succeeded!`;
+    await setDoc(doc(collection(db, "hacks")), {
+      user: uid,
+      action,
+      success,
+      timestamp: new Date()
+    });
+  } else {
+    hackerStatus.textContent = `${action} failed. Try again later.`;
+  }
+}
 
-  /*
-      case "attack":
-      loadAttackTargets();
-      new bootstrap.Modal(document.getElementById("attackModal")).show();
-      break;
-    case "hacker":
-      setupHackerPanel();
-      new bootstrap.Modal(document.getElementById("hackerModal")).show();
-      break;
+function setupHackerPanel() {
+  document.getElementById("hackerStatus").textContent = "";
+}
+
+document.getElementById("spyBtn").addEventListener("click", () => performHackAction("spy"));
+document.getElementById("corruptBtn").addEventListener("click", () => performHackAction("corrupt_trade"));
+document.getElementById("stealBtn").addEventListener("click", () => performHackAction("steal_data"));
 
 
-      
+/*
+
 // ====== ATTACK ======
 async function loadAttackTargets() {
   document.getElementById("attackMessage").textContent = "";
@@ -540,470 +1170,16 @@ function renderAttackTargets() {
   });
 }
 
-document.getElementById("attackBtn").addEventListener("click", async () => {
-  if (!selectedAttackTarget) {
-    document.getElementById("attackMessage").textContent = "Select a target first.";
-    return;
-  }
 
-  const method = document.getElementById("attackMethod").value;
-  // For example, attacks are logged in a collection "attacks"
-  const attackDoc = {
-    attacker: uid,
-    target: selectedAttackTarget.id,
-    method,
-    timestamp: new Date()
-  };
-
-  try {
-    await setDoc(doc(collection(db, "attacks")), attackDoc);
-    document.getElementById("attackMessage").textContent = `Attack launched against ${selectedAttackTarget.name} using ${method}.`;
-  } catch (err) {
-    document.getElementById("attackMessage").textContent = "Failed to launch attack: " + err.message;
-  }
-});
-
-// ====== HACKER ======
-function setupHackerPanel() {
-  document.getElementById("hackerStatus").textContent = "";
-}
-
-document.getElementById("spyBtn").addEventListener("click", () => {
-  performHackAction("spy");
-});
-
-document.getElementById("corruptBtn").addEventListener("click", () => {
-  performHackAction("corrupt_trade");
-});
-
-document.getElementById("stealBtn").addEventListener("click", () => {
-  performHackAction("steal_data");
-});
-
-async function performHackAction(action) {
-  // Dummy cooldown + success simulation
-  const hackerStatus = document.getElementById("hackerStatus");
-  hackerStatus.textContent = `Performing ${action}...`;
-
-  // Simulate delay
-  await new Promise(r => setTimeout(r, 1500));
-
-  // Success chance based on player techStrength and security, just an example
-  const successChance = playerData.techStrength / (playerData.security + 1);
-  const success = Math.random() < successChance;
-
-  if (success) {
-    hackerStatus.textContent = `${action} succeeded!`;
-    // Record hack event in Firestore, e.g. in "hacks" collection
-    await setDoc(doc(collection(db, "hacks")), {
-      user: uid,
-      action,
-      success,
-      timestamp: new Date()
-    });
-  } else {
-    hackerStatus.textContent = `${action} failed. Try again later.`;
-  }
-}
-
-
-      */
-     
-
-
-// === Tile Modal ===
-async function showTileActionModal(x, y, tileType, otherPlayerId) {
-const modalEl = document.getElementById("tileActionModal");
-const modalBody = document.getElementById("tileActionBody");
-const modalFooter = document.getElementById("tileActionFooter");
-
-if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
-  const tileType = mapData[y]?.[x] || "empty";
-  const info = zoneInfo[tileType] || zoneInfo.empty;
-
-  console.log("Tile Info:", {
-    x, y,
-    tileType,
-    label: info.label,
-    icon: info.icon,
-    color: info.color.toString(16),
-    price: info.price
-  });
-
-  modalBody.innerHTML = `
-    <p><strong>Coordinates:</strong> (${x}, ${y})</p>
-    <p><strong>Tile Type:</strong> ${info.label} ${info.icon}</p>
-    <p><strong>Price:</strong> $${info.price}</p>
-  `;
-
-  modalFooter.innerHTML = "";
-
-  if (!otherPlayerId || tileType !== "blocked") {
-    const moveBtn = document.createElement("button");
-    moveBtn.className = "btn btn-success";
-    moveBtn.innerText = `Move Here (Buy for $${info.price})`;
-    moveBtn.onclick = async () => {
-      await handleMoveAndPurchase(x, y, info.price); // Pass price if needed
-      const modalInstance = bootstrap.Modal.getInstance(modalEl);
-      if (modalInstance) modalInstance.hide();
-    };
-    modalFooter.appendChild(moveBtn);
-  }
-
-  new bootstrap.Modal(modalEl).show();
-}
-
-  const now = Date.now();
-
-
-      if (tileType === "blocked") {
-    modalBody.innerHTML += "<p>This area is blocked. No actions available.</p>";
-    return new bootstrap.Modal(modalEl).show();
-  }
-  const isInCombat = playerState.inCombat;
-  const hasActions = playerState.actionsLeft > 0;
-
-  function isOnCooldown(action) {
-    return playerState.cooldowns[action] && playerState.cooldowns[action] > now;
-  }
-
-  function cooldownLeft(action) {
-    return isOnCooldown(action) ? Math.ceil((playerState.cooldowns[action] - now) / 1000) : 0;
-  }
-
-
-
-  // === Player tile ===
-  if (otherPlayerId) {
-    const otherSnap = await getDoc(doc(db, "users", otherPlayerId));
-    const data = otherSnap.exists() ? otherSnap.data() : {};
-    const info = {
-      username: data.username ?? otherPlayerId.substring(0, 6),
-      health: data.health ?? "??",
-      level: data.level ?? "?",
-      techStrength: data.techStrength ?? "?",
-      security: data.security ?? "?",
-    };
-
-    modalBody.innerHTML += `
-      <p>Player <strong>${info.username}</strong> is here.</p>
-      <p>Health: ${info.health}</p>
-      <p>Level: ${info.level}</p>
-      <p>Tech Strength: ${info.techStrength}</p>
-      <p>Security: ${info.security}</p>
-    `;
-
-    // === Attack Button ===
-    const attackBtn = createButton(
-      `Attack${isOnCooldown("attack") ? ` (${cooldownLeft("attack")}s)` : ""}`,
-      "btn-danger",
-      async () => {
-        if (isInCombat || !hasActions || isOnCooldown("attack")) return;
-        await performAttack(otherPlayerId);
-        bootstrap.Modal.getInstance(modalEl).hide();
-      }
-    );
-    attackBtn.disabled = isInCombat || !hasActions || isOnCooldown("attack");
-    modalFooter.appendChild(attackBtn);
-
-    // === Talk Button ===
-    const talkBtn = createButton("Talk", "btn-primary", () => {
-      alert(`Talking to ${info.username}...`);
-      bootstrap.Modal.getInstance(modalEl).hide();
-    });
-    talkBtn.disabled = isInCombat;
-    modalFooter.appendChild(talkBtn);
-  }
-
-  // === Move Button ===
-  if (isAdjacent(playerX, playerY, x, y)) {
-    const moveBtn = createButton(
-      `Move Here${isOnCooldown("move") ? ` (${cooldownLeft("move")}s)` : ""}`,
-      "btn-success",
-      async () => {
-        if (isInCombat || !hasActions || isOnCooldown("move")) return;
-        await tryMove(x - playerX, y - playerY, game.scene.scenes[0]);
-        bootstrap.Modal.getInstance(modalEl).hide();
-      }
-    );
-    moveBtn.disabled = isInCombat || !hasActions || isOnCooldown("move");
-    modalFooter.appendChild(moveBtn);
-  }
-
-  new bootstrap.Modal(modalEl).show();
-}
-
-// === Attack Flow ===
-async function performAttack(targetPlayerId) {
-  if (!playerState.actionsLeft || playerState.inCombat) return;
-
-  playerState.inCombat = true;
-  playerState.actionsLeft--;
-  playerState.cooldowns.attack = Date.now() + 10000;
-
-  await setDoc(doc(db, "users", uid), {
-    inCombat: true,
-    actionsLeft: playerState.actionsLeft,
-    cooldowns: playerState.cooldowns
-  }, { merge: true });
-
-  await handleCombat(uid, targetPlayerId);
-
-  setTimeout(async () => {
-    playerState.inCombat = false;
-    await setDoc(doc(db, "users", uid), { inCombat: false }, { merge: true });
-  }, 15000);
-}
-
-// === Combat Logic ===
-function calculateDamage(attacker, defender) {
-  const atk = attacker.attack ?? 5;
-  const def = defender.defense ?? 2;
-  return Math.max(1, atk - def + Math.floor(Math.random() * 3));
-}
-
-async function handleCombat(attackerId, defenderId) {
-  const attackerRef = doc(db, "players", attackerId);
-  const defenderRef = doc(db, "players", defenderId);
-
-  const [attackerSnap, defenderSnap] = await Promise.all([
-    getDoc(attackerRef), getDoc(defenderRef)
-  ]);
-
-  if (!attackerSnap.exists() || !defenderSnap.exists()) return;
-
-  const attacker = attackerSnap.data();
-  const defender = defenderSnap.data();
-
-  const damage = calculateDamage(attacker, defender);
-  const newHp = Math.max((defender.hp ?? 10) - damage, 0);
-
-  await updateDoc(defenderRef, {
-    hp: newHp,
-    lastDamagedBy: attackerId,
-    lastCombat: serverTimestamp()
-  });
-
-  showCombatAnimation(attackerId, defenderId, damage);
-  updateCombatUI(attacker, { ...defender, hp: newHp });
-
-  if (newHp === 0) {
-    await updateDoc(defenderRef, { status: "defeated" });
-    alert(`${attacker.name ?? "Player"} defeated ${defender.name ?? "Enemy"}!`);
-  }
-}
-
-// === Combat UI + Animation ===
-function showCombatAnimation(attackerId, defenderId, damage) {
-  const scene = game.scene.scenes[0];
-  const targetGraphics = scene.add.graphics();
-  targetGraphics.lineStyle(3, 0xff0000, 1);
-  targetGraphics.strokeRect(playerX * TILE_SIZE, playerY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-
-  setTimeout(() => targetGraphics.destroy(), 500);
-
-    const tile = document.querySelector(`[data-player-id="${defender.id}"]`);
-  if (!tile) return;
-
-  const dmg = document.createElement("div");
-  dmg.className = "damage-popup";
-  dmg.innerText = `-${damage} HP`;
-  tile.appendChild(dmg);
-
-  setTimeout(() => dmg.remove(), 1200);
-}
-
-function updateCombatUI(attacker, defender) {
-  const attackerEl = document.getElementById(`${attacker.id}-hp`);
-  const defenderEl = document.getElementById(`${defender.id}-hp`);
-  if (attackerEl) attackerEl.textContent = attacker.hp;
-  if (defenderEl) defenderEl.textContent = defender.hp;
-
-  const isDisabled = attacker.inCombat || attacker.actionsLeft <= 0;
-  document.querySelectorAll(".action-button").forEach(btn => {
-    btn.disabled = isDisabled;
-  });
-  setInterval(() => updateActionButtons(currentPlayer), 1000);
-
-}
-
-function updateActionButtons(player) {
-  const buttons = document.querySelectorAll(".action-btn");
-  const inCombat = player.inCombat;
-  const onCooldown = player.cooldown && player.cooldown > Date.now();
-
-  buttons.forEach(btn => {
-    btn.disabled = inCombat || onCooldown;
-  });
-}
-
-// === Move Logic ===
-async function tryMove(dx, dy, scene) {
-  if (playerState.inCombat || playerState.actionsLeft <= 0) return;
-
-  const now = Date.now();
-  if (playerState.cooldowns.move && playerState.cooldowns.move > now) {
-    alert(`Move cooldown active. Wait ${Math.ceil((playerState.cooldowns.move - now) / 1000)}s.`);
-    return;
-  }
-
-  const newX = Phaser.Math.Clamp(playerX + dx, 0, MAP_SIZE - 1);
-  const newY = Phaser.Math.Clamp(playerY + dy, 0, MAP_SIZE - 1);
-  if (mapData[newY]?.[newX] === "blocked") return alert("Blocked tile!");
-
-  function applyTileEffects(x, y) {
-    const zone = mapData[y][x];
-    if (zone === "stock") {
-      playerData.stockTradeDiscount = 0.25;
-      console.log("📈 Stock trading fees reduced!");
-    } else if (zone?.startsWith("zone")) {
-      const bonusTier = parseInt(zone.replace("zone", ""));
-      playerData.movementCost = bonusTier;
-      console.log(`🧭 Zone bonus tier ${bonusTier}: movement cost increased.`);
-    } else {
-      playerData.stockTradeDiscount = 0;
-      playerData.movementCost = 1;
-    }
-  }
-
-  isMoving = true;
-  await movePlayerSmoothly(scene, newX, newY);
-  playerX = newX;
-  playerY = newY;
-  applyTileEffects(playerX, playerY); // ✅ FIXED
-  updateZoneName();
-
-  await handleZoneEvent(mapData[playerY]?.[playerX]);
-
-  try {
-    await setDoc(doc(db, "players", uid), {
-      position: { x: playerX, y: playerY },
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
-
-    playerState.actionsLeft--;
-    playerState.cooldowns.move = now + 5000;
-
-    await setDoc(doc(db, "users", uid), {
-      actionsLeft: playerState.actionsLeft,
-      cooldowns: playerState.cooldowns
-    }, { merge: true });
-  } catch (err) {
-    console.error("Error saving player move:", err);
-  }
-
-  isMoving = false;
-}
-async function handleMoveAndPurchase(x, y, price = 100) {
-  try {
-    console.log(`Purchasing tile at (${x}, ${y})...`);
-
-    const user = auth.currentUser;
-    if (!user) {
-      throw new Error("User not logged in");
-    }
-
-    const userRef = doc(db, "users", user.uid);
-    const tileRef = doc(db, "tiles", `${x}_${y}`);
-
-    const [userSnap, tileSnap] = await Promise.all([
-      getDoc(userRef),
-      getDoc(tileRef)
-    ]);
-
-    if (!userSnap.exists()) throw new Error("User data not found");
-
-    const userData = userSnap.data();
-    const tileData = tileSnap.exists() ? tileSnap.data() : null;
-
-    // Check if already owned
-    if (tileData && tileData.owner && tileData.owner !== user.uid) {
-      alert("Tile already owned by someone else.");
-      return;
-    }
-
-    const cost = tileData?.price || price;
-
-    if (userData.cash < cost) {
-      alert("Not enough funds to purchase tile.");
-      return;
-    }
-
-    // Deduct funds and update tile ownership
-    await Promise.all([
-      updateDoc(userRef, {
-        cash: userData.cash - cost,
-        location: [x, y],
-
-      }),
-      setDoc(tileRef, {
-        owner: user.uid,
-        type: "owned",
-        ownerName: userData.displayName || user.email,
-        price: cost,
-        x,
-        y
-      }, { merge: true }) // merge to avoid overwriting existing data
-    ]);
-
-          //  movePlayerSmoothly(this, playerX, playerY);
-
-    console.log(`Tile at (${x}, ${y}) successfully purchased!`);
-    alert("Purchase successful!");
-    // Optional: update UI
-  } catch (error) {
-    console.error("Purchase failed:", error.message);
-    alert("Failed to purchase tile: " + error.message);
-  }
-}
-
-// === Helper ===
-function createButton(text, btnClass, onClick) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = `btn ${btnClass} me-2`;
-  btn.textContent = text;
-  btn.onclick = onClick;
-  return btn;
-}
-
-  // Listen for own player position changes
-  const playerRef = doc(db, "players", uid);
-  onSnapshot(playerRef, (docSnap) => {
-    if (docSnap.exists()) {
-      const pos = docSnap.data().position;
-      if (pos && (pos.x !== playerX || pos.y !== playerY)) {
-        playerX = pos.x;
-        playerY = pos.y;
-        movePlayerSmoothly(this, playerX, playerY);
-        updateZoneName();
-      }
-    }
-  });
-
-  // Listen for all players data to show other players
-  const playersCollection = collection(db, "players");
-  onSnapshot(playersCollection, (querySnapshot) => {
-    playerState.clear();
-    querySnapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.position) {
-        playerState.set(doc.id, data.position);
-      }
-    });
-    renderAllPlayers(this);
-  });
-
-  this.cameras.main.setBounds(0, 0, MAP_SIZE * TILE_SIZE, MAP_SIZE * TILE_SIZE);
-this.cameras.main.startFollow(playerSprite, true, 0.1, 0.1);
-this.input.on('pointermove', function (pointer) {
-  if (!pointer.isDown) return;
-  this.cameras.main.scrollX -= (pointer.x - pointer.prevPosition.x);
-  this.cameras.main.scrollY -= (pointer.y - pointer.prevPosition.y);
-}, this);
-
-  updateZoneName();
-}
+      case "attack":
+      loadAttackTargets();
+      new bootstrap.Modal(document.getElementById("attackModal")).show();
+      break;
+    case "hacker":
+      setupHackerPanel();
+      new bootstrap.Modal(document.getElementById("hackerModal")).show();
+      break;
+*/
 
 function update() {
   // nothing needed here for now
@@ -1015,103 +1191,9 @@ function isAdjacent(x1, y1, x2, y2) {
   return (dx + dy) === 1;
 }
 
-function drawMap(scene) {
-  graphics.clear();
-for (let y = 0; y < MAP_SIZE; y++) {
-  for (let x = 0; x < MAP_SIZE; x++) {
-    const zoneType = mapData[y][x] || "empty";
-    const info = zoneInfo[zoneType] || zoneInfo.empty;
-
-    graphics.fillStyle(info.color, 1);
-    graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-
-    scene.add.text(
-      x * TILE_SIZE + TILE_SIZE/2,
-      y * TILE_SIZE + TILE_SIZE/2,
-      info.icon,
-      { font: `${TILE_SIZE * 0.5}px Arial`, align: 'center' }
-    ).setOrigin(0.5);
-    //         setTimeout(() => info.destroy(), 5000);
-
-  }
-}
-
-}
 
 
-let moveTween;
 
-// === Stats UI ===
-function updateStatsUI() {
-  const state = playerState.get(uid);
-  if (!state || !state.cooldowns) {
-    console.warn("Missing player state or cooldowns for UID:", uid);
-    return;
-  }
-
-  const now = Date.now();
-  const attackCD = Math.max(0, Math.ceil(((state.cooldowns.attack ?? 0) - now) / 1000));
-  const moveCD = Math.max(0, Math.ceil(((state.cooldowns.move ?? 0) - now) / 1000));
-
-  document.getElementById("cash").textContent = `$${userData.cash ?? 0}`;
-  document.getElementById("trades").textContent = state.actionsLeft ?? 0;
-  document.getElementById("health").textContent = `${userData.health ?? 100}%`;
-  document.getElementById("security").textContent = `${userData.security ?? 100}%`;
-  document.getElementById("techStrength").textContent = `${userData.techStrength ?? 100}%`;
-  document.getElementById("crypto").textContent = `${userData.crypto ?? 5}`;
-
-  document.getElementById("zoneName").textContent =
-    `Zone: ${zoneInfo[mapData[playerY]?.[playerX]]?.label || "Unknown"} | Attack CD: ${attackCD}s | Move CD: ${moveCD}s`;
-}
-
-
-function movePlayerSmoothly(scene, x, y) {
-  return new Promise(resolve => {
-    if (moveTween) moveTween.stop();
-
-    moveTween = scene.tweens.add({
-      targets: playerSprite,
-      x: x * TILE_SIZE + TILE_SIZE/2,
-      y: y * TILE_SIZE + TILE_SIZE/2,
-      duration: 300,
-      ease: 'Power2',
-      onComplete: () => {
-        resolve();
-      }
-    });
-  });
-}
-
-function updateZoneName() {
-  const zoneType = mapData[playerY]?.[playerX] || "empty";
-  const label = zoneInfo[zoneType]?.label || "Unknown";
-  document.getElementById("zoneName").textContent = `Zone: ${label}`;
-}
-
-async function handleZoneEvent(zoneType) {
-  if (!zoneType) return;
-
-  switch(zoneType) {
-    case "market":
-      new bootstrap.Modal(document.getElementById("marketModal")).show();
-      break;
-    case "training":
-      alert("🎯 You have entered the Training Center! Time to improve your skills.");
-      break;
-    case "safe":
-      alert("🛡️ You are in a Safe House. Take a moment to rest.");
-      break;
-    case "home":
-      // Redirect on clicking the home tile is handled by icon click, but also do here on arrival:
-      if (confirm("Welcome home! Do you want to go to your platform?")) {
-        window.location.href = platformURL;
-      }
-      break;
-    default:
-      // wilderness or others: no special action
-      break;
-  }
-}
 
 async function loadMapFromFirebase() {
   try {
@@ -1136,20 +1218,21 @@ async function loadMapFromFirebase() {
 }
 
 function setDefaultMapData() {
-  // Initialize the map with "empty" tiles
   mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
 
   const stockX = 12;
   const stockY = 12;
-  mapData[stockY][stockX] = "stock";
+  mapData[stockY][stockX] = "stockMarket";
 
-  // Surrounding bonus zones
-  for (let y = stockY - 2; y <= stockY + 2; y++) {
-    for (let x = stockX - 2; x <= stockX + 2; x++) {
+  for (let y = stockY - 5; y <= stockY + 5; y++) {
+    for (let x = stockX - 5; x <= stockX + 5; x++) {
       if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) continue;
       if (x === stockX && y === stockY) continue;
+
       const dist = Math.max(Math.abs(x - stockX), Math.abs(y - stockY));
-      mapData[y][x] = `zone${5 - dist}`; // zone4, zone3, etc.
+      if (dist >= 1 && dist <= 5) {
+        mapData[y][x] = `zone${dist}`; // ascending zone number by distance
+      }
     }
   }
 }
@@ -1192,6 +1275,18 @@ function renderAllPlayers(scene) {
       sprite.setPosition(pos.x * TILE_SIZE + TILE_SIZE/2, pos.y * TILE_SIZE + TILE_SIZE/2);
     }
   }
+}
+
+
+
+
+
+function showMessageModal(title, message) {
+  document.getElementById("messageModalTitle").textContent = title;
+  document.getElementById("messageModalBody").textContent = message;
+
+  const modal = new bootstrap.Modal(document.getElementById('messageModal'));
+  modal.show();
 }
 
 </script>

@@ -1,27 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <!-- Meta and Title -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Stock Warz - Home</title>
+
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom Styles -->
   <style>
     body {
-      background: linear-gradient(135deg, #00c6ff, #0072ff);
+      background: linear-gradient(135deg, #00c6ff, #0072ff); /* Blue gradient background */
       color: white;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
+
     .login-box {
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.4); /* Semi-transparent box */
       padding: 2rem;
       border-radius: 15px;
       box-shadow: 0 0 10px rgba(0,0,0,0.5);
       width: 100%;
       max-width: 400px;
     }
+
     .avatar-option {
       width: 50px;
       height: 50px;
@@ -30,34 +37,46 @@
       border: 2px solid transparent;
       cursor: pointer;
     }
+
     .avatar-option.selected {
-      border-color: #fff;
+      border-color: #fff; /* White border for selected avatar */
     }
   </style>
 </head>
 <body>
+  <!-- Login Container -->
   <div class="login-box text-center">
     <h1 class="mb-4">🎲 Stock Warz</h1>
+
+    <!-- Username Input -->
     <input id="usernameInput" class="form-control mb-3" type="text" placeholder="Enter a username" />
 
+    <!-- Avatar Selection -->
     <div class="mb-3">
       <label class="form-label">Choose Avatar</label>
       <div id="avatarList" class="d-flex justify-content-center">
-        <img src="https://robohash.org/1?size=50x50" class="avatar-option" data-avatar="1">
+        <!-- Avatars using Robohash -->
+        <img src="https://robohash.org/1?size=50x50" class="avatar-option selected" data-avatar="1">
         <img src="https://robohash.org/2?size=50x50" class="avatar-option" data-avatar="2">
         <img src="https://robohash.org/3?size=50x50" class="avatar-option" data-avatar="3">
       </div>
     </div>
 
+    <!-- Login Button -->
     <button id="loginBtn" class="btn btn-light w-100">Login</button>
+
+    <!-- Status Message -->
     <p class="mt-3" id="statusMsg"></p>
   </div>
 
+  <!-- Main Script (uses Firebase v9 Modular) -->
   <script type="module">
+    // --- Firebase Imports ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+    // --- Firebase Config (replace with secure env vars in production) ---
     const firebaseConfig = {
       apiKey: "AIzaSyAw6H0VmOtZtTLo_TFN5RLjx3glB7g4twM",
       authDomain: "thegame-1d509.firebaseapp.com",
@@ -68,122 +87,128 @@
       measurementId: "G-B450N3446R"
     };
 
+    // --- Initialize Firebase App ---
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    // --- DOM Element References ---
     const loginBtn = document.getElementById('loginBtn');
     const usernameInput = document.getElementById('usernameInput');
     const statusMsg = document.getElementById('statusMsg');
     const avatarOptions = document.querySelectorAll('.avatar-option');
+
+    // --- Default Selected Avatar ---
     let selectedAvatar = "1";
 
-
-// === GLOBAL STATE ===
-const playerState = new Map();
-
-function initializePlayerState(uid) {
-  if (!playerState.has(uid)) {
-    playerState.set(uid, {
-      inCombat: false,
-      actionsLeft: 2,
-      currentHealth: 100,
-      portfolio: {},
-      loans: [],
-      history: [],
-      movesLeft: 3,
-      cooldowns: {
-        attack: 0,
-        dash: 0,
-        move: 0
-      }
-    });
-  }
-}
-
-
-    // Handle avatar selection
+    // --- Avatar Selection Handler ---
     avatarOptions.forEach(avatar => {
       avatar.addEventListener('click', () => {
-        avatarOptions.forEach(a => a.classList.remove('selected'));
-        avatar.classList.add('selected');
-        selectedAvatar = avatar.dataset.avatar;
+        avatarOptions.forEach(a => a.classList.remove('selected')); // Deselect all
+        avatar.classList.add('selected'); // Highlight selected
+        selectedAvatar = avatar.dataset.avatar; // Update selected avatar
       });
     });
 
-   loginBtn.addEventListener('click', async () => {
-  const username = usernameInput.value.trim();
-  if (!username) {
-    statusMsg.textContent = "Please enter a username.";
-    return;
-  }
+    // --- Create User + Player If Not Exists ---
+    async function createUserAndPlayer(uid, username, avatar) {
+      const userRef = doc(db, "users", uid);
+      const userSnap = await getDoc(userRef);
 
-  statusMsg.textContent = "Logging in...";
+      // Create user doc if missing
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          username,
+          avatar,
+          createdAt: serverTimestamp(),
+          status: "active"
+        });
+      }
 
-  try {
-    const cred = await signInAnonymously(auth);
-    const uid = cred.user.uid;
-
-    localStorage.setItem("theGame_uid", uid);
-    localStorage.setItem("theGame_username", username);
-    localStorage.setItem("theGame_avatar", selectedAvatar);
-
-    const userRef = doc(db, "users", uid);
-    const docSnap = await getDoc(userRef);
-
-    if (!docSnap.exists()) {
+      // Define new player data for Firestore
       const newPlayer = {
-        name: username,
-        avatar: selectedAvatar,
-        createdAt: Date.now(),
+        userID: uid,                 // Link to user
+        playerName: username,        // Display name
+        avatar,                      // Avatar number
+        status: "active",
+        lastUpdate: serverTimestamp(),
+        online: true,
+        server: "main",              // Default server
+        location: "start",
         isNew: true,
-        cash: 1000,
-        health: 100,
-        attack: 10,
-        defense: 5,
+        trainingMode: true,
+
+        // Player stats
         crypto: 5,
         xp: 0,
         level: 1,
+        bank: 1000,
+        vault: [],
+        loans: [],
+        health: 100,
         techStrength: 1,
+        security: 1,
+
+        landOwned: [],
+
+        // Game state
+        companiesOwned: [],
+        stocks: [],
+        trades: 0,
+        tradesTotal: 0,
+        portfolio: [],
         inCombat: false,
-        assets: { car: 0, home: 0, gear: 0 },
-        playerState: {
-          location: "start",
-          movesLeft: 3,
-          cooldown: 0,
-          currentTarget: null,
-          buffs: [],
-          debuffs: [],
-          inventory: [],
-        }
+        attacks: 0,
+        attacked: 0,
+        inventory: [],
+        history: [],
+        createdAt: serverTimestamp()
       };
 
-      await setDoc(userRef, newPlayer);
-      console.log("✅ New player created.");
+      // Add player document to Firestore (auto-ID)
+      await addDoc(collection(db, "players"), newPlayer);
+
+      // Store locally (optional - helpful for quick UI reference)
+      localStorage.setItem("theGame_currentPlayerData", JSON.stringify(newPlayer));
     }
 
-    // ✅ Initialize playerState memory cache
-    initializePlayerState(uid);
 
-    statusMsg.textContent = `Welcome, ${username}! Redirecting...`;
-    setTimeout(() => window.location.href = "https://rw-501.github.io/theGame/game/world/", 1500);
 
-  } catch (error) {
-    console.error(error);
-    statusMsg.textContent = "Login failed. Try again.";
-  }
-});
+    // --- Handle Login Button Click ---
+    loginBtn.addEventListener('click', async () => {
+      const username = usernameInput.value.trim(); // Get trimmed username
+      if (!username) {
+        statusMsg.textContent = "Please enter a username.";
+        return;
+      }
 
-/*
-    onAuthStateChanged(auth, (user) => {
-      const username = localStorage.getItem("theGame_username");
-      if (user && username) {
-        window.location.href = "https://rw-501.github.io/theGame/game/world/";
+      statusMsg.textContent = "Logging in...";
+
+      try {
+        // Anonymous Firebase Auth
+        const cred = await signInAnonymously(auth);
+        const uid = cred.user.uid;
+
+        // Save key info to localStorage
+        localStorage.setItem("theGame_uid", uid);
+        localStorage.setItem("theGame_username", username);
+        localStorage.setItem("theGame_avatar", selectedAvatar);
+
+        // Create Firestore user/player if needed
+        await createUserAndPlayer(uid, username, selectedAvatar);
+
+
+        // Welcome + Redirect
+        statusMsg.textContent = `Welcome, ${username}! Redirecting...`;
+        setTimeout(() => {
+          window.location.href = "https://rw-501.github.io/theGame/game/world/";
+        }, 1500);
+
+      } catch (err) {
+        console.error(err);
+        statusMsg.textContent = "Login failed. Please try again.";
       }
     });
-
-    */
-   
   </script>
 </body>
 </html>
