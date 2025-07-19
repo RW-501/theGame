@@ -930,7 +930,9 @@ async function handleMoveAndPurchase(x, y, price = 100) {
     // Deduct funds and update tile ownership
     await Promise.all([
       updateDoc(userRef, {
-        balance: userData.balance - cost
+        balance: userData.balance - cost,
+        location: [x, y],
+
       }),
       setDoc(tileRef, {
         owner: user.uid,
