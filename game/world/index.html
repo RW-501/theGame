@@ -922,7 +922,7 @@ async function handleMoveAndPurchase(x, y, price = 100) {
 
     const cost = tileData?.price || price;
 
-    if (userData.balance < cost) {
+    if (userData.cash < cost) {
       alert("Not enough funds to purchase tile.");
       return;
     }
@@ -930,7 +930,7 @@ async function handleMoveAndPurchase(x, y, price = 100) {
     // Deduct funds and update tile ownership
     await Promise.all([
       updateDoc(userRef, {
-        balance: userData.balance - cost,
+        cash: userData.cash - cost,
         location: [x, y],
 
       }),
