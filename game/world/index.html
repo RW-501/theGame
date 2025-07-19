@@ -269,7 +269,7 @@ onAuthStateChanged(auth, async (user) => {
     uid = user.uid;
 
     const userRef = doc(db, "users", uid);
-    const snap = await getDoc(userRef);
+    let snap = await getDoc(userRef);
 
     if (!snap.exists()) {
       await setDoc(userRef, {
@@ -287,22 +287,30 @@ onAuthStateChanged(auth, async (user) => {
         crypto: 5,
         xp: 0
       });
+
+      // 🔄 Re-fetch data after creating it
+      snap = await getDoc(userRef);
     }
 
     userData = snap.data() || {};
-    const location = userData.location || [5, 5];
-    playerX = location[0];
-    playerY = location[1];
 
-    // ✅ Initialize state correctly
-    initializePlayerState(uid);
-    const state = playerState.get(uid);
-    state.inCombat = userData.inCombat || false;
-    state.currentHealth = userData.health || 100;
-    state.movesLeft = 3;
+    // ✅ Also store in playerState map
+    playerState.set(uid, {
+      inCombat: userData.inCombat ?? false,
+      actionsLeft: 2,
+      currentHealth: userData.health ?? 100,
+      movesLeft: 3,
+      cooldowns: {
+        attack: 0,
+        dash: 0,
+        move: 0
+      }
+    });
+
+    playerX = userData.location?.[0] ?? 5;
+    playerY = userData.location?.[1] ?? 5;
 
     console.log("✅ User loaded:", userData.username || "Unnamed");
-
   } else {
     await signInAnonymously(auth);
   }
@@ -886,31 +894,27 @@ const user = auth.currentUser;
 
 // === Stats UI ===
 function updateStatsUI() {
-    const state = playerState.get(uid);
+  const state = playerState.get(uid);
   if (!state || !state.cooldowns) {
     console.warn("Missing player state or cooldowns for UID:", uid);
     return;
   }
+
   const now = Date.now();
   const attackCD = Math.max(0, Math.ceil(((state.cooldowns.attack ?? 0) - now) / 1000));
   const moveCD = Math.max(0, Math.ceil(((state.cooldowns.move ?? 0) - now) / 1000));
 
-  document.getElementById("cash").textContent = `$${playerState.cash ?? 0}`;
-  document.getElementById("trades").textContent = playerState.actionsLeft ?? 0;
-  document.getElementById("health").textContent = `${playerState.health ?? 100}%`;
-  document.getElementById("security").textContent = `${playerState.security ?? 100}%`;
-  document.getElementById("techStrength").textContent = `${playerState.techStrength ?? 100}%`;
-  document.getElementById("crypto").textContent = `${playerState.crypto ?? 5}`;
-/*
-    document.getElementById("combatLog").innerHTML = `
-    <p><strong>${playerState.name}</strong> hit <strong>${defender.name}</strong> for <strong>${playerState.lastDamage || 0}</strong> damage.</p>
-    <p>${defender.name} has ${defender.hp} HP left.</p>
-  `;
-  */
+  document.getElementById("cash").textContent = `$${userData.cash ?? 0}`;
+  document.getElementById("trades").textContent = state.actionsLeft ?? 0;
+  document.getElementById("health").textContent = `${userData.health ?? 100}%`;
+  document.getElementById("security").textContent = `${userData.security ?? 100}%`;
+  document.getElementById("techStrength").textContent = `${userData.techStrength ?? 100}%`;
+  document.getElementById("crypto").textContent = `${userData.crypto ?? 5}`;
+
   document.getElementById("zoneName").textContent =
     `Zone: ${zoneInfo[mapData[playerY]?.[playerX]]?.label || "Unknown"} | Attack CD: ${attackCD}s | Move CD: ${moveCD}s`;
 }
-setInterval(updateStatsUI, 1000);
+
 
 // === Helper ===
 function createButton(text, btnClass, onClick) {
