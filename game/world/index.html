@@ -337,6 +337,7 @@ let isDraggingMap = false;
 const playerState = new Map();
 
 // === Zone Metadata ===
+// === Zone Metadata ===
 const zoneInfo = {
   empty: {
     color: 0xffffff,
@@ -393,64 +394,88 @@ const zoneInfo = {
     value: 85,
     unlocked: false
   },
-  zone1: {
-    color: 0x9575cd,
-    label: "Finance District (1)",
-    type: "zone",
-    icon: "🧠",
-    price: 180,
-    income: 30,
-    taxRate: 0.22,
-    value: 75,
-    unlocked: true
-  },
-  zone2: {
-    color: 0x4fc3f7,
-    label: "Finance District (2)",
-    type: "zone",
-    icon: "💰",
-    price: 140,
-    income: 25,
-    taxRate: 0.20,
-    value: 65,
-    unlocked: false
-  },
-  zone3: {
-    color: 0x4db6ac,
-    label: "Finance District (3)",
-    type: "zone",
-    icon: "🏦",
-    price: 110,
-    income: 20,
-    taxRate: 0.17,
-    value: 50,
-    unlocked: false
-  },
-  zone4: {
-    color: 0x81c784,
-    label: "Finance District (4)",
-    type: "zone",
-    icon: "💸",
-    price: 80,
-    income: 15,
-    taxRate: 0.14,
-    value: 40,
-    unlocked: false
-  },
-  zone5: {
-    color: 0x81c784,
-    label: "Finance District (5)",
-    type: "zone",
-    icon: "💸",
-    price: 60,
-    income: 10,
-    taxRate: 0.12,
-    value: 30,
-    unlocked: false
-  }
+  // 12 Custom Zones with Incremental Pricing
+  ...(() => {
+    const zones = {};
+    const basePrice = 2000;
+    const priceStep = 250;
+    const incomeStep = 25;
+    const valueStep = 200;
+    const baseTax = 0.1;
+
+    const zoneColors = [
+      0x9575cd, 0x4fc3f7, 0x4db6ac, 0x81c784, 0xffb74d,
+      0xa1887f, 0xe57373, 0xba68c8, 0x64b5f6, 0x81c784,
+      0xff8a65, 0xaed581
+    ];
+
+    const zoneIcons = [
+      "🌆", "🏙️", "🌃", "🏗️", "🏬",
+      "🏢", "🏠", "🏘️", "🏚️", "🏛️",
+      "🏨", "🕌"
+    ];
+
+    for (let i = 1; i <= 12; i++) {
+      const price = basePrice + priceStep * (i - 1);
+      zones[`zone${i}`] = {
+        color: zoneColors[i - 1] || 0xcccccc,
+        label: `Zone ${i}`,
+        type: "zone",
+        icon: zoneIcons[i - 1] || "🏙️",
+        price,
+        income: 50 + incomeStep * (i - 1),
+        taxRate: parseFloat((baseTax + i * 0.01).toFixed(2)),
+        value: 500 + valueStep * (i - 1),
+        unlocked: i <= 3 // unlock first 3 zones by default
+      };
+    }
+    return zones;
+  })()
 };
 
 
+
+async function loadMapFromFirebase() {
+  try {
+    const snapshot = await getDocs(collection(db, "mapTiles"));
+    if (snapshot.empty) {
+      setDefaultMapData();
+      return;
+    }
+
+    mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
+
+    snapshot.forEach(doc => {
+      const { x, y, type } = doc.data();
+      if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+        mapData[y][x] = type || "empty";
+      }
+    });
+  } catch (e) {
+    console.error("Failed to load map from Firebase, using default.", e);
+    setDefaultMapData();
+  }
+}
+
+function setDefaultMapData() {
+  mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
+
+  const centerX = 12;
+  const centerY = 12;
+  mapData[centerY][centerX] = "stockMarket";
+
+  for (let y = centerY - 6; y <= centerY + 6; y++) {
+    for (let x = centerX - 6; x <= centerX + 6; x++) {
+      if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) continue;
+      if (x === centerX && y === centerY) continue;
+
+      const dist = Math.max(Math.abs(x - centerX), Math.abs(y - centerY));
+      if (dist >= 1 && dist <= 12) {
+        mapData[y][x] = `zone${dist}`;
+      }
+    }
+  }
+}
 
 
 
@@ -871,6 +896,40 @@ if (!otherPlayerId && trueType === "zone") {
 
   new bootstrap.Modal(modalEl).show();
 }
+
+function createButton({ text, onClick, id, className, parent = document.body, styles = {} }) {
+  const button = document.createElement('button');
+
+  // Set basic properties
+  button.textContent = text;
+  button.id = id || '';
+  button.className = className || 'game-button';
+
+  // Apply custom inline styles if any
+  Object.assign(button.style, {
+    padding: '8px 16px',
+    margin: '4px',
+    fontSize: '16px',
+    cursor: 'pointer',
+    borderRadius: '6px',
+    border: 'none',
+    backgroundColor: '#4CAF50',
+    color: 'white',
+    ...styles,
+  });
+
+  // Attach the click event
+  if (typeof onClick === 'function') {
+    button.addEventListener('click', onClick);
+  }
+
+  // Append to parent
+  parent.appendChild(button);
+
+  return button;
+}
+
+
 
 
 async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
@@ -1434,50 +1493,6 @@ function isAdjacent(x1, y1, x2, y2) {
 }
 
 
-
-
-
-async function loadMapFromFirebase() {
-  try {
-    const snapshot = await getDocs(collection(db, "mapTiles"));
-    if (snapshot.empty) {
-      setDefaultMapData();
-      return;
-    }
-
-    mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
-
-    snapshot.forEach(doc => {
-      const { x, y, type } = doc.data();
-      if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
-        mapData[y][x] = type || "empty";
-      }
-    });
-  } catch (e) {
-    console.error("Failed to load map from Firebase, using default.", e);
-    setDefaultMapData();
-  }
-}
-
-function setDefaultMapData() {
-  mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
-
-  const stockX = 12;
-  const stockY = 12;
-  mapData[stockY][stockX] = "stockMarket";
-
-  for (let y = stockY - 5; y <= stockY + 5; y++) {
-    for (let x = stockX - 5; x <= stockX + 5; x++) {
-      if (x < 0 || x >= MAP_SIZE || y < 0 || y >= MAP_SIZE) continue;
-      if (x === stockX && y === stockY) continue;
-
-      const dist = Math.max(Math.abs(x - stockX), Math.abs(y - stockY));
-      if (dist >= 1 && dist <= 5) {
-        mapData[y][x] = `zone${dist}`; // ascending zone number by distance
-      }
-    }
-  }
-}
 
 
 
