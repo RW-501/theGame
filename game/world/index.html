@@ -950,30 +950,6 @@ const user = auth.currentUser;
 }
 
 
-// === Stats UI ===
-function updateStatsUI() {
-  const state = playerState.get(uid);
-  if (!state || !state.cooldowns) {
-    console.warn("Missing player state or cooldowns for UID:", uid);
-    return;
-  }
-
-  const now = Date.now();
-  const attackCD = Math.max(0, Math.ceil(((state.cooldowns.attack ?? 0) - now) / 1000));
-  const moveCD = Math.max(0, Math.ceil(((state.cooldowns.move ?? 0) - now) / 1000));
-
-  document.getElementById("cash").textContent = `$${userData.cash ?? 0}`;
-  document.getElementById("trades").textContent = state.actionsLeft ?? 0;
-  document.getElementById("health").textContent = `${userData.health ?? 100}%`;
-  document.getElementById("security").textContent = `${userData.security ?? 100}%`;
-  document.getElementById("techStrength").textContent = `${userData.techStrength ?? 100}%`;
-  document.getElementById("crypto").textContent = `${userData.crypto ?? 5}`;
-
-  document.getElementById("zoneName").textContent =
-    `Zone: ${zoneInfo[mapData[playerY]?.[playerX]]?.label || "Unknown"} | Attack CD: ${attackCD}s | Move CD: ${moveCD}s`;
-}
-
-
 // === Helper ===
 function createButton(text, btnClass, onClick) {
   const btn = document.createElement("button");
@@ -1054,6 +1030,32 @@ for (let y = 0; y < MAP_SIZE; y++) {
 }
 
 }
+
+
+
+// === Stats UI ===
+function updateStatsUI() {
+  const state = playerState.get(uid);
+  if (!state || !state.cooldowns) {
+    console.warn("Missing player state or cooldowns for UID:", uid);
+    return;
+  }
+
+  const now = Date.now();
+  const attackCD = Math.max(0, Math.ceil(((state.cooldowns.attack ?? 0) - now) / 1000));
+  const moveCD = Math.max(0, Math.ceil(((state.cooldowns.move ?? 0) - now) / 1000));
+
+  document.getElementById("cash").textContent = `$${userData.cash ?? 0}`;
+  document.getElementById("trades").textContent = state.actionsLeft ?? 0;
+  document.getElementById("health").textContent = `${userData.health ?? 100}%`;
+  document.getElementById("security").textContent = `${userData.security ?? 100}%`;
+  document.getElementById("techStrength").textContent = `${userData.techStrength ?? 100}%`;
+  document.getElementById("crypto").textContent = `${userData.crypto ?? 5}`;
+
+  document.getElementById("zoneName").textContent =
+    `Zone: ${zoneInfo[mapData[playerY]?.[playerX]]?.label || "Unknown"} | Attack CD: ${attackCD}s | Move CD: ${moveCD}s`;
+}
+
 
 function movePlayerSmoothly(scene, x, y) {
   return new Promise(resolve => {
