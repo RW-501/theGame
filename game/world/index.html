@@ -612,6 +612,7 @@ function setDefaultMapData() {
 
 let game;
 let scene;
+let cam;
 
 function getRandomEmptyTile(mapData) {
   const emptyTiles = [];
@@ -806,7 +807,7 @@ function centerCameraOnPlayer() {
 async function initializeMap(scene) {
   // Assuming graphics and playerSprite are globals or declared elsewhere
   graphics = scene.add.graphics();
-  const cam = scene.cameras.main;
+   cam = scene.cameras.main;
 
   // Await loading map data before drawing
   await loadMapFromFirebase();
