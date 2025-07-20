@@ -168,11 +168,18 @@ export async function initLiveNotifications() {
   };
 
   // 🧭 Scroll Pagination
-  modalBody.onscroll = () => {
-    if (modalBody.scrollTop + modalBody.clientHeight >= modalBody.scrollHeight - 10) {
-      loadNotifications(false);
-    }
-  };
+setTimeout(() => {
+  const modalBody = document.querySelector(".modal-body"); // or your actual selector
+  if (modalBody) {
+    modalBody.onscroll = () => {
+      if (modalBody.scrollTop + modalBody.clientHeight >= modalBody.scrollHeight - 10) {
+        loadNotifications(false);
+      }
+    };
+  }
+}, 100);
+
+
 
   // 🔴 Real-time Unread Badge
   notificationsUnsub = onSnapshot(
