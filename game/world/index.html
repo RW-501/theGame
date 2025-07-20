@@ -443,7 +443,7 @@ const zoneInfo = {
     label: "Company",
     type: "company",
     icon: "🏢",
-    price: 0,
+    price: 1000,
     income: 0,
     taxRate: 0,
     value: 0,
@@ -465,7 +465,7 @@ const zoneInfo = {
     label: "Stock Exchange",
     type: "market",
     icon: "📈",
-    price: 200,
+    price: 500000,
     income: 35,
     taxRate: 0.25,
     value: 85,
@@ -474,8 +474,9 @@ const zoneInfo = {
   // 12 Custom Zones with Incremental Pricing
   ...(() => {
     const zones = {};
-    const basePrice = 2000;
-    const priceStep = 250;
+const basePrice = 5000;      // start price at 5000 for Zone 1
+const priceStep = -400;      // negative step to decrease price per zone (adjust as needed)
+
     const incomeStep = 25;
     const valueStep = 200;
     const baseTax = 0.1;
@@ -492,21 +493,23 @@ const zoneInfo = {
       "🏨", "🕌"
     ];
 
-    for (let i = 1; i <= 12; i++) {
-      const price = basePrice + priceStep * (i - 1);
-      zones[`zone${i}`] = {
-        color: zoneColors[i - 1] || 0xcccccc,
-        label: `Zone ${i}`,
-        type: "zone",
-        icon: zoneIcons[i - 1] || "🏙️",
-        price,
-        level: 1,
-        income: 50 + incomeStep * (i - 1),
-        taxRate: parseFloat((baseTax + i * 0.01).toFixed(2)),
-        value: 500 + valueStep * (i - 1),
-        unlocked: i <= 3 // unlock first 3 zones by default
-      };
-    }
+
+for (let i = 1; i <= 12; i++) {
+  const price = basePrice + priceStep * (i - 1);  // decreases price for each subsequent zone
+  zones[`zone${i}`] = {
+    color: zoneColors[i - 1] || 0xcccccc,
+    label: `Zone ${i}`,
+    type: "zone",
+    icon: zoneIcons[i - 1] || "🏙️",
+    price,
+    level: 1,
+    income: 50 + incomeStep * (i - 1),
+    taxRate: parseFloat((baseTax + i * 0.01).toFixed(2)),
+    value: 500 + valueStep * (i - 1),
+    unlocked: i <= 3 // unlock first 3 zones by default
+  };
+}
+
     return zones;
   })()
 };
