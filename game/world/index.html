@@ -93,31 +93,77 @@
   100% { transform: translateY(-40px); opacity: 0; }
 }
 
+:root {
+  --accent: #28a745;
+  --accent-hover: #218838;
+  --bg-dark: #fff;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 #userTool {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 9999; /* ensure it stays on top of the canvas */
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
 }
 
 #userTool button {
-button {
-  background-color: #28a745;
-  color: white;
+  background-color: var(--accent);
+  color: var(--bg-dark);
   padding: 10px 14px;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.2s ease;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s ease, transform 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-button:hover {
-  background-color: #0056b3;
+#userTool button:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-2px);
 }
 
+#notifBellBtn {
+  position: relative;
+  background-color: var(--accent);
 }
+
+#notifBadge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #dc3545;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  display: none;
+}
+
+#openChatBtn {
+  position: fixed;
+  bottom: 90px; /* raised above the other buttons */
+  right: 20px;
+  z-index: 2000;
+  padding: 12px 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--bg-dark);
+  border: none;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  font-size: 20px;
+}
+
 
 .tile-highlight {
   outline: 3px solid gold;
@@ -170,22 +216,19 @@ button:hover {
 <div id="userTool">
   <button id="returnToLocationBtn">📍 Return to My Location</button>
   <button id="goToPlatformBtn">🌐 Go to Platform</button>
-<button id="openOwnedBtn">Asset</button>
-<!-- 🔔 Notification Bell Button -->
-<button id="notifBellBtn" class="btn btn-light position-relative">
-  🔔
-  <span id="notifBadge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display:none;">
-    !
-  </span>
-</button>
+  <button id="openOwnedBtn">📦 Assets</button>
 
-<button id="openChatBtn" 
-        style="position: fixed; bottom: 20px; right: 20px; z-index: 2000; 
-               padding: 10px 16px; border-radius: 50%; background: var(--accent); color: var(--bg-dark); border: none; cursor: pointer; box-shadow: var(--shadow);">
+  <!-- Notification Bell Button -->
+  <button id="notifBellBtn">
+    🔔
+    <span id="notifBadge">!</span>
+  </button>
+</div>
+
+<button id="openChatBtn" title="Open Chat">
   💬
 </button>
 
-</div>
 
 </main>
 
