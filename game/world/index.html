@@ -680,6 +680,7 @@ function setDefaultMapData() {
 let game;
 let scene;
 let cam;
+let newZoom;
 
 function getRandomEmptyTile(mapData) {
   const emptyTiles = [];
@@ -1101,9 +1102,12 @@ scene.input.on("pointermove", pointer => {
 
   // Mouse wheel zoom
   scene.input.on("wheel", (pointer, gameObjects, deltaX, deltaY) => {
-    const newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
+     newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
     cam.setZoom(newZoom);
   });
+
+      newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
+    cam.setZoom(newZoom);
 }
 
 function setupMapInteraction(scene) {
@@ -1145,7 +1149,7 @@ function setupMapInteraction(scene) {
   });
 
   scene.input.on("pointermove", pointer => {
-    const cam = scene.cameras.main;
+     cam = scene.cameras.main;
     if (pointer.isDown) return;
 
     const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
