@@ -1124,6 +1124,7 @@ const now = Date.now();
 
 // Optional checks
 const isUnlocked = info.unlocked ?? true; // fallback to true if not specified
+const level = info.level ?? 1;
 const income = info.income ?? 0;
 const value = info.value ?? info.price ?? 0;
 const taxRate = info.taxRate ?? 0;
@@ -1139,7 +1140,7 @@ modalBody.innerHTML = `
         <div class="col-6"><strong>Value:</strong><br>$${value.toLocaleString()}</div>
         <div class="col-6"><strong>Income:</strong><br>$${income.toLocaleString()} / Weekly</div>
         <div class="col-6"><strong>Tax Rate:</strong><br>${taxRate}%</div>
-        <div class="col-6"><strong>Level:</strong><br>${info.level || 1}</div>
+        <div class="col-6"><strong>Level:</strong><br>${info.level}</div>
         <div class="col-6"><strong>Owner:</strong><br>${info.ownerName || "None"}</div>
         <div class="col-6">
           <strong>Status:</strong><br>
