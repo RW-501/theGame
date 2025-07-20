@@ -1101,13 +1101,18 @@ modalBody.innerHTML = `
 
 
     // === Buy Land button ===
-if (!otherPlayerId && trueType === "zone" || trueType === "empty") {
-  const buyLandBtn = createButton(`Buy Land $${info.price}`, "btn btn-success", async () => {
-    await purchaseTile(x, y, "zone", false);
-    bootstrap.Modal.getInstance(modalEl)?.hide();
+if (!otherPlayerId && (trueType === "zone" || trueType === "empty")) {
+  const buyLandBtn = createButton({
+    text: `Buy Land $${info.price}`,
+    className: "btn btn-success",
+    onClick: async () => {
+      await purchaseTile(x, y, "zone", false);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    }
   });
   modalFooter.appendChild(buyLandBtn);
 }
+
 
 if (!otherPlayerId && trueType === "company") {
   const buyCompanyBtn = createButton(`Buy Company $${info.price}`, "btn btn-warning", async () => {
@@ -1117,13 +1122,18 @@ if (!otherPlayerId && trueType === "company") {
   modalFooter.appendChild(buyCompanyBtn);
 }
 
-if (!otherPlayerId && trueType === "zone" || trueType === "empty") {
-  const moveAndBuyBtn = createButton(`Move Here (Buy for $${info.price})`, "btn btn-primary", async () => {
-    await purchaseTile(x, y, "zone", true);
-    bootstrap.Modal.getInstance(modalEl)?.hide();
+if (!otherPlayerId && (trueType === "zone" || trueType === "empty")) {
+  const moveAndBuyBtn = createButton({
+    text: `Move Here (Buy for $${info.price})`,
+    className: "btn btn-primary",
+    onClick: async () => {
+      await purchaseTile(x, y, "zone", true);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    }
   });
   modalFooter.appendChild(moveAndBuyBtn);
 }
+
 
 if (info.ownerName === playerData.username && info.unlocked && (trueType === "zone" || trueType === "empty")) {
   const startCompanyBtn = createButton(`Start Company $${info.value}`, "btn btn-success", () => {
