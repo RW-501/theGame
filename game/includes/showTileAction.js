@@ -216,13 +216,17 @@ async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
 
 
 function createButton({ text, onClick, id, className, parent = document.body, styles = {} }) {
-  const button = document.createElement('button');
 
   if(!text){
       console.trace("createButton called from:"); // Logs the call stack
 
     return;
-  }
+  }  
+  
+  const button = document.createElement('button');
+
+
+
   // Set basic properties
   button.textContent = text;
   button.id = id || '';
