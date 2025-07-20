@@ -659,14 +659,15 @@ height: MapWidth, //window.innerHeight,
 
   uid = user.uid;
 
- 
-
-     // Get a random empty tile
-const randomLocation = getRandomEmptyTile(mapData);
-
+    
  // Add a 200ms delay before continuing
   await sleep(200);
 
+  // Get a random empty tile
+const randomLocation = getRandomEmptyTile(mapData);
+
+
+  
   try {
 
     // Query the player with userID === uid and server === "main"
