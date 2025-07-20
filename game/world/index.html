@@ -541,9 +541,11 @@ onAuthStateChanged(auth, async (user) => {
       playerData = querySnapshot.docs[0].data();
       playerData.id = querySnapshot.docs[0].id; // Optional: store doc ID
       playerData.isNew = false;
+
     } else {
       // No player found, create a new one
       const newPlayer = {
+        playerUid: "", // will be updated below
         userID: uid,
         playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
         avatar: 0,
@@ -551,11 +553,10 @@ onAuthStateChanged(auth, async (user) => {
         lastUpdate: serverTimestamp(),
         online: true,
         server: "main",
-        location: [5, 5], // default start location
+        location: [5, 5],
         isNew: true,
         trainingMode: true,
 
-        // Stats
         crypto: 5,
         xp: 0,
         level: 1,
@@ -567,8 +568,7 @@ onAuthStateChanged(auth, async (user) => {
         security: 1,
 
         landOwned: [],
-
-        // Game state
+        jobs: [],
         companiesOwned: [],
         stocks: [],
         trades: 0,
@@ -582,9 +582,16 @@ onAuthStateChanged(auth, async (user) => {
         createdAt: serverTimestamp()
       };
 
+      // Create new player document
       const docRef = await addDoc(collection(db, "players"), newPlayer);
-      newPlayer.id = docRef.id;
+      const newId = docRef.id;
 
+      // Update the playerUid in Firestore
+      await updateDoc(docRef, { playerUid: newId });
+
+      // Set locally
+      newPlayer.id = newId;
+      newPlayer.playerUid = newId;
       playerData = newPlayer;
     }
 
@@ -606,7 +613,6 @@ onAuthStateChanged(auth, async (user) => {
     console.error("❌ Error loading player:", error);
   }
 });
-
 
 
 
@@ -940,11 +946,75 @@ if (info.ownerName === playerData.username && info.unlocked && (trueType === "zo
   modalFooter.appendChild(startCompanyBtn);
 }
 
-
+if (info.ownerName !== playerData.username && trueType === "company") {
+  createWorkForCompanyButton(info, playerData, modalFooter, x, y);
+}
 
   new bootstrap.Modal(modalEl).show();
 }
 
+
+async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
+  const trueType = info.type;
+  const jobLimit = 3;
+
+  if (info.ownerName !== playerData.username && trueType === "company") {
+    const currentJobs = Array.isArray(playerData.jobs) ? playerData.jobs.length : 0;
+
+    if (currentJobs < jobLimit) {
+      const payPerDay = Math.floor(info.value / 20);
+
+      const workBtn = createButton(
+        `Work for company for $${payPerDay} /day`,
+        "btn btn-success",
+        async () => {
+          // Prepare job object
+          const job = {
+            companyName: info.label || "Unknown Company",
+            companyCoords: [x, y],
+            pay: payPerDay,
+            startedOn: Date.now()
+          };
+
+          // Ensure jobs array exists
+          if (!Array.isArray(playerData.jobs)) playerData.jobs = [];
+          playerData.jobs.push(job);
+
+          // Update player document
+          const playerRef = doc(db, "players", playerData.playerUid);
+          await updateDoc(playerRef, { jobs: playerData.jobs });
+
+          // Update tile's employsIDs array
+          const tileId = `${x},${y}`;
+          const tileRef = doc(db, "tiles", tileId);
+          const tileSnap = await getDoc(tileRef);
+
+          if (tileSnap.exists()) {
+            const tileData = tileSnap.data();
+            let employsIDs = Array.isArray(tileData.employsIDs) ? tileData.employsIDs : [];
+
+            // Avoid duplicate entry
+            if (!employsIDs.includes(playerData.playerUid)) {
+              employsIDs.push(playerData.playerUid);
+              await updateDoc(tileRef, { employsIDs });
+            }
+          }
+
+          showMessageModal(`🎉 You’re now working at ${job.companyName}!`, "success");
+          closeModal();
+        }
+      );
+
+      modalFooter.appendChild(workBtn);
+    } else {
+      const msg = createButton(
+        "💼 Job limit reached (3)", 
+        "btn btn-secondary disabled"
+      );
+      modalFooter.appendChild(msg);
+    }
+  }
+}
 
 
 
@@ -984,7 +1054,7 @@ function createButton({ text, onClick, id, className, parent = document.body, st
 async function startCompany(x, y, tileData, uid, sector, name, symbol) {
   const tileId = `${x}_${y}`;
   const tileRef = doc(db, "tiles", tileId);
-  const playerRef = doc(db, "players", uid);
+  const playerRef = doc(db, "players", playerUid);
   const info = getTileDataAt(x, y);
   const now = Date.now();
 
@@ -1040,7 +1110,7 @@ document.getElementById("confirmStartCompanyBtn").addEventListener("click", asyn
   const symbol = document.getElementById("stockSymbolInput").value.trim().toUpperCase();
 
   if (!name || !symbol || symbol.length < 3 || symbol.length > 5 || !/^[A-Z]+$/.test(symbol)) {
-    alert("Please enter a valid company name and a stock symbol (3–5 uppercase letters).");
+    showMessageModal("Please enter a valid company name and a stock symbol (3–5 uppercase letters).");
     return;
   }
 

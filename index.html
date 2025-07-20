@@ -111,66 +111,71 @@
     });
 
     // --- Create User + Player If Not Exists ---
-    async function createUserAndPlayer(uid, username, avatar) {
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
+ async function createUserAndPlayer(uid, username, avatar) {
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
 
-      // Create user doc if missing
-      if (!userSnap.exists()) {
-        await setDoc(userRef, {
-          username,
-          avatar,
-          createdAt: serverTimestamp(),
-          status: "active"
-        });
-      }
+  // Create user doc if missing
+  if (!userSnap.exists()) {
+    await setDoc(userRef, {
+      username,
+      avatar,
+      createdAt: serverTimestamp(),
+      status: "active"
+    });
+  }
 
-      // Define new player data for Firestore
-      const newPlayer = {
-        userID: uid,                 // Link to user
-        playerName: username,        // Display name
-        avatar,                      // Avatar number
-        status: "active",
-        lastUpdate: serverTimestamp(),
-        online: true,
-        server: "main",              // Default server
-        location: "start",
-        isNew: true,
-        trainingMode: true,
+  // Prepare new player object (playerUid is empty for now)
+  const newPlayer = {
+    playerUid: '',               // <-- will be filled after addDoc
+    userID: uid,
+    playerName: username,
+    avatar,
+    status: "active",
+    lastUpdate: serverTimestamp(),
+    online: true,
+    server: "main",
+    location: "start",
+    isNew: true,
+    trainingMode: true,
 
-        // Player stats
-        crypto: 5,
-        xp: 0,
-        level: 1,
-        bank: 1000,
-        vault: [],
-        loans: [],
-        health: 100,
-        techStrength: 1,
-        security: 1,
+    // Stats
+    crypto: 5,
+    xp: 0,
+    level: 1,
+    bank: 1000,
+    vault: [],
+    loans: [],
+    health: 100,
+    techStrength: 1,
+    security: 1,
 
-        landOwned: [],
+    landOwned: [],
+    jobs: [],
+    companiesOwned: [],
+    stocks: [],
+    trades: 0,
+    tradesTotal: 0,
+    portfolio: [],
+    inCombat: false,
+    attacks: 0,
+    attacked: 0,
+    inventory: [],
+    history: [],
+    createdAt: serverTimestamp()
+  };
 
-        // Game state
-        companiesOwned: [],
-        stocks: [],
-        trades: 0,
-        tradesTotal: 0,
-        portfolio: [],
-        inCombat: false,
-        attacks: 0,
-        attacked: 0,
-        inventory: [],
-        history: [],
-        createdAt: serverTimestamp()
-      };
+  // Add the document, get a reference with ID
+  const playerRef = await addDoc(collection(db, "players"), newPlayer);
+  const playerId = playerRef.id;
 
-      // Add player document to Firestore (auto-ID)
-      await addDoc(collection(db, "players"), newPlayer);
+  // Update the document with the playerUid
+  await updateDoc(playerRef, { playerUid: playerId });
 
-      // Store locally (optional - helpful for quick UI reference)
-      localStorage.setItem("theGame_currentPlayerData", JSON.stringify(newPlayer));
-    }
+  // Save it locally with updated playerUid
+  newPlayer.playerUid = playerId;
+  localStorage.setItem("theGame_currentPlayerData", JSON.stringify(newPlayer));
+}
 
 
 

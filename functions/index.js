@@ -148,5 +148,61 @@ exports.marketEventBigChange = onSchedule("every 4 hours", async () => {
 });
 
 
+
+exports.payEmployeesDaily = functions.pubsub.schedule("every 24 hours").onRun(async (context) => {
+  const playersSnapshot = await db.collection("players").get();
+  const tilesSnapshot = await db.collection("tiles").get();
+
+  const tilesMap = {};
+  tilesSnapshot.forEach(doc => {
+    tilesMap[doc.id] = doc.data();
+  });
+
+  const batch = db.batch();
+  const timestamp = admin.firestore.FieldValue.serverTimestamp();
+
+  for (const playerDoc of playersSnapshot.docs) {
+    const player = playerDoc.data();
+    const playerRef = playerDoc.ref;
+    const jobs = player.jobs || [];
+
+    let totalPay = 0;
+
+    jobs.forEach(job => {
+      const [x, y] = job.companyCoords;
+      const tileId = `x${x}-y${y}`;
+      const tile = tilesMap[tileId];
+
+      if (tile && tile.type === "company") {
+        const pay = Math.floor(tile.value / 20);
+        totalPay += pay;
+      }
+    });
+
+    if (totalPay > 0) {
+      // Update bank
+      const newBank = (player.bank || 0) + totalPay;
+      batch.update(playerRef, { bank: newBank });
+
+      // Create notification
+      const notifRef = db.collection("notifications").doc(); // or use playerRef.collection("notifications") if you use subcollections
+      batch.set(notifRef, {
+        uid: playerDoc.id,
+        type: "payday",
+        title: "Pay Received 💰",
+        message: `You earned $${totalPay.toLocaleString()} from your jobs today.`,
+        amount: totalPay,
+        read: false,
+        createdAt: timestamp,
+      });
+    }
+  }
+
+  await batch.commit();
+  console.log("✅ Daily pay and notifications processed.");
+  return null;
+});
+
+
 // firebase deploy --only functions
 // firebase functions:log
