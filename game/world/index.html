@@ -681,26 +681,31 @@ console.table(mapData);                        // Displays a visual table
         console.log("randomLocation   ", randomLocation);
 
   // Query the player with userID === uid and server === "main"
-  const q = query(
-    collection(db, "players"),
-    where("userID", "==", uid),
-    where("server", "==", "main"),
-    limit(1)
-  );
+const q = query(
+  collection(db, "players"),
+  where("userID", "==", uid),
+  where("server", "==", "main"),
+  limit(1)
+);
 
-  const querySnapshot = await getDocs(q);
+const querySnapshot = await getDocs(q);
 
-  if (!querySnapshot.empty) {
-    // Player found, store in playerData
-    playerData = querySnapshot.docs[0].data();
-    playerData.id = querySnapshot.docs[0].id; // Optional: store doc ID
-    playerData.isNew = false;
-    if(playerData.location == 'start'){
-     playerData.location = randomLocation; // ✅ Assigned here
+if (!querySnapshot.empty) {
+  const docSnap = querySnapshot.docs[0];
+  playerData = docSnap.data();
+  playerData.id = docSnap.id; // store doc ID
+  playerData.isNew = false;
 
-    }
+  if (playerData.location === 'start') {
+    const randomLocation = getRandomLocation(); // Make sure this function exists and returns a location string
 
-  } else {
+    playerData.location = randomLocation;
+
+    // Update the location in Firestore
+    const docRef = doc(db, "players", docSnap.id);
+    await updateDoc(docRef, { location: randomLocation });
+  }
+ } else {
     // No player found, create a new one
     const newPlayer = {
       playerUid: "", // will be updated below
