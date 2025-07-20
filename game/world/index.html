@@ -666,10 +666,15 @@ height: MapWidth, //window.innerHeight,
   try {
  
     setTimeout(async () => {
-      console.log("mapData  setTimeout ", mapData);
+console.log("First row:", mapData[0]);         // Logs the first row (an array of 25)
+console.log("First tile:", mapData[0][0]);     // Logs the first tile
+console.table(mapData);                        // Displays a visual table
       
       // ✅ Get a random empty tile
   const randomLocation = getRandomEmptyTile(mapData);
+
+
+        console.log("randomLocation   ", randomLocation);
 
   // Query the player with userID === uid and server === "main"
   const q = query(
@@ -747,7 +752,7 @@ height: MapWidth, //window.innerHeight,
   playerState.set(uid, playerData);
 
   // Initialize player location
-  const [x, y] = playerData.location || randomLocation;
+  const [x, y] =  randomLocation;
   playerX = x;
   playerY = y;
 
