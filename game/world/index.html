@@ -765,13 +765,20 @@ const q = query(
 const querySnapshot = await getDocs(q);
 
 if (!querySnapshot.empty) {
-  const docSnap = querySnapshot.docs[0];
-  playerData = docSnap.data();
-  playerData.id = docSnap.id; // store doc ID
-  playerData.isNew = false;
-  const [x, y] =  playerData.location;
-  playerX = x;
-  playerY = y;
+const docSnap = querySnapshot.docs[0];
+playerData = docSnap.data();
+playerData.id = docSnap.id; // store doc ID
+playerData.isNew = false;
+
+const [x, y] = playerData.location;
+playerX = x;
+playerY = y;
+
+cam.setZoom(newZoom);
+
+// ✅ Center camera on player location
+//const TILE_SIZE = 64; // or whatever your tile size is
+cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZE / 2);
 
         console.log("playerY   ", playerY);
 
@@ -914,7 +921,7 @@ const tileTooltip = document.getElementById("tileTooltip");
 
 
 function centerCameraOnPlayer() {
-  cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZE / 2);
+cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZE / 2);
 }
 
 
