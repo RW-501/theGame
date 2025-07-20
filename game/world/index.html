@@ -622,7 +622,7 @@ function getRandomEmptyTile(mapData) {
         emptyTiles.push([x, y]);
       }
     }
-            console.log("emptyTiles   ", emptyTiles);
+          //  console.log("emptyTiles   ", emptyTiles);
 
   }
 
@@ -668,9 +668,12 @@ height: MapWidth, //window.innerHeight,
   try {
  
     setTimeout(async () => {
+      /*
 console.log("First row:", mapData[0]);         // Logs the first row (an array of 25)
 console.log("First tile:", mapData[0][0]);     // Logs the first tile
 console.table(mapData);                        // Displays a visual table
+      */
+
       
       // ✅ Get a random empty tile
   const randomLocation = getRandomEmptyTile(mapData);
