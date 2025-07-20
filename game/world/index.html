@@ -666,7 +666,9 @@ height: MapWidth, //window.innerHeight,
   try {
  
     setTimeout(async () => {
-  // ✅ Get a random empty tile
+      console.log("mapData  setTimeout ", mapData);
+      
+      // ✅ Get a random empty tile
   const randomLocation = getRandomEmptyTile(mapData);
 
   // Query the player with userID === uid and server === "main"
@@ -751,7 +753,7 @@ height: MapWidth, //window.innerHeight,
 
   console.log("✅ Player loaded:", playerData);
   updateStatsUI();
-}, 200);
+}, 1000);
 
 
   } catch (error) {
