@@ -793,6 +793,7 @@ if (!tileSnap.exists()) {
     value: 100,
     unlocked: true,
     ownerID: playerData.playerUid,
+    ownerName: playerName,
     createdAt: Date.now(),
   };
 
@@ -1444,7 +1445,7 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
     const tileSnap = await getDoc(tileRef);
     const tileData = tileSnap.exists() ? tileSnap.data() : info;
 
-    if (tileData.owner && tileData.owner !== playerData.userID) {
+    if (tileData.ownerID && tileData.ownerID !== playerData.userID) {
       return showMessageModal("Oops!", "Tile already owned by someone else.");
     }
 
