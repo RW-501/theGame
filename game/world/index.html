@@ -663,96 +663,96 @@ height: MapWidth, //window.innerHeight,
  // Add a 200ms delay before continuing
   await sleep(200);
 
-  // Get a random empty tile
-const randomLocation = getRandomEmptyTile(mapData);
-
-
-  
   try {
+ 
+    setTimeout(async () => {
+  // ✅ Get a random empty tile
+  const randomLocation = getRandomEmptyTile(mapData);
 
-    // Query the player with userID === uid and server === "main"
-    const q = query(
-      collection(db, "players"),
-      where("userID", "==", uid),
-      where("server", "==", "main"),
-      limit(1)
-    );
+  // Query the player with userID === uid and server === "main"
+  const q = query(
+    collection(db, "players"),
+    where("userID", "==", uid),
+    where("server", "==", "main"),
+    limit(1)
+  );
 
-    const querySnapshot = await getDocs(q);
+  const querySnapshot = await getDocs(q);
 
-    if (!querySnapshot.empty) {
-      // Player found, store in playerData
-      playerData = querySnapshot.docs[0].data();
-      playerData.id = querySnapshot.docs[0].id; // Optional: store doc ID
-      playerData.isNew = false;
+  if (!querySnapshot.empty) {
+    // Player found, store in playerData
+    playerData = querySnapshot.docs[0].data();
+    playerData.id = querySnapshot.docs[0].id; // Optional: store doc ID
+    playerData.isNew = false;
 
-    } else {
-      // No player found, create a new one
-      const newPlayer = {
-        playerUid: "", // will be updated below
-        userID: uid,
-        playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
-        avatar: 0,
-        status: "active",
-        lastUpdate: serverTimestamp(),
-        online: true,
-        server: "main",
-        location: randomLocation, // ✅ Assigned here
-        isNew: true,
-        trainingMode: true,
+  } else {
+    // No player found, create a new one
+    const newPlayer = {
+      playerUid: "", // will be updated below
+      userID: uid,
+      playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
+      avatar: 0,
+      status: "active",
+      lastUpdate: serverTimestamp(),
+      online: true,
+      server: "main",
+      location: randomLocation, // ✅ Assigned here
+      isNew: true,
+      trainingMode: true,
 
-        crypto: 5,
-        xp: 0,
-        level: 1,
-        bank: 1000,
-        vault: [],
-        loans: [],
-        health: 100,
-        techStrength: 1,
-        security: 1,
+      crypto: 5,
+      xp: 0,
+      level: 1,
+      bank: 1000,
+      vault: [],
+      loans: [],
+      health: 100,
+      techStrength: 1,
+      security: 1,
 
-        landOwned: [],
-        jobs: [],
-        companiesOwned: [],
-        stocks: [],
-        trades: 0,
-        tradesTotal: 0,
-        portfolio: [],
-        inCombat: false,
-        attacks: 0,
-        attacked: 0,
-        inventory: [],
-        history: [],
-        createdAt: serverTimestamp()
-      };
+      landOwned: [],
+      jobs: [],
+      companiesOwned: [],
+      stocks: [],
+      trades: 0,
+      tradesTotal: 0,
+      portfolio: [],
+      inCombat: false,
+      attacks: 0,
+      attacked: 0,
+      inventory: [],
+      history: [],
+      createdAt: serverTimestamp()
+    };
 
-      // Create new player document
-      const docRef = await addDoc(collection(db, "players"), newPlayer);
-      const newId = docRef.id;
+    // Create new player document
+    const docRef = await addDoc(collection(db, "players"), newPlayer);
+    const newId = docRef.id;
 
-      // Update the playerUid in Firestore
-      await updateDoc(docRef, { playerUid: newId });
+    // Update the playerUid in Firestore
+    await updateDoc(docRef, { playerUid: newId });
 
-      // Set locally
-      newPlayer.id = newId;
-      newPlayer.playerUid = newId;
-      playerData = newPlayer;
-    }
+    // Set locally
+    newPlayer.id = newId;
+    newPlayer.playerUid = newId;
+    playerData = newPlayer;
+  }
 
-    // Save player data locally
-    localStorage.setItem("theGame_currentPlayerData", JSON.stringify(playerData));
+  // Save player data locally
+  localStorage.setItem("theGame_currentPlayerData", JSON.stringify(playerData));
 
-    // Store in playerState map
-    playerState.set(uid, playerData);
+  // Store in playerState map
+  playerState.set(uid, playerData);
 
+  // Initialize player location
+  const [x, y] = playerData.location || randomLocation;
+  playerX = x;
+  playerY = y;
 
-    // Initialize player location
-    const [x, y] = playerData.location || randomLocation;
-    playerX = x;
-    playerY = y;
+  console.log("✅ Player loaded:", playerData);
+  updateStatsUI();
+}, 200);
 
-    console.log("✅ Player loaded:", playerData);
-    updateStatsUI();
 
   } catch (error) {
     console.error("❌ Error loading player:", error);
