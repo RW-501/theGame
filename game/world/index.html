@@ -785,14 +785,18 @@ const tileTooltip = document.getElementById("tileTooltip");
 
 
 
-
 async function initializeMap(scene) {
+  // Assuming graphics and playerSprite are globals or declared elsewhere
   graphics = scene.add.graphics();
   const cam = scene.cameras.main;
 
+  // Await loading map data before drawing
   await loadMapFromFirebase();
+
+  // Draw the map based on loaded data
   drawMap(scene);
 
+  // Create player sprite at current player position
   playerSprite = scene.add.circle(
     playerX * TILE_SIZE + TILE_SIZE / 2,
     playerY * TILE_SIZE + TILE_SIZE / 2,
@@ -806,19 +810,21 @@ async function initializeMap(scene) {
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
 
-  // Calculate zoom to fit entire map
+  // Calculate zoom to fit entire map inside screen
   const zoomX = screenWidth / mapWidth;
   const zoomY = screenHeight / mapHeight;
-  const zoom = Math.min(zoomX, zoomY);
+  const zoom = Math.min(zoomX, zoomY, 1); // Limit max zoom to 1 (optional)
 
+  // Set camera bounds to map size
   cam.setBounds(0, 0, mapWidth, mapHeight);
+
+  // Set camera zoom to fit map
   cam.setZoom(zoom);
 
   // Center camera on map
-  const centerX = mapWidth / 2;
-  const centerY = mapHeight / 2;
-  cam.centerOn(centerX, centerY);
-
+  // This centers by scrollX/Y, not centerOn (better control)
+  cam.scrollX = (mapWidth / 2) - (screenWidth / (2 * zoom));
+  cam.scrollY = (mapHeight / 2) - (screenHeight / (2 * zoom));
 
   updateStatsUI();
 }
