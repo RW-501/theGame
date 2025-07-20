@@ -1472,14 +1472,25 @@ let ownedTiles = [];///  = [ playerData.companiesOwned playerData.landOwned]; //
 
 function openOwnedModal() {
   renderOwnedList();
-  
-  bootstrap.Modal.getInstance(document.getElementById("ownedModal"))?.show();
+  console.log("Opening owned assets modal");
+
+  const modalEl = document.getElementById("ownedModal");
+
+  // Try to get existing instance
+  let modalInstance = bootstrap.Modal.getInstance(modalEl);
+
+  // If no instance, create one
+  if (!modalInstance) {
+    modalInstance = new bootstrap.Modal(modalEl);
+  }
+
+  modalInstance.show();
 }
 
 document.getElementById("openOwnedBtn").addEventListener("click", openOwnedModal);
 
+// Expose to global if needed
 window.openOwnedModal = openOwnedModal;
-
 
 
 
