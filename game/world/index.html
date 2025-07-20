@@ -1009,16 +1009,22 @@ function setupMapMovement(scene) {
 
 scene.input.on("pointerdown", pointer => {
   isDraggingMap = true; // start dragging
+      console.log("pointerdown");
+
 });
 
 scene.input.on("pointerup", pointer => {
   isDraggingMap = false; // stop dragging
+      console.log("pointerup");
+
 });
 
 scene.input.on("pointermove", pointer => {
   if (pointer.isDown && isDraggingMap) {
     cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
     cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
+    isDraggingMap = true; 
+    console.log("pointermove");
   }
 });
 
