@@ -654,7 +654,7 @@ this.input.on('pointermove', (pointer) => {
 
 
   // Click zones to open modals
-  this.input.on('pointerdown', (pointer) => {
+  this.input.on('pointerup', (pointer) => {
     const x = Math.floor(pointer.x / TILE_SIZE);
     const y = Math.floor(pointer.y / TILE_SIZE);
     if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
