@@ -20,7 +20,6 @@ let groupingMode = "day"; // "flat" or "day"
 let notificationsUnsub = null;
 
 
-
 function insertNotifModal() {
   const modalHTML = `
     <div class="modal fade" id="notifModal" tabindex="-1">
@@ -42,7 +41,8 @@ function insertNotifModal() {
 }
 
 
-insertNotifModal();
+window.addEventListener("DOMContentLoaded", insertNotifModal);
+
 
 export async function initLiveNotifications() {
   const user = auth.currentUser;
