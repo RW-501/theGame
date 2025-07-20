@@ -1321,8 +1321,13 @@ if (!otherPlayerId  && isUnlocked && trueType === "company") {
 }
 
 if (!otherPlayerId  && isUnlocked && (trueType === "zone" || trueType === "empty")) {
+  
+    // New tile level and value
+  const newLevel = info.level || 1;
+  const newValue = info.price + 1000 + playerData.level * 200;
+
   const moveAndBuyBtn = createButton({
-    text: `Move Here (Buy for $${info.price})`,
+    text: `Move Here (Buy for $${newValue})`,
     className: "btn btn-primary",
     onClick: async () => {
       await purchaseTile(x, y, "zone", true);
@@ -1598,6 +1603,9 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
       return showMessageModal("Insufficient Funds", "You don't have enough funds.");
     }
 
+    // New tile level and value
+  const newLevel = tileData.level || 1;
+  const newValue = tileData.price + 1000 + player.level * 200;
     // Deduct money and write tile data
     const updatedBank = playerData.bank - cost;
     const newTile = {
@@ -1610,8 +1618,8 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
       label: info.label,
       type: "blocked", // prevent re-buying
       icon:  info.icon,
-      price:  info.price,
-      originalCost: info.price,
+      price:  shouldMove ? newValue : info.price,
+      originalCost: shouldMove ? newValue : info.price,
       income:  info.income,
       taxRate:  info.taxRate,
       value:  info.value,
