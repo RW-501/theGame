@@ -2077,10 +2077,10 @@ scene.load.once('complete', () => {
 });
 function renderTile(x, y) {
   // Logic to clear and re-render that tile (e.g., blank out if set to "empty")
-  const tile = tileSprites[`${x},${y}`];
+  const tile = mapData[`${x},${y}`];
   if (tile) {
     tile.destroy(); // remove the tile sprite if it exists
-    delete tileSprites[`${x},${y}`];
+    delete mapData[`${x},${y}`];
   }
 
   // Optionally draw something else (e.g., dirt/grass tile for empty)
