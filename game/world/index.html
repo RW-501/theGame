@@ -421,7 +421,7 @@ const zoneInfo = {
     label: "Wilderness",
     type: "empty",
     icon: "🌲",
-          tileImage: '',
+    tileImage: 'https://rw-501.github.io/theGame/game/images/tile_images/trees/tree-small.png', // fixed slashes and removed extra quotes
     price: 0,
     income: 0,
     taxRate: 0,
@@ -433,6 +433,7 @@ const zoneInfo = {
     label: "Home Base",
     type: "home",
     icon: "🏠",
+    tileImage: 'https://rw-501.github.io/theGame/game/images/tile_images/suburban/building-type-0.png', // fixed slashes and removed extra quotes
     price: 0,
     income: 1,
     taxRate: 0,
@@ -444,6 +445,7 @@ const zoneInfo = {
     label: "Company",
     type: "company",
     icon: "🏢",
+    tileImage: 'https://rw-501.github.io/theGame/game/images/tile_images/industrial/building-0.png', // fixed slashes and removed extra quotes
     price: 1000,
     income: 0,
     taxRate: 0,
@@ -466,6 +468,7 @@ const zoneInfo = {
     label: "Stock Exchange",
     type: "market",
     icon: "📈",
+    tileImage: 'https://rw-501.github.io/theGame/game/images/tile_images/building.png', // fixed slashes and removed extra quotes
     price: 500000,
     income: 35,
     taxRate: 0.25,
@@ -475,11 +478,11 @@ const zoneInfo = {
   // 12 Custom Zones with Incremental Pricing
   ...(() => {
     const zones = {};
-const basePrice = 5000;      // start price at 5000 for Zone 1
-const priceStep = -400;      // negative step to decrease price per zone (adjust as needed)
+    const basePrice = 5000;      // start price at 5000 for Zone 1
+    const priceStep = -400;      // negative step to decrease price per zone (adjust as needed)
 
     const incomeStep = 25;
-    const valueStep = 200;
+    const valueStep = 500;
     const baseTax = 0.1;
 
     const zoneColors = [
@@ -494,27 +497,26 @@ const priceStep = -400;      // negative step to decrease price per zone (adjust
       "🏨", "🕌"
     ];
 
-
-for (let i = 1; i <= 12; i++) {
-  const price = basePrice + priceStep * (i - 1);  // decreases price for each subsequent zone
-  zones[`zone${i}`] = {
-    color: zoneColors[i - 1] || 0xcccccc,
-    label: `Zone ${i}`,
-    type: "zone",
-    icon: zoneIcons[i - 1] || "🏙️",
-    price,
-    level: 1,
-    income: 50 + incomeStep * (i - 1),
-    taxRate: parseFloat((baseTax + i * 0.01).toFixed(2)),
-    value: 500 + valueStep * (i - 1),
-    unlocked: i <= 3 // unlock first 3 zones by default
-  };
-}
+    for (let i = 1; i <= 12; i++) {
+      const price = basePrice + priceStep * (i - 1);  // decreases price for each subsequent zone
+      zones[`zone${i}`] = {
+        color: zoneColors[i - 1] || 0xcccccc,
+        label: `Zone ${i}`,
+        type: "zone",
+        icon: zoneIcons[i - 1] || "🏙️",
+        tileImage: 'https://rw-501.github.io/theGame/game/images/tile_images/commercial/building-0.png', // fixed slashes and removed extra quotes
+        price,
+        level: 1,
+        income: 50 + incomeStep * (i - 1),
+        taxRate: parseFloat((baseTax + i * 0.01).toFixed(2)),
+        value: price + valueStep * (i - 1),
+        unlocked: i <= 3 // unlock first 3 zones by default
+      };
+    }
 
     return zones;
   })()
 };
-
 
 
 async function loadMapFromFirebase() {
@@ -559,7 +561,7 @@ function setDefaultMapData() {
   }
 }
 
-
+let game;
 
 // === Firebase Login Check ===
 onAuthStateChanged(auth, async (user) => {
@@ -567,6 +569,17 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = 'https://rw-501.github.io/theGame';
     return;
   }
+// === Game Setup ===
+const config = {
+  type: Phaser.AUTO,
+width: window.innerWidth,
+height: window.innerHeight,
+  parent: "game-container",
+  backgroundColor: "#222222",
+  scene: { preload, create, update }
+};
+
+ game = new Phaser.Game(config);
 
   uid = user.uid;
 
@@ -689,17 +702,6 @@ const tileTooltip = document.getElementById("tileTooltip");
 
 
 
-// === Game Setup ===
-const config = {
-  type: Phaser.AUTO,
-width: window.innerWidth,
-height: window.innerHeight,
-  parent: "game-container",
-  backgroundColor: "#222222",
-  scene: { preload, create, update }
-};
-
-const game = new Phaser.Game(config);
 
 
 async function initializeMap(scene) {
@@ -741,26 +743,38 @@ async function initializeMap(scene) {
 
 function drawMap(scene) {
   graphics.clear();
-for (let y = 0; y < MAP_SIZE; y++) {
-  for (let x = 0; x < MAP_SIZE; x++) {
-    const zoneType = mapData[y][x] || "empty";
-    const info = zoneInfo[zoneType] || zoneInfo.empty;
 
-    graphics.fillStyle(info.color, 1);
-    graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const zoneType = mapData[y][x] || "empty";
+      const info = zoneInfo[zoneType] || zoneInfo.empty;
 
-    scene.add.text(
-      x * TILE_SIZE + TILE_SIZE/2,
-      y * TILE_SIZE + TILE_SIZE/2,
-      info.icon,
-      { font: `${TILE_SIZE * 0.5}px Arial`, align: 'center' }
-    ).setOrigin(0.5);
-    //         setTimeout(() => info.destroy(), 5000);
+      // Background fill
+      graphics.fillStyle(info.color, 1);
+      graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
+      // Draw image if available
+      if (info.imageKey) {
+        scene.add.image(
+          x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+          info.imageKey
+        ).setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
+      }
+      // Fallback to icon if no image
+      else if (info.icon) {
+        scene.add.text(
+          x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+          info.icon,
+          { font: `${TILE_SIZE * 0.3}px Arial`, align: 'center' }
+        ).setOrigin(0.5);
+      }
+    }
   }
 }
 
-}
+
 
 function returnToPlayerLocation(scene) {
   const cam = scene.cameras.main;
@@ -782,7 +796,39 @@ document.getElementById("goToPlatformBtn").addEventListener("click", () => {
 
 // === Phaser Scene Methods ===
 function preload() {
-  // Preload assets here if needed
+  // Add loading text or a bar
+  const loadingText = this.add.text(
+    this.cameras.main.centerX,
+    this.cameras.main.centerY,
+    'Loading...',
+    { font: '32px Arial', fill: '#ffffff' }
+  ).setOrigin(0.5);
+
+  const usedImages = new Set(); // avoid duplicate loads
+
+  for (const zoneKey in zoneInfo) {
+    const tileData = zoneInfo[zoneKey];
+    if (tileData.tileImage && !usedImages.has(tileData.tileImage)) {
+      const imageKey = zoneKey + "_tile"; // unique key per zone
+      this.load.image(imageKey, tileData.tileImage);
+      tileData.imageKey = imageKey; // store it for drawMap()
+      usedImages.add(tileData.tileImage);
+    }
+  }
+
+  // Optional: Simulate longer loading for testing
+  for (let i = 0; i < 100; i++) {
+    this.load.image(`dummy${i}`, 'path/to/dummy.png');
+  }
+
+  // Display loading progress
+  this.load.on('progress', (value) => {
+    loadingText.setText(`Loading... ${Math.round(value * 100)}%`);
+  });
+
+  this.load.on('complete', () => {
+    loadingText.setText('Loading Complete!');
+  });
 }
 
 
