@@ -372,11 +372,11 @@ button:hover {
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import {   getFirestore,  query,
-  where, limit, 
+  where, limit, addDoc ,
   arrayRemove, increment, serverTimestamp, 
   arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { initLiveNotifications } from 'https://rw-501.github.io/theGame/game/includes/notifications.js'; // Adjust path as needed
-import { initLiveNotifications } from 'https://rw-501.github.io/theGame/game/includes/chat.js'; // Adjust path as needed
+import {  } from 'https://rw-501.github.io/theGame/game/includes/chat.js'; // Adjust path as needed
 
 document.addEventListener("DOMContentLoaded", () => {
   const notifBtn = document.getElementById("notifBellBtn");
