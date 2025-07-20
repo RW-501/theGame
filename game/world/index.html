@@ -776,7 +776,7 @@ if (!querySnapshot.empty) {
 const playerRef = doc(db, "players", playerData.playerUid);
 
 // Define the tile ID based on player's current position
-const tileId = `${playerX},${playerY}`;
+const tileId = `${playerX}_${playerY}`;
 const tileRef = doc(db, "tiles", tileId);
 const tileSnap = await getDoc(tileRef);
 
@@ -960,6 +960,10 @@ function preload() {
       this.load.image(imageKey, tileData.tileImage);
       tileData.imageKey = imageKey; // store it for drawMap()
       usedImages.add(tileData.tileImage);
+
+      console.log("imageKey ",imageKey);
+      console.log("zoneKey ",zoneKey);
+      console.log("tileData ",tileData);
     }
   }
 
@@ -1032,7 +1036,7 @@ function setupMapInteraction(scene) {
   });
 
   scene.input.on("pointerup", async pointer => {
-    if (isMoving) return;
+    if (isMoving || isDraggingMap) return;
 
     const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
     const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
@@ -1276,7 +1280,7 @@ async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
           await updateDoc(playerRef, { jobs: playerData.jobs });
 
           // Update tile's employsIDs array
-          const tileId = `${x},${y}`;
+          const tileId = `${x}_${y}`;
           const tileRef = doc(db, "tiles", tileId);
           const tileSnap = await getDoc(tileRef);
 
