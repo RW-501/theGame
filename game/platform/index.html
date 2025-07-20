@@ -521,11 +521,15 @@ const game = new Phaser.Game({
 let graphics;
 let zoneTooltip = document.getElementById("zoneTooltip");
 
+let playerData = {};
 
+
+
+const playerState = new Map();
 let uid;
-
+/*
 // Centralized player state
-let playerData = {
+ playerData = {
       playerUid: "", // will be updated below
       userID: uid,
       playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
@@ -566,6 +570,8 @@ let playerData = {
       history: [],
       createdAt: serverTimestamp()
 };
+*/
+
 
 // Optional: separate local-only state (if needed)
 const localPlayerState = {
@@ -597,10 +603,16 @@ if (!querySnapshot.empty) {
   const docSnap = querySnapshot.docs[0];
 
     // Merge server data into playerData
-    Object.assign(playerData, docSnap.data());
+   // Object.assign(playerData, docSnap.data());
 
-    // Fallback defaults if values are missing
+  playerData = docSnap.data();
+  playerData.id = docSnap.id; // store doc ID
+  // Store in playerState map
+  playerState.set(uid, playerData);
 
+ 
+
+  console.log("✅ Player loaded:", playerData);
 
     updateStatsUI?.(); // Make sure this exists
   } else {
@@ -929,7 +941,7 @@ async function loadProfileDetails() {
       return;
     }
 
-    const playerData = userDoc.data();
+     playerData = userDoc.data();
     const username = playerData.username || "Anonymous";
     const level = playerData.level || 1;
     const xp = playerData.xp || 0;
@@ -959,7 +971,7 @@ async function loadProfileDetails() {
   document.getElementById("profileCompanies").textContent = "Companies: " + JSON.stringify(playerData.companiesOwned, null, 2);
 
   document.getElementById("profileOther").textContent = JSON.stringify({
-    UID: playerData.userID,
+    UID: playerData.playerUid,
     inCombat: playerData.inCombat,
     trainingMode: playerData.trainingMode,
     isNew: playerData.isNew,
@@ -982,7 +994,7 @@ async function loadLearningCenter() {
   }
 
   try {
-    const userDoc = await getDoc(doc(db, "users", uid));
+    const userDoc = await getDoc(doc(db, "players", playerData.playerUid));
     if (!userDoc.exists()) {
       console.error("User not found");
       return;
@@ -1017,7 +1029,7 @@ async function loadLearningCenter() {
 
 async function applyUpgrade(uid, upgradeKey) {
   try {
-    const userRef = doc(db, "users", uid);
+    const userRef = doc(db, "players", playerData.playerUid);
     await updateDoc(userRef, {
       [`upgrades.${upgradeKey}`]: true,
     });
@@ -1122,12 +1134,12 @@ function toggleSafeModeUI() {
 }
 
 function closeSafeModeUI() {
-  document.getElementById("safeModal").classList.add("hidden");
+  document.getElementById("valutModal").classList.add("hidden");
 }
 
 async function updatePlayerSetting(key, value) {
-  if (!playerState || !playerState.uid) return;
-  const playerRef = doc(firestore, "players", playerState.uid);
+  if (!playerState || !playerState.playerUid) return;
+  const playerRef = doc(firestore, "players", playerState.playerUid);
   await updateDoc(playerRef, { [key]: value });
 }
 
