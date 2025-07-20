@@ -1,5 +1,5 @@
 const chatPopupHTML = `
-<div class="chat-popup shadow-lg rounded d-none" id="chatContainer" style="max-width:400px; height: 300px; right: 20px; bottom: 70px; position: fixed; z-index: 30000; background: white; color: var(--text-light);">
+<div class="chat-popup shadow-lg rounded d-none" id="chatContainer" style="max-width:400px; height: auto; right: 20px; bottom: 5px; position: fixed; z-index: 30000; background: white; color: var(--text-light);">
   <!-- Header -->
   <div class="chat-header bg-primary text-white p-2 d-flex justify-content-between align-items-center">
     <span>Live Chat</span>
