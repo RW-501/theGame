@@ -434,7 +434,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (notifBtn) {
     notifBtn.addEventListener("click", () => {
       console.log("🔔 Notification button clicked.");
-      initLiveNotifications(); // Loads + displays modal
+    new bootstrap.Modal(document.getElementById("notifModal")).show();
     });
   }
 });

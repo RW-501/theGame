@@ -239,11 +239,11 @@ setTimeout(() => {
 
 window.initLiveNotifications = initLiveNotifications;
 
-/*
+
 setTimeout(() => {
   initLiveNotifications();
 }, 1000); // Delay to ensure auth is loaded
-*/
+
 
 
 // 📤 Send Notification
