@@ -1348,6 +1348,13 @@ if (!otherPlayerId  && isUnlocked && (trueType === "zone" || trueType === "empty
   modalFooter.appendChild(moveAndBuyBtn);
 }
 
+if (trueType === "company") {
+  const viewEmployeesBtn = createButton("View Employees", "btn btn-primary", async () => {
+    await showEmployeesModal(`${x}_${y}`);
+  });
+  modalFooter.appendChild(viewEmployeesBtn);
+}
+
 
 if (info.ownerName  && isUnlocked && info.ownerName === playerData.username && info.unlocked && (trueType === "zone" || trueType === "empty")) {
   const startCompanyBtn = createButton(`Start Company $${info.value}`, "btn btn-success", () => {
@@ -1363,6 +1370,62 @@ if (info.ownerName  && isUnlocked && info.ownerName !== playerData.username && t
 }
 
   new bootstrap.Modal(modalEl).show();
+}
+
+async function showEmployeesModal(tileId) {
+  const modalEl = document.getElementById("employeesModal");
+  const modalBody = modalEl.querySelector(".modal-body");
+  modalBody.innerHTML = "Loading...";
+
+  try {
+    const tileRef = doc(db, "tiles", tileId);
+    const tileSnap = await getDoc(tileRef);
+
+    if (!tileSnap.exists()) {
+      modalBody.innerHTML = "No data found for this tile.";
+      return;
+    }
+
+    const tileData = tileSnap.data();
+    const employsIDs = Array.isArray(tileData.employsIDs) ? tileData.employsIDs : [];
+
+    if (employsIDs.length === 0) {
+      modalBody.innerHTML = "No employees yet.";
+      return;
+    }
+
+    let html = `<ul class="list-group">`;
+
+    for (const uid of employsIDs) {
+      const empRef = doc(db, "players", uid);
+      const empSnap = await getDoc(empRef);
+
+      if (empSnap.exists()) {
+        const empData = empSnap.data();
+        const job = (empData.jobs || []).find(j => j.companyCoords?.join("_") === tileId);
+        const startDate = job ? new Date(job.startedOn).toLocaleDateString() : "Unknown";
+
+        html += `
+          <li class="list-group-item d-flex align-items-center">
+            <img src="${empData.avatarURL || 'default-avatar.png'}" alt="Avatar"
+                 class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+            <div>
+              <strong>${empData.username || 'Unnamed'}</strong><br>
+              <small class="text-muted">Started: ${startDate}</small>
+            </div>
+          </li>
+        `;
+      }
+    }
+
+    html += `</ul>`;
+    modalBody.innerHTML = html;
+    new bootstrap.Modal(modalEl).show();
+
+  } catch (error) {
+    modalBody.innerHTML = "An error occurred loading employees.";
+    console.error("showEmployeesModal error:", error);
+  }
 }
 
 
