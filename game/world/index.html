@@ -179,6 +179,12 @@ button:hover {
   </span>
 </button>
 
+<button id="openChatBtn" 
+        style="position: fixed; bottom: 20px; right: 20px; z-index: 2000; 
+               padding: 10px 16px; border-radius: 50%; background: var(--accent); color: var(--bg-dark); border: none; cursor: pointer; box-shadow: var(--shadow);">
+  💬
+</button>
+
 </div>
 
 </main>
@@ -370,6 +376,7 @@ import {   getFirestore,  query,
   arrayRemove, increment, serverTimestamp, 
   arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { initLiveNotifications } from 'https://rw-501.github.io/theGame/game/includes/notifications.js'; // Adjust path as needed
+import { initLiveNotifications } from 'https://rw-501.github.io/theGame/game/includes/chat.js'; // Adjust path as needed
 
 document.addEventListener("DOMContentLoaded", () => {
   const notifBtn = document.getElementById("notifBellBtn");
