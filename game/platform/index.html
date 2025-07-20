@@ -442,8 +442,6 @@ import {  auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-co
 import { collection, doc,query,  getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-const TILE_SIZE = 100;
-const MAP_SIZE = 8; // home base size
 
 const zoneImages = {
   market: "https://img.icons8.com/color/96/shopping-cart.png",
@@ -502,6 +500,8 @@ const zoneNames = {
 
 
 
+const TILE_SIZE = 100;
+const MAP_SIZE = 8; // home base size
 
 let mapData = [];
 
