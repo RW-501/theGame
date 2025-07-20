@@ -145,7 +145,32 @@
       }
     }
 
-    
+        .profile-card {
+      max-width: 600px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      margin: auto;
+    }
+    .avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+    .section {
+      margin-top: 15px;
+    }
+    .section h4 {
+      margin-bottom: 5px;
+    }
+    pre {
+      background: #eee;
+      padding: 10px;
+      overflow-x: auto;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
@@ -209,22 +234,7 @@
   </div>
 </div>
 
-<div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content rounded shadow">
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title" id="profileModalLabel">👤 Profile</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <p><strong>Name:</strong> <span id="profileUsername">Loading...</span></p>
-        <p><strong>Level:</strong> <span id="profileLevel">-</span></p>
-        <p><strong>XP:</strong> <span id="profileXP">-</span></p>
-        <!-- Add avatar, achievements, etc. -->
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <!-- SHOP Modal -->
 <div class="modal fade" id="shopModal" tabindex="-1" aria-labelledby="shopLabel" aria-hidden="true">
@@ -247,8 +257,8 @@
 <div class="modal fade" id="learnModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Learning Center</h5></div><div class="modal-body"><div id="learningCenter" class="p-3 rounded shadow bg-light"></div>
 </div></div></div></div>
 
-<!-- Safe Mode Modal -->
-<div class="modal fade" id="safeModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Safe Mode</h5></div><div class="modal-body">    <p>Safe Mode protects you from combat but reduces rewards.</p>
+<!-- Valut Mode Modal -->
+<div class="modal fade" id="valutModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h5>Safe Mode</h5></div><div class="modal-body">    <p>Safe Mode protects you from combat but reduces rewards.</p>
     <label>
       <input type="checkbox" id="safeModeToggle" />
       Enable Safe Mode
@@ -258,12 +268,12 @@
       </div>
     </div></div></div></div>
 
-<!-- Assets Modal -->
-<div class="modal fade" id="assetsModal" tabindex="-1" aria-labelledby="assetsModalLabel" aria-hidden="true">
+<!-- Land Modal -->
+<div class="modal fade" id="landModal" tabindex="-1" aria-labelledby="landModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content rounded">
       <div class="modal-header">
-        <h5 class="modal-title" id="assetsModalLabel">Your Assets</h5>
+        <h5 class="modal-title" id="landModalLabel">Your Land</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -293,10 +303,53 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body text-center">
-        <p><strong>Name:</strong> <span id="profileUsername">Loading...</span></p>
-        <p><strong>Level:</strong> <span id="profileLevel">-</span></p>
-        <p><strong>XP:</strong> <span id="profileXP">-</span></p>
-        <!-- Add avatar, achievements, etc. -->
+<div class="profile-card">
+  <img id="profileAvatar" class="avatar" src="" alt="Avatar">
+  <h2 id="profileUsername">Loading...</h2>
+  <p id="profileLevel"></p>
+  <p id="profileXP"></p>
+  <p id="profileStatus"></p>
+  <div class="section">
+    <h4>Stats</h4>
+    <p><strong>Health:</strong> <span id="profileHealth"></span></p>
+    <p><strong>Crypto:</strong> <span id="profileCrypto"></span></p>
+    <p><strong>Bank:</strong> $<span id="profileBank"></span></p>
+    <p><strong>Tech Strength:</strong> <span id="profileTechStrength"></span></p>
+    <p><strong>Security:</strong> <span id="profileSecurity"></span></p>
+    <p><strong>Trades:</strong> <span id="profileTrades"></span> / <span id="profileTradesTotal"></span></p>
+  </div>
+
+  <div class="section">
+    <h4>Location</h4>
+    <p><strong>X:</strong> <span id="profileX"></span> | <strong>Y:</strong> <span id="profileY"></span></p>
+  </div>
+
+  <div class="section">
+    <h4>Inventory</h4>
+    <pre id="profileInventory"></pre>
+  </div>
+
+  <div class="section">
+    <h4>Portfolio</h4>
+    <pre id="profilePortfolio"></pre>
+  </div>
+
+  <div class="section">
+    <h4>Vault</h4>
+    <pre id="profileVault"></pre>
+  </div>
+
+  <div class="section">
+    <h4>Jobs & Companies</h4>
+    <pre id="profileJobs"></pre>
+    <pre id="profileCompanies"></pre>
+  </div>
+
+  <div class="section">
+    <h4>Other Info</h4>
+    <pre id="profileOther"></pre>
+  </div>
+</div>
       </div>
     </div>
   </div>
@@ -324,6 +377,65 @@
 </div>
 
 
+<!-- Loans Modal -->
+<div class="modal fade" id="loanModal" tabindex="-1" aria-labelledby="loanModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loanModalLabel">Loan Center</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="loanModalBody">
+        <!-- Loan info will go here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bills Modal -->
+<div class="modal fade" id="billsModal" tabindex="-1" aria-labelledby="billsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="billsModalLabel">Bills Center</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="billsModalBody">
+        <!-- Bills info will go here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tech Training Modal -->
+<div class="modal fade" id="techModal" tabindex="-1" aria-labelledby="techModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="techModalLabel">Tech Strength Training</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="techModalBody">
+        <!-- Tech training info will go here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Security Training Modal -->
+<div class="modal fade" id="securityModal" tabindex="-1" aria-labelledby="securityModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="securityModalLabel">Security Training</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="securityModalBody">
+        <!-- Security training info will go here -->
+      </div>
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import {  auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
@@ -333,28 +445,62 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/fi
 const TILE_SIZE = 100;
 const MAP_SIZE = 8; // home base size
 
+const zoneImages = {
+  market: "https://img.icons8.com/color/96/shopping-cart.png",
+  shop: "https://img.icons8.com/color/96/store.png",
+  learn: "https://img.icons8.com/color/96/classroom.png",
+  profile: "https://img.icons8.com/color/96/user-male-circle.png",
+  valut: "https://img.icons8.com/color/96/safe.png",
+  land: "https://img.icons8.com/color/96/city-buildings.png",
+  healthClinic: "https://img.icons8.com/color/96/hospital-room.png",
+  loans: "https://img.icons8.com/color/96/handshake.png",
+  bills: "https://img.icons8.com/color/96/receipt-dollar.png",
+  techStrength: "https://img.icons8.com/color/96/artificial-intelligence.png",
+  security: "https://img.icons8.com/color/96/security-checked.png",
+  jobs: "https://img.icons8.com/color/96/job.png",
+  companiesOwned: "https://img.icons8.com/color/96/company.png",
+  inventory: "https://img.icons8.com/color/96/box.png",
+  empty: "https://img.icons8.com/color/96/nothing-found.png"
+};
 
 const zoneColors = {
   market: 0xa5d6a7,
   shop: 0xffcc80,
   learn: 0xef9a9a,
   profile: 0x90caf9,
-  safe: 0xce93d8,
-  assets: 0x80cbc4,
+  valut: 0xce93d8,
+  land: 0x80cbc4,
   healthClinic: 0xffab91,
+  loans: 0xdcedc8,
+  bills: 0xffeb3b,
+  techStrength: 0x9575cd,
+  security: 0xb0bec5,
+  jobs: 0xc5e1a5,
+  companiesOwned: 0xffb74d,
+  inventory: 0x4fc3f7,
   empty: 0xffffff
 };
+
 
 const zoneNames = {
   market: "Market",
   shop: "Shop",
   learn: "Learn Panel",
   profile: "Profile",
-  safe: "Safe House",
-  assets: "Your Assets",
+  valut: "Safe House",
+  land: "Your Assets",
   healthClinic: "Health Clinic",
+  loans: "Loan Office",
+  bills: "Bill Center",
+  techStrength: "Tech Training",
+  security: "Security Zone",
+  jobs: "Job Board",
+  companiesOwned: "Your Companies",
+  inventory: "Inventory",
   empty: "Empty"
 };
+
+
 
 
 let mapData = [];
@@ -380,21 +526,45 @@ let uid;
 
 // Centralized player state
 let playerData = {
-  cash: 0,
-  techStrength: 1,
-  security: 1,
-  health: 100,
-  assets: { car: 0, home: 0 },
-  safe: true,
-  trainingMode: false,
-  level: 1,
-  inCombat: false,
-  actionsLeft: 2,
-  cooldowns: { attack: 0, move: 0, dash: 0 },
-  avatar: "1",
-  crypto: 5,
-  xp: 0,
-  movesLeft: 3
+      playerUid: "", // will be updated below
+      userID: uid,
+      playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
+      avatarImage: 'https://robohash.org/1?size=50x50',
+      status: "active",
+      lastUpdate: serverTimestamp(),
+      online: true,
+      server: "main",
+
+      location: randomLocation, // ✅ Assigned here
+      playerX: x,
+      playerY: y,
+
+      isNew: true,
+      trainingMode: true,
+
+      crypto: 5,
+      xp: 0,
+      level: 1,
+      bank: 1000,
+      vault: [],
+      loans: [],
+      health: 100,
+      techStrength: 1,
+      security: 1,
+
+      landOwned: [],
+      jobs: [],
+      companiesOwned: [],
+      stocks: [],
+      trades: 0,
+      tradesTotal: 0,
+      portfolio: [],
+      inCombat: false,
+      attacks: 0,
+      attacked: 0,
+      inventory: [],
+      history: [],
+      createdAt: serverTimestamp()
 };
 
 // Optional: separate local-only state (if needed)
@@ -413,18 +583,24 @@ async function loadPlayerData() {
     });
   });
 
-  const userRef = doc(db, "users", uid);
-  const docSnap = await getDoc(userRef);
+    // Query the player with userID === uid and server === "main"
+const q = query(
+  collection(db, "players"),
+  where("userID", "==", uid),
+  where("server", "==", "main"),
+  limit(1)
+);
 
-  if (docSnap.exists()) {
+const querySnapshot = await getDocs(q);
+
+if (!querySnapshot.empty) {
+  const docSnap = querySnapshot.docs[0];
+
     // Merge server data into playerData
     Object.assign(playerData, docSnap.data());
 
     // Fallback defaults if values are missing
-    playerData.cooldowns ??= { attack: 0, move: 0, dash: 0 };
-    playerData.assets ??= { car: 0, home: 0 };
-    playerData.actionsLeft ??= 2;
-    playerData.movesLeft ??= 3;
+
 
     updateStatsUI?.(); // Make sure this exists
   } else {
@@ -439,23 +615,29 @@ async function create() {
   drawMap.call(this);
 
   // Tooltip follow pointer
-  this.input.on('pointermove', (pointer) => {
-    const x = Math.floor(pointer.x / TILE_SIZE);
-    const y = Math.floor(pointer.y / TILE_SIZE);
-    if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
-      const zone = mapData[y][x];
-      if(zone !== "empty") {
-        zoneTooltip.style.opacity = "1";
-        zoneTooltip.style.left = pointer.x + 15 + "px";
-        zoneTooltip.style.top = pointer.y + 15 + "px";
-        zoneTooltip.textContent = zoneNames[zone] || "Unknown Zone";
-      } else {
-        zoneTooltip.style.opacity = "0";
-      }
+this.input.on('pointermove', (pointer) => {
+  const x = Math.floor(pointer.x / TILE_SIZE);
+  const y = Math.floor(pointer.y / TILE_SIZE);
+  if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+    const zone = mapData[y][x];
+    if (zone !== "empty") {
+      zoneTooltip.style.opacity = "1";
+      zoneTooltip.style.left = pointer.x + 15 + "px";
+      zoneTooltip.style.top = pointer.y + 15 + "px";
+
+      const imgHtml = zone !== "empty" && zoneImages[zone]
+        ? `<img src="${zoneImages[zone]}" alt="${zone}" style="width:24px;height:24px;vertical-align:middle;margin-right:8px;">`
+        : "";
+
+      zoneTooltip.innerHTML = `${imgHtml}${zoneNames[zone] || "Unknown Zone"}`;
     } else {
       zoneTooltip.style.opacity = "0";
     }
-  });
+  } else {
+    zoneTooltip.style.opacity = "0";
+  }
+});
+
 
   // Click zones to open modals
   this.input.on('pointerdown', (pointer) => {
@@ -470,7 +652,7 @@ async function create() {
   // Load player data and watch changes
   await loadPlayerData();
 
-  const userRef = doc(db, "users", uid);
+  const userRef = doc(db, "players", playerData.playerUid);
   onSnapshot(userRef, (docSnap) => {
     if(docSnap.exists()) {
       Object.assign(playerData, docSnap.data());
@@ -529,13 +711,21 @@ function setDefaultMap() {
   mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
 
   // Example layout
-  mapData[1][1] = "market";
-  mapData[2][1] = "shop";
-  mapData[1][2] = "profile";
-  mapData[3][1] = "learn";
-  mapData[3][2] = "safe";
-  mapData[2][2] = "assets";
-  mapData[4][2] = "healthClinic";
+mapData[1][1] = "market";
+mapData[2][1] = "shop";
+mapData[3][1] = "learn";
+mapData[1][2] = "profile";
+mapData[2][2] = "land";
+mapData[3][2] = "valut";
+mapData[4][2] = "healthClinic";
+mapData[1][3] = "loans";
+mapData[2][3] = "bills";
+mapData[3][3] = "techStrength";
+mapData[4][3] = "security";
+mapData[1][4] = "jobs";
+mapData[2][4] = "companiesOwned";
+mapData[3][4] = "inventory";
+
 }
 
 
@@ -555,8 +745,8 @@ const userUnsub = onSnapshot(userRef, (doc) => {
 */
 
 function updateStatsUI() {
-document.getElementById("playerCashLabel").textContent = `Cash: $${playerData.cash.toFixed(2)}`;
-  document.getElementById("cash").textContent = playerData.cash.toFixed(2);
+document.getElementById("playerCashLabel").textContent = `Cash: $${playerData.bank.toFixed(2)}`;
+  document.getElementById("cash").textContent = playerData.bank.toFixed(2);
   document.getElementById("health").textContent = playerData.health + "%";
   document.getElementById("security").textContent = playerData.security;
   document.getElementById("techStrength").textContent = playerData.techStrength;
@@ -580,27 +770,150 @@ function openZoneModal(zoneType) {
       loadLearningCenter();
       new bootstrap.Modal(document.getElementById("learnModal")).show();
       break;
-    case "safe":
+    case "valut":
       toggleSafeModeUI();
-      new bootstrap.Modal(document.getElementById("safeModal")).show();
+      new bootstrap.Modal(document.getElementById("valutModal")).show();
       break;
-    case "assets":
+    case "land":
       showAssetSummary();
-      new bootstrap.Modal(document.getElementById("assetsModal")).show();
-      break;   
+      new bootstrap.Modal(document.getElementById("landModal")).show();
+      break;
     case "profile":
       loadProfileDetails();
       new bootstrap.Modal(document.getElementById("profileModal")).show();
       break;
-
     case "healthClinic":
       visitHealthClinic();
       new bootstrap.Modal(document.getElementById("healthClinicModal")).show();
       break;
+    case "loans":
+      openLoanCenter();
+      new bootstrap.Modal(document.getElementById("loanModal")).show();
+      break;
+    case "bills":
+      openBillCenter();
+      new bootstrap.Modal(document.getElementById("billsModal")).show();
+      break;
+    case "techStrength":
+      openTechTraining();
+      new bootstrap.Modal(document.getElementById("techModal")).show();
+      break;
+    case "security":
+      openSecurityTraining();
+      new bootstrap.Modal(document.getElementById("securityModal")).show();
+      break;
+      case "jobs":
+  openJobsModal(playerData);
+  new bootstrap.Modal(document.getElementById("jobsModal")).show();
+  break;
+
+case "companiesOwned":
+  openCompaniesModal(playerData);
+  new bootstrap.Modal(document.getElementById("companiesModal")).show();
+  break;
+
+case "inventory":
+  openInventoryModal(playerData);
+  new bootstrap.Modal(document.getElementById("inventoryModal")).show();
+  break;
+
     default:
       console.log("Empty zone clicked.");
   }
 }
+
+function openJobsModal(playerData) {
+  const container = document.getElementById("jobsContent");
+  container.innerHTML = "";
+
+  if (playerData.jobs.length === 0) {
+    container.innerHTML = "<p>You have no jobs at the moment.</p>";
+  } else {
+    playerData.jobs.forEach((job, index) => {
+      container.innerHTML += `
+        <div class="mb-2 border-bottom pb-2">
+          <strong>${job.title || "Job " + (index + 1)}</strong><br/>
+          Company: ${job.company || "N/A"}<br/>
+          Pay: $${job.pay || "?"}
+        </div>`;
+    });
+  }
+}
+
+function openCompaniesModal(playerData) {
+  const container = document.getElementById("companiesContent");
+  container.innerHTML = "";
+
+  if (playerData.companiesOwned.length === 0) {
+    container.innerHTML = "<p>You don't own any companies yet.</p>";
+  } else {
+    playerData.companiesOwned.forEach((company, index) => {
+      container.innerHTML += `
+        <div class="mb-2 border-bottom pb-2">
+          <strong>${company.name || "Company " + (index + 1)}</strong><br/>
+          Industry: ${company.industry || "Unknown"}<br/>
+          Value: $${company.value || "?"}
+        </div>`;
+    });
+  }
+}
+
+function openInventoryModal(playerData) {
+  const container = document.getElementById("inventoryContent");
+  container.innerHTML = "";
+
+  if (playerData.inventory.length === 0) {
+    container.innerHTML = "<p>Your inventory is empty.</p>";
+  } else {
+    playerData.inventory.forEach((item, index) => {
+      container.innerHTML += `
+        <div class="mb-2 border-bottom pb-2">
+          <strong>${item.name || "Item " + (index + 1)}</strong><br/>
+          Type: ${item.type || "Unknown"}<br/>
+          Quantity: ${item.quantity || 1}
+        </div>`;
+    });
+  }
+}
+
+function openLoanCenter() {
+  const body = document.getElementById("loanModalBody");
+  body.innerHTML = `
+    <p><strong>Loan Amount:</strong> $5,000</p>
+    <p><strong>Interest Rate:</strong> 10%</p>
+    <p><strong>Due Date:</strong> 30 days</p>
+    <button class="btn btn-primary">Apply for Loan</button>
+  `;
+}
+
+function openBillCenter() {
+  const body = document.getElementById("billsModalBody");
+  body.innerHTML = `
+    <p><strong>Electricity:</strong> $120</p>
+    <p><strong>Water:</strong> $80</p>
+    <p><strong>Internet:</strong> $60</p>
+    <button class="btn btn-danger">Pay All</button>
+  `;
+}
+
+function openTechTraining() {
+  const body = document.getElementById("techModalBody");
+  body.innerHTML = `
+    <p>Level up your technical strength to increase hack defenses and earning power.</p>
+    <p><strong>Current Tech Level:</strong> 1</p>
+    <button class="btn btn-success">Train (Cost: 100 XP)</button>
+  `;
+}
+
+function openSecurityTraining() {
+  const body = document.getElementById("securityModalBody");
+  body.innerHTML = `
+    <p>Improve your security to protect your bank, vault, and personal data.</p>
+    <p><strong>Current Security Level:</strong> 1</p>
+    <button class="btn btn-warning">Train Security (Cost: 75 XP)</button>
+  `;
+}
+
 
 async function loadProfileDetails() {
   const uid = auth.currentUser?.uid;
@@ -610,7 +923,7 @@ async function loadProfileDetails() {
   }
 
   try {
-    const userDoc = await getDoc(doc(db, "users", uid));
+    const userDoc = await getDoc(doc(db, "players", playerData.playerUid));
     if (!userDoc.exists()) {
       console.error("User not found");
       return;
@@ -621,10 +934,41 @@ async function loadProfileDetails() {
     const level = playerData.level || 1;
     const xp = playerData.xp || 0;
 
-    document.getElementById("profileUsername").textContent = username;
-    document.getElementById("profileLevel").textContent = `Level: ${level}`;
-    document.getElementById("profileXP").textContent = `XP: ${xp}`;
-    
+     // Update DOM
+  document.getElementById("profileAvatar").src = playerData.avatarImage;
+  document.getElementById("profileUsername").textContent = playerData.playerName;
+  document.getElementById("profileLevel").textContent = `Level: ${playerData.level}`;
+  document.getElementById("profileXP").textContent = `XP: ${playerData.xp}`;
+  document.getElementById("profileStatus").textContent = `Status: ${playerData.status} | Server: ${playerData.server}`;
+
+  document.getElementById("profileHealth").textContent = playerData.health;
+  document.getElementById("profileCrypto").textContent = playerData.crypto;
+  document.getElementById("profileBank").textContent = playerData.bank;
+  document.getElementById("profileTechStrength").textContent = playerData.techStrength;
+  document.getElementById("profileSecurity").textContent = playerData.security;
+  document.getElementById("profileTrades").textContent = playerData.trades;
+  document.getElementById("profileTradesTotal").textContent = playerData.tradesTotal;
+
+  document.getElementById("profileX").textContent = playerData.playerX;
+  document.getElementById("profileY").textContent = playerData.playerY;
+
+  document.getElementById("profileInventory").textContent = JSON.stringify(playerData.inventory, null, 2);
+  document.getElementById("profilePortfolio").textContent = JSON.stringify(playerData.portfolio, null, 2);
+  document.getElementById("profileVault").textContent = JSON.stringify(playerData.vault, null, 2);
+  document.getElementById("profileJobs").textContent = "Jobs: " + JSON.stringify(playerData.jobs, null, 2);
+  document.getElementById("profileCompanies").textContent = "Companies: " + JSON.stringify(playerData.companiesOwned, null, 2);
+
+  document.getElementById("profileOther").textContent = JSON.stringify({
+    UID: playerData.userID,
+    inCombat: playerData.inCombat,
+    trainingMode: playerData.trainingMode,
+    isNew: playerData.isNew,
+    createdAt: playerData.createdAt,
+    landOwned: playerData.landOwned,
+    stocks: playerData.stocks
+  }, null, 2);
+
+
   } catch (err) {
     console.error("Error loading profile data:", err);
   }
