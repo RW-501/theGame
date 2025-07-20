@@ -1053,7 +1053,7 @@ function setupMapInteraction(scene) {
     }
   });
 
-  scene.input.on("pointerup", async pointer => {
+  scene.input.on("pointerdown", async pointer => {
     if (isMoving || isDraggingMap) return;
 
     const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
