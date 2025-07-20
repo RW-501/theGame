@@ -18,57 +18,92 @@ function generateRandomPrice(lastPrice, minPrice, maxPrice, maxChangePercent = 0
 // Normal update every 1 minutes (small changes)
 exports.updateStockPrices = onSchedule("every 1 minutes", async () => {
   try {
-    const snapshot = await db.collection("stocks").get();
-    if (snapshot.empty) {
+    // Update stocks collection
+    const stockSnapshot = await db.collection("stocks").get();
+    if (stockSnapshot.empty) {
       console.log("No stocks found to update.");
-      return null;
+    } else {
+      const stockUpdates = stockSnapshot.docs.map(async (doc) => {
+        const symbol = doc.id;
+        const data = doc.data();
+        const {
+          price: lastPrice = 0,
+          minPrice = 100,
+          maxPrice = 500,
+          maxChangePercent = 0.05,
+          manualPrice = null,
+          priceHistory = []
+        } = data;
+
+        let newPrice;
+        if (
+          manualPrice !== null &&
+          typeof manualPrice === "number" &&
+          manualPrice >= minPrice &&
+          manualPrice <= maxPrice
+        ) {
+          newPrice = manualPrice;
+        } else {
+          newPrice = generateRandomPrice(lastPrice, minPrice, maxPrice, maxChangePercent);
+        }
+
+        const updatedHistory = [...priceHistory.slice(-4), newPrice];
+
+        await db.collection("stocks").doc(symbol).set({
+          price: newPrice,
+          lastPrice,
+          priceHistory: updatedHistory,
+          manualPrice: admin.firestore.FieldValue.delete(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+
+        console.log(`Updated ${symbol} from $${lastPrice} to $${newPrice} | History: [${updatedHistory.join(", ")}]`);
+      });
+
+      await Promise.all(stockUpdates);
     }
 
-    const updates = snapshot.docs.map(async (doc) => {
-      const symbol = doc.id;
-      const data = doc.data();
-      const {
-        price: lastPrice = 0,
-        minPrice = 100,
-        maxPrice = 500,
-        maxChangePercent = 0.05,
-        manualPrice = null,
-        priceHistory = []
-      } = data;
+    // Update tiles with stockMarketListed: true
+    const tileSnapshot = await db.collection("tiles").where("stockMarketListed", "==", true).get();
+    if (tileSnapshot.empty) {
+      console.log("No stockMarketListed tiles found.");
+    } else {
+      const tileUpdates = tileSnapshot.docs.map(async (doc) => {
+        const tileData = doc.data();
+        const docRef = doc.ref;
 
-      let newPrice;
-      if (
-        manualPrice !== null &&
-        typeof manualPrice === "number" &&
-        manualPrice >= minPrice &&
-        manualPrice <= maxPrice
-      ) {
-        newPrice = manualPrice;
-      } else {
-        newPrice = generateRandomPrice(lastPrice, minPrice, maxPrice, maxChangePercent);
-      }
+        const {
+          stockPrice = tileData.value,
 
-      // Keep only the last 4 prices and append the new one (total of 5)
-      const updatedHistory = [...priceHistory.slice(-4), newPrice];
+          stockMaxChangePercent = 0.05,
+          stockPriceHistory = []
+        } = tileData;
 
-      await db.collection("stocks").doc(symbol).set({
-        price: newPrice,
-        lastPrice, // store the previous price
-        priceHistory: updatedHistory,
-        manualPrice: admin.firestore.FieldValue.delete(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
+        const newPrice = generateRandomPrice(stockPrice, stockMaxChangePercent);
+        const updatedHistory = [...stockPriceHistory.slice(-4), newPrice];
 
-      console.log(`Updated ${symbol} from $${lastPrice} to $${newPrice} | History: [${updatedHistory.join(", ")}]`);
-    });
+        await docRef.set({
+          stockLastPrice: stockPrice,
+          stockPrice: newPrice,
+          stockPriceHistory: updatedHistory,
+          stockMinPrice: tileData.value / 2,
+          stockMaxPrice: tileData.value * 2,
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
 
-    await Promise.all(updates);
+        console.log(`Updated tile ${doc.id} stockPrice to $${newPrice} | History: [${updatedHistory.join(", ")}]`);
+      });
+
+      await Promise.all(tileUpdates);
+    }
+
     return null;
   } catch (error) {
     console.error("Error updating stock prices:", error);
     return null;
   }
 });
+
 
 // Big event every 4 hours
 exports.marketEventBigChange = onSchedule("every 4 hours", async () => {

@@ -305,30 +305,40 @@ button:hover {
 </div>
 
 
-
 <div class="modal fade" id="startCompanyModal" tabindex="-1" aria-labelledby="startCompanyLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
+    
       <div class="modal-header">
         <h5 class="modal-title" id="startCompanyLabel">Start a Company</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
+
       <div class="modal-body">
         <label for="sectorSelect">Choose a Sector:</label>
-        <select class="form-select" id="sectorSelect">
+        <select class="form-select mb-3" id="sectorSelect">
           <option value="tech">Tech</option>
           <option value="energy">Energy</option>
           <option value="healthcare">Healthcare</option>
           <option value="finance">Finance</option>
           <option value="transport">Transportation</option>
         </select>
+
+        <label for="companyNameInput">Company Name:</label>
+        <input type="text" id="companyNameInput" class="form-control mb-3" placeholder="e.g., NovaTech Inc.">
+
+        <label for="stockSymbolInput">Stock Symbol (3–5 uppercase letters):</label>
+        <input type="text" id="stockSymbolInput" class="form-control" maxlength="5" placeholder="e.g., NTV">
       </div>
+
       <div class="modal-footer">
         <button class="btn btn-success" id="confirmStartCompanyBtn">Confirm</button>
       </div>
+
     </div>
   </div>
 </div>
+
 
 
 <script type="module">
@@ -935,6 +945,10 @@ if (info.ownerName === playerData.username && info.unlocked && (trueType === "zo
   new bootstrap.Modal(modalEl).show();
 }
 
+
+
+
+
 function createButton({ text, onClick, id, className, parent = document.body, styles = {} }) {
   const button = document.createElement('button');
 
@@ -967,31 +981,32 @@ function createButton({ text, onClick, id, className, parent = document.body, st
   return button;
 }
 
-async function startCompany(x, y, tileData, uid, sector) {
+async function startCompany(x, y, tileData, uid, sector, name, symbol) {
   const tileId = `${x}_${y}`;
   const tileRef = doc(db, "tiles", tileId);
   const playerRef = doc(db, "players", uid);
-const info = getTileDataAt(x, y);
-
+  const info = getTileDataAt(x, y);
   const now = Date.now();
+
   const companyPrice = info.value * 2;
   const min = parseFloat((companyPrice * 0.7).toFixed(2));
   const max = parseFloat((companyPrice * 2).toFixed(2));
-  const name = sector.charAt(0).toUpperCase() + sector.slice(1) + " Corp";
+  const randomPrice = parseFloat((Math.random() * (max - min) + min).toFixed(2));
 
   const updatedTile = {
     type: "company",
+    name,
+    stockSymbol: symbol,
     stockMarketListed: true,
     value: tileData.value * 2,
     level: tileData.level,
-    sector: sector,
-    name,
+    sector,
     employsIDs: [],
     ownerID: uid,
     createdAt: now,
     event: "bigChange",
     eventTimestamp: now,
-    stockLastPrice: randomPrice - 1,
+    stockLastPrice: randomPrice,
     price: companyPrice,
     stockPrice: companyPrice / 10,
     stockMinPrice: min,
@@ -1011,21 +1026,38 @@ const info = getTileDataAt(x, y);
     })
   ]);
 
-  // Update local player data
   playerData.bank = newBankValue;
   playerData.companiesOwned = playerData.companiesOwned || [];
   playerData.companiesOwned.push(tileId);
 
-  console.log(`Company '${name}' started at tile ${tileId} in sector '${sector}'`);
+  console.log(`Company '${name}' (${symbol}) started at tile ${tileId} in sector '${sector}'`);
 }
 
-document.getElementById("confirmStartCompanyBtn").addEventListener("click", async function () {
+
+document.getElementById("confirmStartCompanyBtn").addEventListener("click", async () => {
   const sector = document.getElementById("sectorSelect").value;
-  const [x, y] = this.dataset.tile.split("_").map(Number);
-  const info = getTileDataAt(x, y);
-  await startCompany(x, y, info, uid, sector);
+  const name = document.getElementById("companyNameInput").value.trim();
+  const symbol = document.getElementById("stockSymbolInput").value.trim().toUpperCase();
+
+  if (!name || !symbol || symbol.length < 3 || symbol.length > 5 || !/^[A-Z]+$/.test(symbol)) {
+    alert("Please enter a valid company name and a stock symbol (3–5 uppercase letters).");
+    return;
+  }
+
+  // Replace these with your actual tile context values
+  const x = selectedTileX;
+  const y = selectedTileY;
+  const tileData = await getTileDataAt(x, y);
+  const uid = currentUser?.uid;
+
+  if (!uid) return alert("User not logged in.");
+
+  await startCompany(x, y, tileData, uid, sector, name, symbol);
+
+  // Hide the modal
   bootstrap.Modal.getInstance(document.getElementById("startCompanyModal"))?.hide();
 });
+
 
 
 async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
