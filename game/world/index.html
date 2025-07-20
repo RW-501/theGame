@@ -696,6 +696,10 @@ console.table(mapData);                        // Displays a visual table
     playerData = querySnapshot.docs[0].data();
     playerData.id = querySnapshot.docs[0].id; // Optional: store doc ID
     playerData.isNew = false;
+    if(playerData.location == 'start'){
+     playerData.location = randomLocation; // ✅ Assigned here
+
+    }
 
   } else {
     // No player found, create a new one
