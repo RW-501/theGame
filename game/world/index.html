@@ -628,6 +628,11 @@ function getRandomEmptyTile(mapData) {
   return emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
 }
 
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 // === Firebase Login Check ===
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -651,10 +656,14 @@ height: MapWidth, //window.innerHeight,
   uid = user.uid;
 
  
-  try {
 
      // Get a random empty tile
 const randomLocation = getRandomEmptyTile(mapData);
+
+ // Add a 200ms delay before continuing
+  await sleep(200);
+  
+  try {
 
     // Query the player with userID === uid and server === "main"
     const q = query(
