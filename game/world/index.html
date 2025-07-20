@@ -432,10 +432,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const notifBtn = document.getElementById("notifBellBtn");
 
   if (notifBtn) {
-    notifBtn.addEventListener("click", () => {
-      console.log("🔔 Notification button clicked.");
-    new bootstrap.Modal(document.getElementById("notifModal")).show();
-    });
+notifBtn.addEventListener("click", () => {
+  // Just show modal
+  new bootstrap.Modal(document.getElementById("notifModal")).show();
+});
   }
 });
 

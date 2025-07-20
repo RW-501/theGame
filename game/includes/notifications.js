@@ -21,6 +21,10 @@ let notificationsUnsub = null;
 
 
 function insertNotifModal() {
+    if (document.getElementById("notifModal")) {
+    // Modal already exists, don't insert again
+    return;
+  }
   const modalHTML = `
     <div class="modal fade" id="notifModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-scrollable">
