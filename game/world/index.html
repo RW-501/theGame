@@ -1324,7 +1324,8 @@ let ownedTiles = [];///  = [ playerData.companiesOwned playerData.landOwned]; //
 
 function openOwnedModal() {
   renderOwnedList();
-  document.getElementById("ownedModal").style.display = "block";
+  
+  bootstrap.Modal.getInstance(document.getElementById("ownedModal"))?.show();
 }
 
 document.getElementById("openOwnedBtn").addEventListener("click", openOwnedModal);

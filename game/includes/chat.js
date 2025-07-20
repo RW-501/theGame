@@ -1,5 +1,5 @@
 const chatPopupHTML = `
-<div class="chat-popup shadow-lg rounded d-none" id="chatContainer" style="max-width:400px; height: 600px; right: 20px; bottom: 70px; position: fixed; z-index: 3000; background: var(--bg-dark); color: var(--text-light);">
+<div class="chat-popup shadow-lg rounded d-none" id="chatContainer" style="max-width:400px; height: 300px; right: 20px; bottom: 70px; position: fixed; z-index: 30000; background: white; color: var(--text-light);">
   <!-- Header -->
   <div class="chat-header bg-primary text-white p-2 d-flex justify-content-between align-items-center">
     <span>Live Chat</span>
@@ -7,7 +7,7 @@ const chatPopupHTML = `
   </div>
 
   <!-- Scrollable Middle Section -->
-  <div class="flex-grow-1 overflow-auto position-relative" style="height: 460px; background: var(--bg-light);">
+  <div class="flex-grow-1 overflow-auto position-relative" style="height: 300px; background: var(--bg-light);">
     <!-- Chat Settings -->
     <div id="chatSettings" class="d-none p-2 small position-relative" style="min-height: 100%;">
       <button class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 m-2 text-muted backBtn" id="backFromSettingsBtn">Back</button>
