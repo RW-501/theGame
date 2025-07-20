@@ -1148,7 +1148,7 @@ window.purchaseItem = purchaseItem;
 
 
 function toggleSafeModeUI() {
-  const modal = document.getElementById("safeModal");
+  const modal = document.getElementById("valutModal");
   const checkbox = document.getElementById("safeModeToggle");
 
   if (!playerState) return alert("Player not loaded.");
@@ -1183,7 +1183,7 @@ function showAssetSummary() {
   console.log("Showing assets summary...");
 
   // Optionally populate modal with user data here
-  const modalBody = document.querySelector("#assetsModal .modal-body");
+  const modalBody = document.querySelector("#landModal .modal-body");
   modalBody.innerHTML = `
     <ul>
       <li><strong>Car:</strong> Toyota Camry (2019)</li>
@@ -1193,7 +1193,7 @@ function showAssetSummary() {
   `;
 
   // Show the modal (requires Bootstrap JS)
-  const modal = new bootstrap.Modal(document.getElementById('assetsModal'));
+  const modal = new bootstrap.Modal(document.getElementById('landModal'));
   modal.show();
 }
 
