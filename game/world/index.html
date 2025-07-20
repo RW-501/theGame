@@ -1101,9 +1101,10 @@ scene.input.on("pointermove", pointer => {
   }
 });
 
-
+let deltaY;
   // Mouse wheel zoom
   scene.input.on("wheel", (pointer, gameObjects, deltaX, deltaY) => {
+    deltaY
      newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
     cam.setZoom(newZoom);
   });
