@@ -632,12 +632,12 @@ onAuthStateChanged(auth, async (user) => {
     return;
   }
 
-let mapWidth = (TILE_SIZE * MAP_SIZE) / 2;
+let MapWidth = (TILE_SIZE * MAP_SIZE) / 2;
 // === Game Setup ===
 const config = {
   type: Phaser.AUTO,
 width: MapWidth, // window.innerWidth,
-height: mapWidth, //window.innerHeight,
+height: MapWidth, //window.innerHeight,
   parent: "game-container",
   backgroundColor: "#222222",
   scene: { preload, create, update }
