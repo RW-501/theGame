@@ -970,7 +970,7 @@ async function loadProfileDetails() {
   }
 
   try {
-    const userDoc = await getDoc(doc(db, "players", playerData.playerUid));
+    const userDoc = await getDoc(doc(db, "players", playerData.id));
     if (!userDoc.exists()) {
       console.error("User not found");
       return;
