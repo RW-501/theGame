@@ -1204,7 +1204,7 @@ modalBody.innerHTML = `
         <div class="col-6"><strong>Value:</strong><br>$${value.toLocaleString()}</div>
         <div class="col-6"><strong>Income:</strong><br>$${income.toLocaleString()} / Weekly</div>
         <div class="col-6"><strong>Tax Rate:</strong><br>${taxRate}%</div>
-        <div class="col-6"><strong>Level:</strong><br>${info.level}</div>
+        <div class="col-6"><strong>Level:</strong><br>${level}</div>
         <div class="col-6"><strong>Owner:</strong><br>${info.ownerName || "None"}</div>
         <div class="col-6">
           <strong>Status:</strong><br>
@@ -1323,7 +1323,7 @@ if (!otherPlayerId  && isUnlocked && trueType === "company") {
 if (!otherPlayerId  && isUnlocked && (trueType === "zone" || trueType === "empty")) {
   
     // New tile level and value
-  const newLevel = info.level || 1;
+  const newLevel = level || 1;
   const newValue = info.price + 1000 + playerData.level * 200;
 
   const moveAndBuyBtn = createButton({
