@@ -1090,6 +1090,8 @@ scene.input.on("pointerup", pointer => {
 
 });
 
+let pointer;
+
 scene.input.on("pointermove", pointer => {
   if (pointer.isDown && isDraggingMap) {
     cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
@@ -1174,7 +1176,13 @@ function setupMapInteraction(scene) {
 
 
 async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
-  if (isDraggingMap) return; // Prevent modal while dragging map
+    if (isDraggingMap) {
+    console.log("return");
+    if (pointer.isDown ) {
+    console.log("return isDown");
+    }
+    return;
+    }
 
   const modalEl = document.getElementById("tileActionModal");
   const modalBody = document.getElementById("tileActionBody");
