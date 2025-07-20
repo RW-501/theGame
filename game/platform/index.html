@@ -437,6 +437,51 @@
   </div>
 </div>
 
+<!-- Jobs Modal -->
+<div class="modal fade" id="jobsModal" tabindex="-1" aria-labelledby="jobsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="jobsModalLabel">Your Jobs</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="jobsContent">
+        <!-- Job details will go here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Companies Owned Modal -->
+<div class="modal fade" id="companiesModal" tabindex="-1" aria-labelledby="companiesModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="companiesModalLabel">Your Companies</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="companiesContent">
+        <!-- Companies list will go here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Inventory Modal -->
+<div class="modal fade" id="inventoryModal" tabindex="-1" aria-labelledby="inventoryModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="inventoryModalLabel">Your Inventory</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="inventoryContent">
+        <!-- Inventory items will go here -->
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 import {  auth, db, onAuthStateChanged } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 import { collection, doc,query, where,  getDoc, limit, 
