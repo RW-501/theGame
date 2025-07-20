@@ -695,16 +695,23 @@ if (!querySnapshot.empty) {
   playerData = docSnap.data();
   playerData.id = docSnap.id; // store doc ID
   playerData.isNew = false;
+  const [x, y] =  playerData.location;
+  playerX = x;
+  playerY = y;
 
   if (playerData.location === 'start') {
 
     playerData.location = randomLocation;
-
+  const [x, y] =  randomLocation;
+  playerX = x;
+  playerY = y;
     // Update the location in Firestore
     const docRef = doc(db, "players", docSnap.id);
-    await updateDoc(docRef, { location: randomLocation });
+    await updateDoc(docRef, { location: randomLocation, playerX, playerY });
   }
  } else {
+          // Initialize player location
+  const [x, y] =  randomLocation;
     // No player found, create a new one
     const newPlayer = {
       playerUid: "", // will be updated below
@@ -715,7 +722,11 @@ if (!querySnapshot.empty) {
       lastUpdate: serverTimestamp(),
       online: true,
       server: "main",
+
       location: randomLocation, // ✅ Assigned here
+      playerX: x,
+      playerY: y,
+
       isNew: true,
       trainingMode: true,
 
