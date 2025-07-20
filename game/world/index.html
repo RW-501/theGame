@@ -949,18 +949,27 @@ const value = info.value ?? info.price ?? 0;
 const taxRate = info.taxRate ?? 0;
 
 modalBody.innerHTML = `
-  <div>
-    <p><strong>📍 Coordinates:</strong> (${x}, ${y})</p>
-    <p><strong>🗺️ Tile Type:</strong> ${info.label} ${info.icon ?? ''}</p>
-    <p><strong>💰 Price:</strong> $${info.price?.toLocaleString() ?? 'N/A'}</p>
-    <p><strong>📈 Value:</strong> $${value.toLocaleString()}</p>
-    <p><strong>🏦 Income:</strong> $${income.toLocaleString()} / Weekly</p>
-    <p><strong>💸 Tax Rate:</strong> ${taxRate}%</p>
-    <p><strong>🎖️ Level:</strong> ${info.level || 1}</p>
-    <p><strong> Owner:</strong> ${info.ownerName || "None"}</p>
-    <p><strong>🔓 Status:</strong> ${isUnlocked ? "Unlocked" : "<span style='color:red'>Locked</span>"}</p>
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <h5 class="card-title mb-3">📍 Tile Info</h5>
+      <div class="row g-2">
+        <div class="col-6"><strong>Coordinates:</strong><br>(${x}, ${y})</div>
+        <div class="col-6"><strong>Tile Type:</strong><br>${info.label} ${info.icon ?? ''}</div>
+        <div class="col-6"><strong>Price:</strong><br>$${info.price?.toLocaleString() ?? 'N/A'}</div>
+        <div class="col-6"><strong>Value:</strong><br>$${value.toLocaleString()}</div>
+        <div class="col-6"><strong>Income:</strong><br>$${income.toLocaleString()} / Weekly</div>
+        <div class="col-6"><strong>Tax Rate:</strong><br>${taxRate}%</div>
+        <div class="col-6"><strong>Level:</strong><br>${info.level || 1}</div>
+        <div class="col-6"><strong>Owner:</strong><br>${info.ownerName || "None"}</div>
+        <div class="col-6">
+          <strong>Status:</strong><br>
+          ${isUnlocked ? `<span class="text-success">Unlocked</span>` : `<span class="text-danger">Locked</span>`}
+        </div>
+      </div>
+    </div>
   </div>
 `;
+
 
   modalFooter.innerHTML = "";
 
