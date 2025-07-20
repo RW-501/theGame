@@ -454,7 +454,6 @@ let graphics, cursors;
 let mapData = [];
 let otherPlayerSprites = new Map();
 
-let isDragging = false;
 let dragStartX = 0;
 let dragStartY = 0;
 let isDraggingMap = false;
@@ -927,12 +926,22 @@ function setupMapMovement(scene) {
   const cam = scene.cameras.main;
 
   // Drag to move camera
-  scene.input.on("pointermove", pointer => {
-    if (pointer.isDown) {
-      cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
-      cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
-    }
-  });
+
+scene.input.on("pointerdown", pointer => {
+  isDraggingMap = true; // start dragging
+});
+
+scene.input.on("pointerup", pointer => {
+  isDraggingMap = false; // stop dragging
+});
+
+scene.input.on("pointermove", pointer => {
+  if (pointer.isDown && isDraggingMap) {
+    cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
+    cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
+  }
+});
+
 
   // Mouse wheel zoom
   scene.input.on("wheel", (pointer, gameObjects, deltaX, deltaY) => {
