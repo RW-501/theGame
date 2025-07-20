@@ -647,10 +647,12 @@ height: MapWidth, //window.innerHeight,
 
   uid = user.uid;
 
-  // Get a random empty tile
+ 
+  try {
+
+     // Get a random empty tile
 const randomLocation = getRandomEmptyTile(mapData);
 
-  try {
     // Query the player with userID === uid and server === "main"
     const q = query(
       collection(db, "players"),
