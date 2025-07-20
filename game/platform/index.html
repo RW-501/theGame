@@ -439,7 +439,7 @@
 
 <script type="module">
 import {  auth, db } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
-import { collection, doc, getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { collection, doc,query,  getDoc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
 const TILE_SIZE = 100;
@@ -527,6 +527,8 @@ let playerData = {};
 
 const playerState = new Map();
 let uid;
+let user;
+
 /*
 // Centralized player state
  playerData = {
