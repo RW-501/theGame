@@ -611,6 +611,7 @@ function setDefaultMapData() {
 }
 
 let game;
+let scene;
 
 function getRandomEmptyTile(mapData) {
   const emptyTiles = [];
@@ -788,6 +789,8 @@ if (!querySnapshot.empty) {
   } catch (error) {
     console.error("❌ Error loading player:", error);
   }
+
+  centerCameraOnPlayer();
 });
 
 
@@ -795,6 +798,9 @@ if (!querySnapshot.empty) {
 const tileTooltip = document.getElementById("tileTooltip");
 
 
+function centerCameraOnPlayer() {
+  cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZE / 2);
+}
 
 
 async function initializeMap(scene) {
@@ -1735,6 +1741,7 @@ function movePlayerSmoothly(scene, x, y) {
 }
 
 
+
 // === Stats UI ===
 function updateStatsUI() {
   const state = playerState.get(uid);
@@ -1807,7 +1814,7 @@ scene.load.start();
 
 
 async function create() {
-  const scene = this;
+   scene = this;
 
   await initializeMap(scene);
   setupMapMovement(scene);
