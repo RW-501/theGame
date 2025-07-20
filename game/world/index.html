@@ -732,10 +732,8 @@ const randomLocation = getRandomEmptyTile(mapData);
     playerState.set(uid, playerData);
 
 
-      const tileData = await getTileDataAt(x, y);
-
     // Initialize player location
-    const [x, y] = playerData.location || [5, 5];
+    const [x, y] = playerData.location || randomLocation;
     playerX = x;
     playerY = y;
 
