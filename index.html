@@ -56,9 +56,10 @@
       <label class="form-label">Choose Avatar</label>
       <div id="avatarList" class="d-flex justify-content-center">
         <!-- Avatars using Robohash -->
-        <img src="https://robohash.org/1?size=50x50" class="avatar-option selected" data-avatar="1">
-        <img src="https://robohash.org/2?size=50x50" class="avatar-option" data-avatar="2">
-        <img src="https://robohash.org/3?size=50x50" class="avatar-option" data-avatar="3">
+<img src="https://robohash.org/1?size=50x50" class="avatar-option selected" data-avatar="1" data-url="https://robohash.org/1?size=50x50">
+<img src="https://robohash.org/2?size=50x50" class="avatar-option" data-avatar="2" data-url="https://robohash.org/2?size=50x50">
+<img src="https://robohash.org/3?size=50x50" class="avatar-option" data-avatar="3" data-url="https://robohash.org/3?size=50x50">
+
       </div>
     </div>
 
@@ -100,13 +101,15 @@
 
     // --- Default Selected Avatar ---
     let selectedAvatar = "1";
+    let selectedAvatarImageUrl = "https://robohash.org/1?size=50x50";
 
     // --- Avatar Selection Handler ---
     avatarOptions.forEach(avatar => {
       avatar.addEventListener('click', () => {
         avatarOptions.forEach(a => a.classList.remove('selected')); // Deselect all
         avatar.classList.add('selected'); // Highlight selected
-        selectedAvatar = avatar.dataset.avatar; // Update selected avatar
+selectedAvatarImageUrl = avatar.dataset.url; // ✅ works now
+selectedAvatar = avatar.dataset.avatar;
       });
     });
 
@@ -119,7 +122,7 @@
   if (!userSnap.exists()) {
     await setDoc(userRef, {
       username,
-      avatar,
+    avatarImage: selectedAvatarImageUrl,
       createdAt: serverTimestamp(),
       status: "active"
     });
@@ -130,7 +133,7 @@
     playerUid: '',               // <-- will be filled after addDoc
     userID: uid,
     playerName: username,
-    avatar,
+    avatarImage: selectedAvatarImageUrl,
     status: "active",
     lastUpdate: serverTimestamp(),
     online: true,
