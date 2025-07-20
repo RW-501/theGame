@@ -79,13 +79,28 @@
       gap: 0.5rem;
     }
 
-    .zone-dropdown {
-  font-size: 12px;
-  width: 100%;
-  height: 100%;
-  border: none;
-  outline: none;
+.map-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(24px, 1fr));
+  gap: 2px;
+  border: 1px solid #ccc;
 }
+
+.tile {
+  width: 24px;
+  height: 24px;
+  font-size: 12px;
+  text-align: center;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid #ddd;
+}
+
+.zone-dropdown {
+  width: 100%;
+  font-size: 12px;
+}
+
 
   </style>
 </head>
@@ -154,21 +169,43 @@
     </div>
 
     <!-- Map Editor Section -->
-    <div class="tab-pane fade" id="map" role="tabpanel" aria-labelledby="map-tab">
+    <div id='mapEditor' class="tab-pane fade" id="map" role="tabpanel" aria-labelledby="map-tab">
       <h2>Map Editor</h2>
       <p>Click tiles to cycle through zone types. Press "Save Map" to update Firestore.</p>
 
-      <div id="mapGrid" aria-label="Map grid editor" role="grid"></div>
+<div id="mapSettings" class="mb-3">
+  <h4>🗺️ Map Settings</h4>
+  <div class="mb-2">
+    <label for="mapName" class="form-label">Map Name</label>
+    <input type="text" id="mapName" class="form-control" placeholder="Enter map name" />
+  </div>
+
+  <div class="mb-2">
+    <label for="mapSize" class="form-label">Map Size</label>
+    <select id="mapSize" class="form-select">
+      <option value="10">10x10</option>
+      <option value="15">15x15</option>
+      <option value="20">20x20</option>
+      <option value="25" selected>25x25</option>
+      <option value="30">30x30</option>
+    </select>
+  </div>
+
+  <button id="generateMapBtn" class="btn btn-primary mb-3">🔁 Generate Map</button>
+</div>
+
+<div id="mapGrid" class="map-grid" role="grid" aria-label="Map Grid"></div>
 
       <button id="saveMapBtn" class="btn btn-success">Save Map</button>
       <div id="mapStatus" class="mt-3"></div>
     </div>
 
     <!-- Players Section -->
-    <div class="tab-pane fade" id="players" role="tabpanel" aria-labelledby="players-tab">
-      <h2>Players Management</h2>
-      <p>Feature coming soon: Manage players, view stats, kick or ban, etc.</p>
-    </div>
+<div class="tab-pane fade" id="players" role="tabpanel" aria-labelledby="players-tab">
+  <h2>Players Management</h2>
+  <div id="playersList" class="list-group mb-3"></div>
+</div>
+
 
   </div>
 </div>
@@ -231,97 +268,227 @@
 
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 
-  // === Stocks Display Section ===
-  const stockListDisplay = document.getElementById("stockListDisplay");
-  onSnapshot(collection(db, "stocks"), (snapshot) => {
-    let html = "<ul class='list-group'>";
-    snapshot.forEach(docSnap => {
-      const s = docSnap.data();
-      html += `<li class="list-group-item"><strong>${s.symbol}</strong> (${s.name}) - $${s.price.toFixed(2)}</li>`;
-    });
-    html += "</ul>";
-    stockListDisplay.innerHTML = html;
+
+
+
+
+function renderPlayers(players) {
+  const list = document.getElementById('playersList');
+  list.innerHTML = ''; // Clear previous list
+
+  players.forEach(player => {
+    const item = document.createElement('div');
+    item.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+    item.innerHTML = `
+      <div>
+        <strong>${player.username}</strong> <span class="badge bg-${player.online ? 'success' : 'secondary'}">${player.online ? 'Online' : 'Offline'}</span><br>
+        <small>UID: ${player.playerUid}</small><br>
+        <small>Level: ${player.level} | HP: ${player.health}</small>
+      </div>
+      <div>
+        <button class="btn btn-sm btn-danger me-1" onclick="kickPlayer('${player.id}')">Kick</button>
+        <button class="btn btn-sm btn-warning" onclick="banPlayer('${player.id}')">Ban</button>
+      </div>
+    `;
+
+    list.appendChild(item);
   });
+}
+
+async function fetchPlayers() {
+  const querySnapshot = await getDocs(collection(db, "players"));
+  const players = [];
+
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+
+    players.push({
+      id: doc.id,                    // Firebase doc ID
+      playerUid: data.playerUid,     // Internal game UID
+      username: data.playerName,     // Display name
+      status: data.status,
+      online: data.online,
+      health: data.health,
+      level: data.level
+    });
+  });
+
+  renderPlayers(players); // Pass the array to the UI function
+}
+
+
+fetchPlayers();
+
+
+
+
+
+
+
+  // === Stocks Display Section ===
+const stockListDisplay = document.getElementById("stockListDisplay");
+
+async function loadAllStocksAndTiles() {
+  const [stockSnap, tileSnap] = await Promise.all([
+    getDocs(collection(db, "stocks")),
+    getDocs(query(collection(db, "tiles"), where("stockMarketListed", "==", true)))
+  ]);
+
+  let html = "<ul class='list-group'>";
+
+  // Add real stocks
+  stockSnap.forEach(doc => {
+    const s = doc.data();
+    html += `<li class="list-group-item"><strong>${s.symbol}</strong> (${s.name}) - $${s.price?.toFixed(2) ?? "N/A"}</li>`;
+  });
+
+  // Add tile-based stocks
+  tileSnap.forEach(doc => {
+    const t = doc.data();
+    const id = doc.id;
+    const price = t.stockPrice ?? t.value;
+    html += `<li class="list-group-item text-muted"><strong>${id}</strong> (Tile) - $${price.toFixed(2)}</li>`;
+  });
+
+  html += "</ul>";
+  stockListDisplay.innerHTML = html;
+}
+
+loadAllStocksAndTiles();
 
   // === Stocks Editor Section ===
-  const stockEditorList = document.getElementById("stockEditorList");
-  onSnapshot(collection(db, "stocks"), (snapshot) => {
-    let html = "";
-    snapshot.forEach(docSnap => {
-      const s = docSnap.data();
-      html += `
-        <div class="stock-item d-flex flex-wrap align-items-center gap-3" data-symbol="${s.symbol}">
-          <strong>${s.symbol}</strong> - <em>${s.name}</em> - <span>${s.sector || "Unknown Sector"}</span>
-          <label>Price: $<input type="number" step="0.01" class="inline-input price" value="${s.price.toFixed(2)}" /></label>
-          <label>Min: $<input type="number" step="0.01" class="inline-input minPrice" value="${s.minPrice ?? 0}" /></label>
-          <label>Max: $<input type="number" step="0.01" class="inline-input maxPrice" value="${s.maxPrice ?? 1000}" /></label>
-          <label>Max Change %: <input type="number" step="0.01" class="inline-input maxChangePercent" value="${(s.maxChangePercent ?? 0.05) * 100}" />%</label>
-          <label>Manual Price: $<input type="number" step="0.01" class="inline-input manualPrice" placeholder="leave empty to skip" value="${s.manualPrice ?? ''}" /></label>
-          <button class="btn btn-sm btn-success save-btn">Save</button>
-          <button class="btn btn-sm btn-danger delete-btn">Delete</button>
-        </div>
-      `;
-    });
-    stockEditorList.innerHTML = html;
+const stockEditorList = document.getElementById("stockEditorList");
 
-    // Save button listeners
-    document.querySelectorAll(".save-btn").forEach(btn => {
-      btn.onclick = async (e) => {
-        const container = e.target.closest(".stock-item");
-        const symbol = container.getAttribute("data-symbol");
+async function loadEditorData() {
+  const [stockSnap, tileSnap] = await Promise.all([
+    getDocs(collection(db, "stocks")),
+    getDocs(query(collection(db, "tiles"), where("stockMarketListed", "==", true)))
+  ]);
 
-        const price = parseFloat(container.querySelector(".price").value);
-        const minPrice = parseFloat(container.querySelector(".minPrice").value);
-        const maxPrice = parseFloat(container.querySelector(".maxPrice").value);
-        const maxChangePercent = parseFloat(container.querySelector(".maxChangePercent").value) / 100;
-        const manualPriceRaw = container.querySelector(".manualPrice").value.trim();
-        const manualPrice = manualPriceRaw === "" ? null : parseFloat(manualPriceRaw);
+  let html = "";
 
-        if (isNaN(price) || isNaN(minPrice) || isNaN(maxPrice) || isNaN(maxChangePercent)) {
-          alert("Please enter valid numbers for price, min, max, and max change %.");
-          return;
-        }
-
-        if (minPrice > maxPrice) {
-          alert("Min price cannot be greater than max price.");
-          return;
-        }
-
-        try {
-          await updateDoc(doc(db, "stocks", symbol), {
-            price,
-            minPrice,
-            maxPrice,
-            maxChangePercent,
-            manualPrice,
-            updatedAt: serverTimestamp()
-          });
-          alert(`Stock ${symbol} updated.`);
-        } catch (err) {
-          console.error("Error updating stock:", err);
-          alert("Failed to update stock.");
-        }
-      };
-    });
-
-    // Delete button listeners
-    document.querySelectorAll(".delete-btn").forEach(btn => {
-      btn.onclick = async (e) => {
-        const container = e.target.closest(".stock-item");
-        const symbol = container.getAttribute("data-symbol");
-
-        if (!confirm(`Delete stock ${symbol}? This action cannot be undone.`)) return;
-
-        try {
-          await deleteDoc(doc(db, "stocks", symbol));
-          alert(`Stock ${symbol} deleted.`);
-        } catch (err) {
-          console.error("Error deleting stock:", err);
-          alert("Failed to delete stock.");
-        }
-      };
+  // Stocks
+  stockSnap.forEach(doc => {
+    const s = doc.data();
+    html += renderEditorItem({
+      id: doc.id,
+      symbol: s.symbol,
+      name: s.name,
+      sector: s.sector,
+      price: s.price,
+      minPrice: s.minPrice,
+      maxPrice: s.maxPrice,
+      maxChangePercent: s.maxChangePercent,
+      manualPrice: s.manualPrice,
+      isTile: false
     });
   });
+
+  // Tile Stocks
+  tileSnap.forEach(doc => {
+    const t = doc.data();
+    const symbol = doc.id;
+    html += renderEditorItem({
+      id: symbol,
+      symbol,
+      name: "Tile",
+      sector: "Zone",
+      price: t.stockPrice ?? t.value,
+      minPrice: t.stockMinPrice ?? (t.value / 2),
+      maxPrice: t.stockMaxPrice ?? (t.value * 2),
+      maxChangePercent: t.stockMaxChangePercent ?? 0.05,
+      manualPrice: null,
+      isTile: true
+    });
+  });
+
+  stockEditorList.innerHTML = html;
+
+  attachListeners();
+}
+
+function renderEditorItem({ id, symbol, name, sector, price, minPrice, maxPrice, maxChangePercent, manualPrice, isTile }) {
+  return `
+    <div class="stock-item d-flex flex-wrap align-items-center gap-3"
+         data-id="${id}" data-is-tile="${isTile}">
+      <strong>${symbol}</strong> - <em>${name}</em> - <span>${sector || "Unknown Sector"}</span>
+      <label>Price: $<input type="number" step="0.01" class="inline-input price" value="${price?.toFixed(2)}" /></label>
+      <label>Min: $<input type="number" step="0.01" class="inline-input minPrice" value="${minPrice}" /></label>
+      <label>Max: $<input type="number" step="0.01" class="inline-input maxPrice" value="${maxPrice}" /></label>
+      <label>Max Change %: <input type="number" step="0.01" class="inline-input maxChangePercent" value="${(maxChangePercent ?? 0.05) * 100}" />%</label>
+      <label>Manual Price: $<input type="number" step="0.01" class="inline-input manualPrice" placeholder="leave empty to skip" value="${manualPrice ?? ''}" /></label>
+      <button class="btn btn-sm btn-success save-btn">Save</button>
+      <button class="btn btn-sm btn-danger delete-btn">Delete</button>
+    </div>
+  `;
+}
+
+function attachListeners() {
+  document.querySelectorAll(".save-btn").forEach(btn => {
+    btn.onclick = async (e) => {
+      const container = e.target.closest(".stock-item");
+      const docId = container.getAttribute("data-id");
+      const isTile = container.getAttribute("data-is-tile") === "true";
+
+      const price = parseFloat(container.querySelector(".price").value);
+      const minPrice = parseFloat(container.querySelector(".minPrice").value);
+      const maxPrice = parseFloat(container.querySelector(".maxPrice").value);
+      const maxChangePercent = parseFloat(container.querySelector(".maxChangePercent").value) / 100;
+      const manualPriceRaw = container.querySelector(".manualPrice").value.trim();
+      const manualPrice = manualPriceRaw === "" ? null : parseFloat(manualPriceRaw);
+
+      if (isNaN(price) || isNaN(minPrice) || isNaN(maxPrice) || isNaN(maxChangePercent)) {
+        alert("Please enter valid numbers for price, min, max, and max change %.");
+        return;
+      }
+
+      if (minPrice > maxPrice) {
+        alert("Min price cannot be greater than max price.");
+        return;
+      }
+
+      try {
+        const docRef = doc(db, isTile ? "tiles" : "stocks", docId);
+        const updateData = {
+          [isTile ? "stockPrice" : "price"]: price,
+          [isTile ? "stockMinPrice" : "minPrice"]: minPrice,
+          [isTile ? "stockMaxPrice" : "maxPrice"]: maxPrice,
+          [isTile ? "stockMaxChangePercent" : "maxChangePercent"]: maxChangePercent,
+          updatedAt: serverTimestamp()
+        };
+
+        if (!isTile) updateData.manualPrice = manualPrice;
+
+        await updateDoc(docRef, updateData);
+        alert(`${docId} updated.`);
+      } catch (err) {
+        console.error("Update error:", err);
+        alert("Failed to update.");
+      }
+    };
+  });
+
+  document.querySelectorAll(".delete-btn").forEach(btn => {
+    btn.onclick = async (e) => {
+      const container = e.target.closest(".stock-item");
+      const docId = container.getAttribute("data-id");
+      const isTile = container.getAttribute("data-is-tile") === "true";
+
+      if (!confirm(`Delete ${docId}? This cannot be undone.`)) return;
+
+      try {
+        await deleteDoc(doc(db, isTile ? "tiles" : "stocks", docId));
+        alert(`${docId} deleted.`);
+      } catch (err) {
+        console.error("Delete error:", err);
+        alert("Failed to delete.");
+      }
+    };
+  });
+}
+
+loadEditorData();
 
   // Add new stock form
   document.getElementById("addStockForm").onsubmit = async (e) => {
@@ -390,24 +557,46 @@ import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-50
     }
   };
 
-const MAP_SIZE = 25;
-const zoneTypes = ["empty", "home", "market", "training", "safe", "blocked"];
+
+
+
+
+
+
+
+
+
+
+
+const mapEditor = document.getElementById("mapEditor");
+
+
+const zoneTypes = ["empty", "company", "stockMarket", "blocked"];
+for (let i = 1; i <= 12; i++) {
+  zoneTypes.push(`zone${i}`);
+}
 const mapGrid = document.getElementById("mapGrid");
 const saveMapBtn = document.getElementById("saveMapBtn");
 const mapStatus = document.getElementById("mapStatus");
 
-// 2D array to hold map zone types
-let mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
+
+let MAP_SIZE = 25; // default
+let mapData = [];
 
 function createGrid() {
   mapGrid.innerHTML = "";
+
+  mapData = Array.from({ length: MAP_SIZE }, () =>
+    Array(MAP_SIZE).fill("empty")
+  );
+
   for (let y = 0; y < MAP_SIZE; y++) {
     for (let x = 0; x < MAP_SIZE; x++) {
       const tileDiv = document.createElement("div");
       tileDiv.classList.add("tile", "empty");
       tileDiv.dataset.x = x;
       tileDiv.dataset.y = y;
-      tileDiv.textContent = "E"; // Default
+      tileDiv.textContent = "E";
       tileDiv.title = `(${x},${y}) - empty`;
       tileDiv.setAttribute("role", "gridcell");
 
@@ -534,6 +723,27 @@ saveMapBtn.addEventListener("click", saveMapToFirestore);
 // Initialize
 createGrid();
 loadMapFromFirestore();
+
+
+
+document.getElementById("generateMapBtn").addEventListener("click", () => {
+  const selectedSize = parseInt(document.getElementById("mapSize").value);
+  MAP_SIZE = selectedSize;
+  createGrid();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
