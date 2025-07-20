@@ -9,6 +9,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
     body, html {
@@ -191,6 +192,70 @@
   }
 }
 
+
+/* Modal Glassy Background */
+#tileActionModal .modal-content {
+  background: rgba(20, 20, 30, 0.95);
+  border: 2px solid #4caf50;
+  border-radius: 12px;
+  box-shadow: 0 0 12px #4caf50cc;
+  font-family: 'Orbitron', sans-serif;
+  color: #e0e0e0;
+}
+
+/* Header Style */
+#tileActionModal .modal-header {
+  border-bottom: 1px solid #555;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+/* Tile Info Card */
+#tileActionModal .card {
+  background-color: #1f1f2b;
+  border: 1px solid #333;
+  border-radius: 10px;
+  color: #ddd;
+}
+
+/* Card Title */
+#tileActionModal .card-title {
+  color: #4caf50;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+/* Row Labels */
+#tileActionModal .row strong {
+  color: #90caf9;
+}
+
+/* Modal Footer Buttons */
+#tileActionModal .modal-footer .btn {
+  border-radius: 8px;
+  font-size: 1rem;
+  padding: 10px 18px;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+#tileActionModal .btn-success {
+  background-color: #4caf50;
+  border-color: #4caf50;
+}
+
+#tileActionModal .btn-success:hover {
+  background-color: #66bb6a;
+}
+
+#tileActionModal .text-danger {
+  color: #e53935 !important;
+}
+
+#tileActionModal .text-success {
+  color: #66bb6a !important;
+}
+
   </style>
 </head>
 <body>
@@ -255,7 +320,7 @@
 </div>
 
 <!-- Tile Actions Modal -->
-<div class="modal fade" id="tileActionModal" tabindex="-1" aria-labelledby="tileActionLabel" aria-hidden="true">
+<div class="modal fade game-modal" id="tileActionModal" tabindex="-1" aria-labelledby="tileActionLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
