@@ -1147,7 +1147,7 @@ if (!otherPlayerId && (trueType === "zone" || trueType === "empty")) {
 }
 
 
-if (info.ownerName === playerData.username && info.unlocked && (trueType === "zone" || trueType === "empty")) {
+if (info.ownerName && info.ownerName === playerData.username && info.unlocked && (trueType === "zone" || trueType === "empty")) {
   const startCompanyBtn = createButton(`Start Company $${info.value}`, "btn btn-success", () => {
     // Store coords globally or in a modal data attr
     document.getElementById("confirmStartCompanyBtn").dataset.tile = `${x}_${y}`;
@@ -1156,7 +1156,7 @@ if (info.ownerName === playerData.username && info.unlocked && (trueType === "zo
   modalFooter.appendChild(startCompanyBtn);
 }
 
-if (info.ownerName !== playerData.username && trueType === "company") {
+if (info.ownerName && info.ownerName !== playerData.username && trueType === "company") {
   createWorkForCompanyButton(info, playerData, modalFooter, x, y);
 }
 
