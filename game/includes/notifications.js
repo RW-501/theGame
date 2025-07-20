@@ -28,6 +28,7 @@ function insertNotifModal() {
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Notifications</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <div id="notificationList" class="list-group"></div>
@@ -39,6 +40,7 @@ function insertNotifModal() {
   
   document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
+
 
 insertNotifModal();
 
