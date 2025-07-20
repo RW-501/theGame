@@ -771,6 +771,44 @@ if (!querySnapshot.empty) {
     playerData = newPlayer;
   }
 
+           
+const playerRef = doc(db, "players", playerData.playerUid);
+
+// Define the tile ID based on player's current position
+const tileId = `${playerX},${playerY}`;
+const tileRef = doc(db, "tiles", tileId);
+const tileSnap = await getDoc(tileRef);
+
+if (!tileSnap.exists()) {
+  const defaultTileData = {
+    color: 0x90caf9,
+    label: "Home Base",
+    type: "home",
+    icon: "🏠",
+    tileImage: "https://rw-501.github.io/theGame/game/images/tile_images/suburban/building-type-0.png",
+    price: 0,
+    income: 1,
+    taxRate: 10,
+    value: 100,
+    unlocked: true,
+    ownerID: playerData.playerUid,
+    createdAt: Date.now(),
+  };
+
+  await setDoc(tileRef, defaultTileData);
+} else {
+  // Optional: update existing tile with some info (if needed)
+  await updateDoc(tileRef, {
+    unlocked: true
+  });
+}
+
+// Example: Update player data if needed
+await updateDoc(playerRef, {
+  currentTile: tileId
+});
+
+
   // Save player data locally
   localStorage.setItem("theGame_currentPlayerData", JSON.stringify(playerData));
 
@@ -1346,13 +1384,13 @@ async function startCompany(x, y, tileData, uid, sector, name, symbol) {
 
   const newBankValue = playerData.bank - tileData.value;
 
-  await Promise.all([
-    updateDoc(tileRef, updatedTile),
-    updateDoc(playerRef, {
-      bank: newBankValue,
-      companiesOwned: arrayUnion(tileId)
-    })
-  ]);
+await Promise.all([
+  updateDoc(tileRef, updatedTile),
+  updateDoc(playerRef, {
+    bank: newBankValue,
+    companiesOwned: arrayUnion(tileId)
+  })
+]);
 
   playerData.bank = newBankValue;
   playerData.companiesOwned = playerData.companiesOwned || [];
