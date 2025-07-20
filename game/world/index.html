@@ -674,7 +674,7 @@ console.log("First tile:", mapData[0][0]);     // Logs the first tile
 console.table(mapData);                        // Displays a visual table
       */
 
-      
+
       // ✅ Get a random empty tile
   const randomLocation = getRandomEmptyTile(mapData);
 
@@ -950,7 +950,7 @@ function setupMapInteraction(scene) {
     }
   });
 
-  scene.input.on("pointerdown", async pointer => {
+  scene.input.on("pointerup", async pointer => {
     if (isMoving) return;
 
     const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
