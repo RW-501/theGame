@@ -149,7 +149,7 @@ exports.marketEventBigChange = onSchedule("every 4 hours", async () => {
 
 
 
-exports.payEmployeesDaily = functions.pubsub.schedule("every 24 hours").onRun(async (context) => {
+exports.payEmployeesDaily = onSchedule("every 24 hours", async (event) => {
   const playersSnapshot = await db.collection("players").get();
   const tilesSnapshot = await db.collection("tiles").get();
 
