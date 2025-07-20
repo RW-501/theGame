@@ -1101,7 +1101,6 @@ scene.input.on("pointermove", pointer => {
   }
 });
 
-let deltaY;
   // Mouse wheel zoom
   scene.input.on("wheel", (pointer, gameObjects, deltaX, deltaY) => {
      newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
@@ -1127,6 +1126,13 @@ function setupMapInteraction(scene) {
   scene.input.on("pointerdown", async pointer => {
    // if (isMoving || isDraggingMap) return;
 
+       if (isDraggingMap) {
+    console.log("return");
+    if (pointer.isDown ) {
+    console.log("return isDown");
+    }
+    return;
+    }
     const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
     const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
     const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
@@ -1175,13 +1181,7 @@ function setupMapInteraction(scene) {
 
 
 async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
-    if (isDraggingMap) {
-    console.log("return");
-    if (pointer.isDown ) {
-    console.log("return isDown");
-    }
-    return;
-    }
+
 
   const modalEl = document.getElementById("tileActionModal");
   const modalBody = document.getElementById("tileActionBody");
