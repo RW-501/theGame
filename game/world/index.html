@@ -566,6 +566,9 @@ onAuthStateChanged(auth, async (user) => {
 
   uid = user.uid;
 
+  // Get a random empty tile
+const randomLocation = getRandomEmptyTile(mapData);
+
   try {
     // Query the player with userID === uid and server === "main"
     const q = query(
@@ -594,7 +597,7 @@ onAuthStateChanged(auth, async (user) => {
         lastUpdate: serverTimestamp(),
         online: true,
         server: "main",
-        location: [5, 5],
+        location: randomLocation, // ✅ Assigned here
         isNew: true,
         trainingMode: true,
 
@@ -642,6 +645,9 @@ onAuthStateChanged(auth, async (user) => {
     // Store in playerState map
     playerState.set(uid, playerData);
 
+
+      const tileData = await getTileDataAt(x, y);
+
     // Initialize player location
     const [x, y] = playerData.location || [5, 5];
     playerX = x;
@@ -655,6 +661,24 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
+function getRandomEmptyTile(mapData) {
+  const emptyTiles = [];
+
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      if (mapData[y][x] === "empty") {
+        emptyTiles.push([x, y]);
+      }
+    }
+  }
+
+  if (emptyTiles.length === 0) {
+    console.warn("⚠️ No empty tiles found. Defaulting to [5, 5].");
+    return [5, 5];
+  }
+
+  return emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
+}
 
 
 const tileTooltip = document.getElementById("tileTooltip");
