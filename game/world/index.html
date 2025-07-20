@@ -525,11 +525,6 @@ let graphics, cursors;
 let mapData = [];
 let otherPlayerSprites = new Map();
 
-let dragStartX = 0;
-let dragStartY = 0;
-let isDraggingMap = false;
-
-
 
 const playerState = new Map();
 
@@ -784,11 +779,12 @@ cam.setZoom(newZoom);
 //const TILE_SIZE = 64; // or whatever your tile size is
 cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZE / 2);
 
-        console.log("playerY   ", playerY);
+  console.log("playerY   ", playerY);
 
   if (playerData.location === 'start') {
 
     playerData.location = randomLocation;
+
   const [x, y] =  randomLocation;
   playerX = x;
   playerY = y;
@@ -1090,25 +1086,11 @@ function setupMapMovement(scene) {
 
   // Drag to move camera
 
-scene.input.on("pointerdown", pointer => {
-  isDraggingMap = true; // start dragging
-      console.log("pointerdown");
-
-});
-
-scene.input.on("pointerup", pointer => {
-  isDraggingMap = false; // stop dragging
-      console.log("pointerup");
-
-});
-
 let pointer;
 
 
 scene.input.on("pointermove", pointer => {
-      isDraggingMap = true; 
-    console.log("pointermove");
-  if (pointer.isDown && isDraggingMap) {
+  if (pointer.isDown && isPointerDown) {
     cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
     cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
 
@@ -1185,7 +1167,6 @@ scene.input.on("pointerup", pointer => {
 
   scene.input.on("pointermove", pointer => {
      cam = scene.cameras.main;
-   // if (pointer.isDown) return;
 
     const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
     const x = Math.floor(worldPoint.x / TILE_SIZE);
@@ -2061,6 +2042,8 @@ scene.load.once('complete', () => {
     'playerAvatar'
   ).setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8).setDepth(1);
 
+  console.log("Player sprite created:", playerSprite);
+
   // Optional: Add a white border using graphics
   const border = scene.add.circle(
     playerSprite.x,
@@ -2081,7 +2064,27 @@ scene.load.once('complete', () => {
       align: 'center',
     }
   ).setOrigin(0.5, 0).setDepth(2);
+
+  // ❌ Remove tile under player
+  const tileX = playerX;
+  const tileY = playerY;
+
+  if (mapData[tileY] && mapData[tileY][tileX]) {
+    console.log(`Removing tile at [${tileX}, ${tileY}] with value:`, mapData[tileY][tileX]);
+    mapData[tileY][tileX] = "empty"; // Or null or undefined based on your system
+    renderTile(tileX, tileY); // Call your tile rendering function to visually update
+  }
 });
+function renderTile(x, y) {
+  // Logic to clear and re-render that tile (e.g., blank out if set to "empty")
+  const tile = tileSprites[`${x},${y}`];
+  if (tile) {
+    tile.destroy(); // remove the tile sprite if it exists
+    delete tileSprites[`${x},${y}`];
+  }
+
+  // Optionally draw something else (e.g., dirt/grass tile for empty)
+}
 
 scene.load.start();
 
