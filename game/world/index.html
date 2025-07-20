@@ -1158,7 +1158,7 @@ scene.input.on("pointerup", pointer => {
       }
     }
 
-    if (!isDraggingMap) {
+    if (!isPointerDown) {
       const tileType = mapData[clickedY]?.[clickedX] || "empty";
       showTileActionModal(clickedX, clickedY, tileType, otherPlayerId);
     }
