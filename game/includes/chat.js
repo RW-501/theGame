@@ -141,9 +141,32 @@ async function initChat() {
     return;
   }
 
-  // Show current user info
-  document.getElementById("currentUserAvatar").src = currentUser.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
-  document.getElementById("currentUserName").textContent = currentUser.displayName || currentUser.email || "Anonymous";
+// Try to load saved player data
+const savedPlayerJSON = localStorage.getItem("theGame_currentPlayerData");
+let playerName = "";
+let avatarImage = "";
+
+if (savedPlayerJSON) {
+  try {
+    const savedPlayer = JSON.parse(savedPlayerJSON);
+    playerName = savedPlayer.playerName || "";
+    avatarImage = savedPlayer.avatarImage || "";
+  } catch {
+    // corrupted localStorage data, fallback below
+  }
+}
+
+// If no local saved data, fallback to currentUser info
+if (!playerName) {
+  playerName = currentUser.displayName || "Anonymous";
+}
+if (!avatarImage) {
+  avatarImage = currentUser.photoURL || "https://rw-501.github.io/contenthub/images/defaultAvatar.png";
+}
+
+// Update UI with loaded info
+document.getElementById("currentUserAvatar").src = avatarImage;
+document.getElementById("currentUserName").textContent = playerName;
 
   // Setup Firestore listener for chat messages
   const chatRef = collection(db, "chatRoom");
