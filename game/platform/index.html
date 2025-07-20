@@ -573,6 +573,7 @@ let playerData = {};
 const playerState = new Map();
 let uid;
 let user;
+let scene;
 
 /*
 // Centralized player state
@@ -669,6 +670,7 @@ if (!querySnapshot.empty) {
 
 async function create() {
   graphics = this.add.graphics();
+   scene = this;
 
   await loadMap();
   drawMap.call(this);
