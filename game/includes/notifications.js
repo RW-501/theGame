@@ -19,6 +19,29 @@ let loadingMore = false;
 let groupingMode = "day"; // "flat" or "day"
 let notificationsUnsub = null;
 
+
+
+function insertNotifModal() {
+  const modalHTML = `
+    <div class="modal fade" id="notifModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Notifications</h5>
+          </div>
+          <div class="modal-body">
+            <div id="notificationList" class="list-group"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+insertNotifModal();
+
 export async function initLiveNotifications() {
   const user = auth.currentUser;
   if (!user) return;
