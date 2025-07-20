@@ -777,10 +777,7 @@ if (!querySnapshot.empty) {
   // Store in playerState map
   playerState.set(uid, playerData);
 
-  // Initialize player location
-  const [x, y] =  randomLocation;
-  playerX = x;
-  playerY = y;
+ 
 
   console.log("✅ Player loaded:", playerData);
   updateStatsUI();
