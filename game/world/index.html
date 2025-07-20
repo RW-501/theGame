@@ -606,6 +606,25 @@ function setDefaultMapData() {
 
 let game;
 
+function getRandomEmptyTile(mapData) {
+  const emptyTiles = [];
+
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      if (mapData[y][x] === "empty") {
+        emptyTiles.push([x, y]);
+      }
+    }
+  }
+
+  if (emptyTiles.length === 0) {
+    console.warn("⚠️ No empty tiles found. Defaulting to [5, 5].");
+    return [5, 5];
+  }
+
+  return emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
+}
+
 // === Firebase Login Check ===
 onAuthStateChanged(auth, async (user) => {
   if (!user) {
@@ -723,24 +742,6 @@ const randomLocation = getRandomEmptyTile(mapData);
   }
 });
 
-function getRandomEmptyTile(mapData) {
-  const emptyTiles = [];
-
-  for (let y = 0; y < MAP_SIZE; y++) {
-    for (let x = 0; x < MAP_SIZE; x++) {
-      if (mapData[y][x] === "empty") {
-        emptyTiles.push([x, y]);
-      }
-    }
-  }
-
-  if (emptyTiles.length === 0) {
-    console.warn("⚠️ No empty tiles found. Defaulting to [5, 5].");
-    return [5, 5];
-  }
-
-  return emptyTiles[Math.floor(Math.random() * emptyTiles.length)];
-}
 
 
 const tileTooltip = document.getElementById("tileTooltip");
