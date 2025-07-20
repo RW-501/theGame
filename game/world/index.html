@@ -809,7 +809,8 @@ function preload() {
   for (const zoneKey in zoneInfo) {
     const tileData = zoneInfo[zoneKey];
     if (tileData.tileImage && !usedImages.has(tileData.tileImage)) {
-      const imageKey = zoneKey + "_tile"; // unique key per zone
+
+      const imageKey = zoneKey + "_tile"; // already correct, just confirm uniqueness
       this.load.image(imageKey, tileData.tileImage);
       tileData.imageKey = imageKey; // store it for drawMap()
       usedImages.add(tileData.tileImage);
