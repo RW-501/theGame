@@ -921,6 +921,8 @@ const tileTooltip = document.getElementById("tileTooltip");
 
 
 function centerCameraOnPlayer() {
+  cam.setZoom(newZoom);
+
 cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZE / 2);
 }
 
@@ -929,7 +931,6 @@ async function initializeMap(scene) {
   // Assuming graphics and playerSprite are globals or declared elsewhere
   graphics = scene.add.graphics();
    cam = scene.cameras.main;
-  centerCameraOnPlayer();
 
   // Await loading map data before drawing
   await loadMapFromFirebase();
