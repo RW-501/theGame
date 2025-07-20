@@ -1233,7 +1233,7 @@ homeType = 'House';
 
 
     // === Buy Land button ===
-if (!otherPlayerId && (trueType === "zone" || trueType === "empty")) {
+if (!otherPlayerId && isUnlocked && (trueType === "zone" || trueType === "empty")) {
   const buyLandBtn = createButton({
     text: `Buy Land $${info.price}`,
     className: "btn btn-success",
@@ -1246,7 +1246,7 @@ if (!otherPlayerId && (trueType === "zone" || trueType === "empty")) {
 }
 
 
-if (!otherPlayerId && trueType === "company") {
+if (!otherPlayerId  && isUnlocked && trueType === "company") {
   const buyCompanyBtn = createButton(`Buy Company $${info.price}`, "btn btn-warning", async () => {
     await purchaseTile(x, y, "company", false);
     bootstrap.Modal.getInstance(modalEl)?.hide();
@@ -1254,7 +1254,7 @@ if (!otherPlayerId && trueType === "company") {
   modalFooter.appendChild(buyCompanyBtn);
 }
 
-if (!otherPlayerId && (trueType === "zone" || trueType === "empty")) {
+if (!otherPlayerId  && isUnlocked && (trueType === "zone" || trueType === "empty")) {
   const moveAndBuyBtn = createButton({
     text: `Move Here (Buy for $${info.price})`,
     className: "btn btn-primary",
@@ -1267,7 +1267,7 @@ if (!otherPlayerId && (trueType === "zone" || trueType === "empty")) {
 }
 
 
-if (info.ownerName && info.ownerName === playerData.username && info.unlocked && (trueType === "zone" || trueType === "empty")) {
+if (info.ownerName  && isUnlocked && info.ownerName === playerData.username && info.unlocked && (trueType === "zone" || trueType === "empty")) {
   const startCompanyBtn = createButton(`Start Company $${info.value}`, "btn btn-success", () => {
     // Store coords globally or in a modal data attr
     document.getElementById("confirmStartCompanyBtn").dataset.tile = `${x}_${y}`;
@@ -1276,7 +1276,7 @@ if (info.ownerName && info.ownerName === playerData.username && info.unlocked &&
   modalFooter.appendChild(startCompanyBtn);
 }
 
-if (info.ownerName && info.ownerName !== playerData.username && trueType === "company") {
+if (info.ownerName  && isUnlocked && info.ownerName !== playerData.username && trueType === "company") {
   createWorkForCompanyButton(info, playerData, modalFooter, x, y);
 }
 
