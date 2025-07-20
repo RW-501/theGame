@@ -26,7 +26,7 @@ export async function initLiveNotifications() {
   const uid = user.uid;
 
   const notifList = document.getElementById("notificationList");
-  const avatar = document.getElementById("userAvatar");
+//  const avatar = document.getElementById("currentUserAvatar");
   const notifBtn = document.getElementById("notifBellBtn");
   const modalBody = document.querySelector("#notifModal .modal-body");
   const toggleBtn = document.getElementById("toggleGroupMode");
@@ -186,8 +186,8 @@ setTimeout(() => {
     query(collection(db, "notifications"), where("uid", "==", uid), where("read", "==", false)),
     (unreadSnap) => {
       const hasUnread = !unreadSnap.empty;
-      avatar.style.boxShadow = hasUnread ? "0 0 8px 3px lime" : "none";
-      avatar.classList.toggle("blink", hasUnread);
+      notifBtn.style.boxShadow = hasUnread ? "0 0 8px 3px lime" : "none";
+      notifBtn.classList.toggle("blink", hasUnread);
     }
   );
 
