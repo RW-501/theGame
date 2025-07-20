@@ -612,11 +612,13 @@ onAuthStateChanged(auth, async (user) => {
     window.location.href = 'https://rw-501.github.io/theGame';
     return;
   }
+
+let mapWidth = (TILE_SIZE * MAP_SIZE) / 2;
 // === Game Setup ===
 const config = {
   type: Phaser.AUTO,
-width: window.innerWidth,
-height: window.innerHeight,
+width: MapWidth, // window.innerWidth,
+height: mapWidth, //window.innerHeight,
   parent: "game-container",
   backgroundColor: "#222222",
   scene: { preload, create, update }
