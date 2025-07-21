@@ -1422,7 +1422,7 @@ if (!otherPlayerId  && isUnlocked && (trueType === "zone" || trueType === "empty
   
     // New tile level and value
   const newLevel = level || 1;
-  const newValue = info.price + 1000 + playerData.level * 200;
+  const newValue = info.price + playerData.level * 1000;
 
   const moveAndBuyBtn = createButton({
     text: `Move Here (Buy for $${newValue})`,
@@ -1780,7 +1780,7 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
 
     // New tile level and value
   const newLevel = tileData.level || 1;
-  const newValue = tileData.price + 1000 + player.level * 200;
+  const newValue = info.price + playerData.level * 1000;
     // Deduct money and write tile data
     const updatedBank = playerData.bank - cost;
     const newTile = {
