@@ -1411,86 +1411,101 @@ modalBody.innerHTML = `
     modalFooter.appendChild(talkBtn);
   }
 
+if (!otherPlayerId && trueType === "home") {
+  let homeType = level > 5 ? "House" : "Appartment";
 
-  if (!otherPlayerId && (trueType === "home")) {
-    let homeType = 'Appartment';
-    if(level > 5 ){
-homeType = 'House';
-    }
-  const upGradeHomeBtn = createButton({
-    text: `Upgrade ${homeType} `,
+  createButton({
+    text: `Upgrade ${homeType}`,
     className: "btn btn-success",
     onClick: async () => {
       await upgradeHomeBase(x, y, "home", false);
       bootstrap.Modal.getInstance(modalEl)?.hide();
-    }
+    },
+    parent: modalFooter
   });
-  modalFooter.appendChild(upGradeHomeBtn);
 }
 
-
-    // === Buy Land button ===
 if (!otherPlayerId && isUnlocked && (trueType === "zone" || trueType === "empty")) {
-  const buyLandBtn = createButton({
+  createButton({
     text: `Buy Land $${info.price}`,
     className: "btn btn-success",
     onClick: async () => {
       await purchaseTile(x, y, "zone", false);
       bootstrap.Modal.getInstance(modalEl)?.hide();
-    }
+    },
+    parent: modalFooter
   });
-  modalFooter.appendChild(buyLandBtn);
-}
 
-
-if (!otherPlayerId  && isUnlocked && trueType === "company") {
-  const buyCompanyBtn = createButton(`Buy Company $${info.price}`, "btn btn-warning", async () => {
-    await purchaseTile(x, y, "company", false);
-    bootstrap.Modal.getInstance(modalEl)?.hide();
-  });
-  modalFooter.appendChild(buyCompanyBtn);
-}
-
-if (!otherPlayerId  && isUnlocked && (trueType === "zone" || trueType === "empty")) {
-  
-    // New tile level and value
-  const newLevel = level || 1;
   const newValue = info.price + playerData.level * 1000;
-
-  const moveAndBuyBtn = createButton({
+  createButton({
     text: `Move Here (Buy for $${newValue})`,
     className: "btn btn-primary",
     onClick: async () => {
       await purchaseTile(x, y, "zone", true);
       bootstrap.Modal.getInstance(modalEl)?.hide();
-    }
+    },
+    parent: modalFooter
   });
-  modalFooter.appendChild(moveAndBuyBtn);
+}
+
+if (!otherPlayerId && isUnlocked && trueType === "company") {
+  createButton({
+    text: `Buy Company $${info.price}`,
+    className: "btn btn-warning",
+    onClick: async () => {
+      await purchaseTile(x, y, "company", false);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    },
+    parent: modalFooter
+  });
 }
 
 if (trueType === "company") {
-  const viewEmployeesBtn = createButton("View Employees", "btn btn-primary", async () => {
-    await showEmployeesModal(`${x}_${y}`);
+  createButton({
+    text: "View Employees",
+    className: "btn btn-primary",
+    onClick: async () => {
+      await showEmployeesModal(`${x}_${y}`);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    },
+    parent: modalFooter
   });
-  modalFooter.appendChild(viewEmployeesBtn);
 }
 
-
-if (info.ownerName  && isUnlocked && info.ownerName === playerData.username && info.unlocked && (trueType === "zone" || trueType === "empty")) {
-  const startCompanyBtn = createButton(`Start Company $${info.value}`, "btn btn-success", () => {
-    // Store coords globally or in a modal data attr
-    document.getElementById("confirmStartCompanyBtn").dataset.tile = `${x}_${y}`;
-    new bootstrap.Modal(document.getElementById("startCompanyModal")).show();
+if (
+  info.ownerName &&
+  isUnlocked &&
+  info.ownerName === playerData.username &&
+  info.unlocked &&
+  (trueType === "zone" || trueType === "empty")
+) {
+  createButton({
+    text: `Start Company $${info.value}`,
+    className: "btn btn-success",
+    onClick: () => {
+      document.getElementById("confirmStartCompanyBtn").dataset.tile = `${x}_${y}`;
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+      new bootstrap.Modal(document.getElementById("startCompanyModal")).show();
+    },
+    parent: modalFooter
   });
-  modalFooter.appendChild(startCompanyBtn);
 }
 
-if (info.ownerName  && isUnlocked && info.ownerName !== playerData.username && trueType === "company") {
+if (
+  info.ownerName &&
+  isUnlocked &&
+  info.ownerName !== playerData.username &&
+  trueType === "company"
+) {
   createWorkForCompanyButton(info, playerData, modalFooter, x, y);
+  bootstrap.Modal.getInstance(modalEl)?.hide();
 }
 
   new bootstrap.Modal(modalEl).show();
 }
+
+
+
 
 async function showEmployeesModal(tileId) {
   const modalEl = document.getElementById("employeesModal");
@@ -1656,58 +1671,21 @@ async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
 }
 
 
-function createButton(text, className, onClick, parent = document.body, styles = {} ) {
-     if(!text){
-      console.trace("createButton called from:"); // Logs the call stack
-
+function createButton({ text, className, onClick, parent = document.body, styles = {} }) {
+  if (!text) {
+    console.trace("createButton called with no text");
     return;
-  }  
+  }
+
   const button = document.createElement("button");
   button.textContent = text;
   button.className = className;
   button.onclick = onClick;
-  return button; // ✅ must return a DOM element
-}
 
-/*
-function createButton({ text, onClick, id, className, parent = document.body, styles = {} }) {
-   if(!text){
-      console.trace("createButton called from:"); // Logs the call stack
-
-    return;
-  }  
-  
-  const button = document.createElement('button');
-
-  // Set basic properties
-  button.textContent = text;
-  button.id = id || '';
-  button.className = className || 'game-button';
-
-  // Apply custom inline styles if any
-  Object.assign(button.style, {
-    padding: '8px 16px',
-    margin: '4px',
-    fontSize: '16px',
-    cursor: 'pointer',
-    borderRadius: '6px',
-    border: 'none',
-    backgroundColor: '#4CAF50',
-    color: 'white',
-    ...styles,
-  });
-
-  // Attach the click event
-  if (typeof onClick === 'function') {
-    button.addEventListener('click', onClick);
-  }
-
-  // Append to parent
+  Object.assign(button.style, styles);
   parent.appendChild(button);
-
   return button;
 }
-*/
 
 
 async function startCompany(x, y, tileData, uid, sector, name, symbol) {
