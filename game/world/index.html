@@ -1532,7 +1532,7 @@ async function upgradeHomeBase(x, y, playerData) {
   const player = playerSnap.data();
 
   const currentLevel = tileData.level || 1;
-  const upgradeCost = (currentLevel + 1) * 1000;
+  const upgradeCost = (currentLevel + 1) * 500;
 
   if (player.bank < upgradeCost) {
     showMessageModal("Not enough money to upgrade.");
@@ -1780,7 +1780,7 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
 
     // New tile level and value
   const newLevel = tileData.level || 1;
-  const newValue = info.price + playerData.level * 1000;
+  const newValue = info.price + playerData.level * 500;
     // Deduct money and write tile data
     const updatedBank = playerData.bank - cost;
     const newTile = {
