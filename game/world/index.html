@@ -2098,10 +2098,14 @@ console.log(" location   ",pos);
   const playersCollection = collection(db, "players");
   onSnapshot(playersCollection, (querySnapshot) => {
     playerState.clear();
+    console.log(" querySnapshot   ",querySnapshot);
+
     querySnapshot.forEach(doc => {
       const data = doc.data();
+      console.log(" data   ",data);
+
       if (data.location) {
-        playerState.set(doc.id, data.position);
+        playerState.set(doc.id, data.location);
       }
     });
     renderAllPlayers(scene);
