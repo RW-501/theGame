@@ -1013,15 +1013,7 @@ scene.load.once('complete', () => {
     }
   ).setOrigin(0.5, 0).setDepth(2);
 
-  // ❌ Remove tile under player
-  const tileX = playerX;
-  const tileY = playerY;
 
-  if (mapData[tileY] && mapData[tileY][tileX]) {
-    console.log(`Removing tile at [${tileX}, ${tileY}] with value:`, mapData[tileY][tileX]);
-    mapData[tileY][tileX] = ""; // Or null or undefined based on your system
-   // renderTile(tileX, tileY); // Call your tile rendering function to visually update
-  }
 });
 
 
