@@ -1260,17 +1260,22 @@ scene.input.on("pointerup", pointer => {
 
     if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
 
-    let otherPlayerId = null;
-    const entries = playerState instanceof Map
-      ? playerState.entries()
-      : Object.entries(playerState);
+let otherPlayerId = null;
+const entries = playerState instanceof Map
+  ? playerState.entries()
+  : Object.entries(playerState);
 
-    for (const [pid, pos] of entries) {
-      if (pid !== uid && pos.x === clickedX && pos.y === clickedY) {
-        otherPlayerId = pid;
-        break;
-      }
-    }
+console.log("Entries to check:", Array.from(entries));  // Log all entries as an array
+
+for (const [pid, pos] of entries) {
+  console.log(`Checking player id: ${pid}, position:`, pos);
+  if (pid !== uid && pos.x === clickedX && pos.y === clickedY) {
+    otherPlayerId = pid;
+    console.log(`Found otherPlayerId at clicked position: ${otherPlayerId}`);
+    break;
+  }
+}
+
 
     if (!isPointerDown) {
       const tileType = mapData[clickedY]?.[clickedX] || "empty";
@@ -1372,19 +1377,41 @@ modalBody.innerHTML = `
 
   // === Player tile interaction ===
   if (otherPlayerId) {
-  const playersRef = collection(db, "players");
-  const q = query(playersRef, where("userID", "==", otherPlayerId));
+/*
+let data = allUsersMap.get(otherPlayerId);
 
+if (!data) {
+  const playersRef = collection(db, "players");
+  const q = query(playersRef, where("playerUid", "==", otherPlayerId));
   const otherSnap = await getDocs(q);
-    const data = otherSnap.exists() ? otherSnap.data() : {};
-    const info = {
-      playerName: data.playerName ?? otherPlayerId.substring(0, 6),
-      health: data.health ?? "??",
-      level: data.level ?? "?",
-      techStrength: data.techStrength ?? "?",
-      security: data.security ?? "?",
-      bank: data.bank ?? "?",
-    };
+  
+  if (!otherSnap.empty) {
+    data = otherSnap.docs[0].data();
+  } else {
+    data = {};
+  }
+}
+
+const info = {
+  playerName: data.playerName ?? otherPlayerId.substring(0, 6),
+  health: data.health ?? "??",
+  level: data.level ?? "?",
+  techStrength: data.techStrength ?? "?",
+  security: data.security ?? "?",
+  bank: data.bank ?? "?",
+};
+
+*/
+const data = allUsersMap.get(otherPlayerId) || {};
+const info = {
+  playerName: data.playerName ?? otherPlayerId.substring(0, 6),
+  health: data.health ?? "??",
+  level: data.level ?? "?",
+  techStrength: data.techStrength ?? "?",
+  security: data.security ?? "?",
+  bank: data.bank ?? "?",
+};
+
 
     modalBody.innerHTML += `
       <p>Player <strong>${info.playerName}</strong> is here.</p>
@@ -2435,7 +2462,7 @@ function renderAllPlayers(scene) {
     0xffffff,
     0.2
   ).setStrokeStyle(2, 0xffffff).setDepth(0);
-  
+
       // Avatar Image
       const avatarKey = playerData?.avatarImage || "avatar1"; // default
       const avatarImage = scene.add.image(0, -10, avatarKey )
