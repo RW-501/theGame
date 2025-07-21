@@ -134,6 +134,13 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  
+    background: rgba(20, 20, 30, 0.95);
+    border: 2px solid #4caf50;
+    border-radius: 12px;
+    box-shadow: 0 0 12px #4caf50cc;
+    font-family: 'Orbitron', sans-serif;
+    color: #e0e0e0;
 }
 
 #userTool button:hover {
@@ -198,8 +205,9 @@
 }
 
 
-/* Modal Glassy Background */
-#tileActionModal .modal-content {
+/* Shared Modal Styles for TileAction and Message Modals */
+#tileActionModal .modal-content,
+#messageModal .modal-content {
   background: rgba(20, 20, 30, 0.95);
   border: 2px solid #4caf50;
   border-radius: 12px;
@@ -208,15 +216,17 @@
   color: #e0e0e0;
 }
 
-/* Header Style */
-#tileActionModal .modal-header {
+/* Modal Header */
+#tileActionModal .modal-header,
+#messageModal .modal-header {
   border-bottom: 1px solid #555;
   background-color: rgba(0, 0, 0, 0.3);
   color: #fff;
 }
 
-/* Tile Info Card */
-#tileActionModal .card {
+/* Card inside modal */
+#tileActionModal .card,
+#messageModal .card {
   background-color: #1f1f2b;
   border: 1px solid #333;
   border-radius: 10px;
@@ -224,19 +234,22 @@
 }
 
 /* Card Title */
-#tileActionModal .card-title {
+#tileActionModal .card-title,
+#messageModal .card-title {
   color: #4caf50;
   font-weight: bold;
   font-size: 1.2rem;
 }
 
 /* Row Labels */
-#tileActionModal .row strong {
+#tileActionModal .row strong,
+#messageModal .row strong {
   color: #90caf9;
 }
 
 /* Modal Footer Buttons */
-#tileActionModal .modal-footer .btn {
+#tileActionModal .modal-footer .btn,
+#messageModal .modal-footer .btn {
   border-radius: 8px;
   font-size: 1rem;
   padding: 10px 18px;
@@ -244,22 +257,29 @@
   transition: 0.3s ease;
 }
 
-#tileActionModal .btn-success {
+/* Success Button */
+#tileActionModal .btn-success,
+#messageModal .btn-success {
   background-color: #4caf50;
   border-color: #4caf50;
 }
 
-#tileActionModal .btn-success:hover {
+#tileActionModal .btn-success:hover,
+#messageModal .btn-success:hover {
   background-color: #66bb6a;
 }
 
-#tileActionModal .text-danger {
+/* Text Colors */
+#tileActionModal .text-danger,
+#messageModal .text-danger {
   color: #e53935 !important;
 }
 
-#tileActionModal .text-success {
+#tileActionModal .text-success,
+#messageModal .text-success {
   color: #66bb6a !important;
 }
+
 
   </style>
 </head>
@@ -404,7 +424,7 @@
 
 
 <!-- Message Modal -->
-<div class="modal fade" id="messageModal" tabindex="-1" aria-hidden="true">
+<div class="modal fade game-modal" id="messageModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
