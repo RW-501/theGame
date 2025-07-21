@@ -1028,6 +1028,18 @@ function drawMap(scene) {
           y * TILE_SIZE + TILE_SIZE / 2,
            "dirt").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
     }
+            if (zoneType == "zone2" || zoneType == "zone4" || zoneType == "zone6") {
+      scene.add.image(
+        x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+           "company_company").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
+    }
+                if (zoneType == "zone3" || zoneType == "zone5") {
+      scene.add.image(
+        x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+           "zone1_zone").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
+    }
 console.log("zonne type !!!!!!!!!!   ",zoneType);
 
       // Draw image if available
@@ -1045,6 +1057,8 @@ console.log("zonne type !!!!!!!!!!   ",zoneType);
           { font: `${TILE_SIZE * 0.3}px Arial`, align: 'center' }
         ).setOrigin(0.5);
       }
+
+
     }
   }
 
