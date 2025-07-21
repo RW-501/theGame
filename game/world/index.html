@@ -1002,12 +1002,21 @@ function drawMap(scene) {
 
   for (let y = 0; y < MAP_SIZE; y++) {
     for (let x = 0; x < MAP_SIZE; x++) {
+
+      // Skip the player’s tile
+      if (x === playerX && y === playerY) continue;
+
       const zoneType = mapData[y][x] || "empty";
       const info = zoneInfo[zoneType] || zoneInfo.empty;
 
       // Background fill
       graphics.fillStyle(info.color, 1);
       graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+          // Draw base concrete if not empty
+    if (zoneType !== "empty") {
+      this.add.image(x, y, "concrete").setOrigin(0);
+    }
 
       // Draw image if available
       if (info.imageKey) {
@@ -1016,9 +1025,7 @@ function drawMap(scene) {
           y * TILE_SIZE + TILE_SIZE / 2,
           info.imageKey
         ).setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
-      }
-      // Fallback to icon if no image
-      else if (info.icon) {
+      } else if (info.icon) {
         scene.add.text(
           x * TILE_SIZE + TILE_SIZE / 2,
           y * TILE_SIZE + TILE_SIZE / 2,
@@ -1029,8 +1036,6 @@ function drawMap(scene) {
     }
   }
 }
-
-
 
 function returnToPlayerLocation(scene) {
   const cam = scene.cameras.main;
@@ -1063,6 +1068,9 @@ function preload() {
 
   const usedImages = new Set(); // avoid duplicate loads
 
+this.load.image("concrete", "images/concrete.png"); // or wherever the file is
+
+
   for (const zoneKey in zoneInfo) {
     const tileData = zoneInfo[zoneKey];
     if (tileData.tileImage && !usedImages.has(tileData.tileImage)) {
@@ -1078,6 +1086,7 @@ function preload() {
     }
   }
 
+  
   // Optional: Simulate longer loading for testing
   for (let i = 0; i < 100; i++) {
    // this.load.image(`dummy${i}`, 'path/to/dummy.png');
@@ -1189,24 +1198,26 @@ scene.input.on("pointerup", pointer => {
   }
 });
 
-  scene.input.on("pointermove", pointer => {
-     cam = scene.cameras.main;
+scene.input.on("pointermove", pointer => {
+  cam = scene.cameras.main;
 
-    const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
-    const x = Math.floor(worldPoint.x / TILE_SIZE);
-    const y = Math.floor(worldPoint.y / TILE_SIZE);
+  const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
+  const x = Math.floor(worldPoint.x / TILE_SIZE);
+  const y = Math.floor(worldPoint.y / TILE_SIZE);
 
-    if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
-      const zoneType = mapData[y]?.[x] || "empty";
-      const info = zoneInfo[zoneType] || zoneInfo.empty;
-      tileTooltip.style.left = pointer.x + 15 + "px";
-      tileTooltip.style.top = pointer.y + 15 + "px";
-      tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
-      tileTooltip.style.display = "block";
-    } else {
-      tileTooltip.style.display = "none";
-    }
-  });
+  if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+    const zoneType = mapData[y]?.[x] || "empty";
+    const info = zoneInfo[zoneType] || zoneInfo.empty;
+
+    tileTooltip.style.left = pointer.event.clientX + 15 + "px";
+    tileTooltip.style.top = pointer.event.clientY + 15 + "px";
+    tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
+    tileTooltip.style.display = "block";
+  } else {
+    tileTooltip.style.display = "none";
+  }
+});
+
 
   scene.input.on("pointerout", () => {
     tileTooltip.style.display = "none";
