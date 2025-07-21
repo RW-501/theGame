@@ -1016,7 +1016,10 @@ function drawMap(scene) {
 
           // Draw base concrete if not empty
     if (zoneType != "empty") {
-      scene.add.image(x, y, "concrete").setOrigin(0.5);
+      scene.add.image(
+        x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+           "concrete").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
     }
 console.log("zonne type !!!!!!!!!!   ",zoneType);
 
