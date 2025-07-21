@@ -1030,11 +1030,12 @@ document.getElementById("goToPlatformBtn").addEventListener("click", () => {
     window.location.href = "https://rw-501.github.io/theGame/game/platform/";
 });
 
+ let loadingText;
 
 // === Phaser Scene Methods ===
 function preload() {
   // Add loading text or a bar
-  const loadingText = this.add.text(
+   loadingText = this.add.text(
     this.cameras.main.centerX,
     this.cameras.main.centerY,
     'Loading...',
