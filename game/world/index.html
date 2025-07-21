@@ -1019,20 +1019,11 @@ scene.load.once('complete', () => {
 
   if (mapData[tileY] && mapData[tileY][tileX]) {
     console.log(`Removing tile at [${tileX}, ${tileY}] with value:`, mapData[tileY][tileX]);
-    mapData[tileY][tileX] = "empty"; // Or null or undefined based on your system
-    renderTile(tileX, tileY); // Call your tile rendering function to visually update
+    mapData[tileY][tileX] = ""; // Or null or undefined based on your system
+   // renderTile(tileX, tileY); // Call your tile rendering function to visually update
   }
 });
-function renderTile(x, y) {
-  // Logic to clear and re-render that tile (e.g., blank out if set to "empty")
-  const tile = mapData[`${x},${y}`];
-  if (tile) {
-    tile.destroy(); // remove the tile sprite if it exists
-    delete mapData[`${x},${y}`];
-  }
 
-  // Optionally draw something else (e.g., dirt/grass tile for empty)
-}
 
 scene.load.start();
 
