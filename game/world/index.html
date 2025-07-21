@@ -1021,6 +1021,13 @@ function drawMap(scene) {
           y * TILE_SIZE + TILE_SIZE / 2,
            "concrete").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
     }
+
+        if (zoneType == "empty") {
+      scene.add.image(
+        x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+           "dirt").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
+    }
 console.log("zonne type !!!!!!!!!!   ",zoneType);
 
       // Draw image if available
@@ -1075,6 +1082,7 @@ function preload() {
   const usedImages = new Set(); // avoid duplicate loads
 
 this.load.image("concrete", "https://rw-501.github.io/theGame/game/images/tile_images/sk.png"); // or wherever the file is
+this.load.image("dirt", "https://rw-501.github.io/theGame/game/images/tile_images/dk.png"); // or wherever the file is
 
 
   for (const zoneKey in zoneInfo) {
