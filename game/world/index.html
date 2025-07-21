@@ -731,7 +731,7 @@ height: MapWidth, //window.innerHeight,
 
   parent: "game-container",
   backgroundColor: "#222222",
-  scene: { preload, create, update }
+  scene: { preload, create, updateStatsUI }
 };
 
  game = new Phaser.Game(config);
@@ -909,7 +909,6 @@ await updateDoc(playerRef, {
  
 
   console.log("✅ Player loaded:", playerData);
-  updateStatsUI();
 }, 1000);
 
 
@@ -2024,14 +2023,6 @@ function movePlayerSmoothly(scene, x, y) {
 
 
 
-function update() {
-  // nothing needed here for now
-
-    this.load.on('complete', () => {
-    loadingText.setText('Loading Complete!');
-  });
-}
-
 
 // === Stats UI ===
 function updateStatsUI() {
@@ -2097,6 +2088,11 @@ scene.load.start();
   const zoneType = mapData[playerY]?.[playerX] || "empty";
   const label = zoneInfo[zoneType]?.label || "Unknown";
   document.getElementById("zoneName").innerHTML = `📍 Zone: <span>${label}</span>`;
+
+
+      this.load.on('complete', () => {
+    loadingText.setText('Loading Complete!');
+  });
 }
 
 
