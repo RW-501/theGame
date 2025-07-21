@@ -1014,7 +1014,7 @@ function drawMap(scene) {
       graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
           // Draw base concrete if not empty
-    if (zoneType !== "empty") {
+    if (zoneType == "empty") {
       scene.add.image(x, y, "concrete").setOrigin(0);
     }
 
