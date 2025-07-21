@@ -2070,7 +2070,7 @@ function updateStatsUI() {
   
 
   // Load avatar image
-scene.load.image('playerAvatar', playerState.avatarImage || 'https://robohash.org/3?size=50x50');
+scene.load.image('playerAvatar', state.avatarImage || 'https://robohash.org/3?size=50x50');
 
 // After load completes
 scene.load.once('complete', () => {
@@ -2094,7 +2094,7 @@ scene.load.once('complete', () => {
   const nameText = scene.add.text(
     playerSprite.x,
     playerSprite.y + TILE_SIZE * 0.45,
-    playerState.playerName || 'Player',
+    state.playerName || 'Player',
     {
       font: '12px Arial',
       fill: '#ffffff',
@@ -2103,6 +2103,7 @@ scene.load.once('complete', () => {
   ).setOrigin(0.5, 0).setDepth(2);
 });
 
+    scene.load.start();
 
 
   document.getElementById("level").textContent = `${state.level ?? 0}`;
@@ -2125,7 +2126,6 @@ scene.load.once('complete', () => {
       scene.load.on('complete', () => {
     loadingText.setText('Loading Complete!');
 
-    scene.load.start();
 
   });
 }
