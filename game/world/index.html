@@ -1021,7 +1021,17 @@ function drawMap(scene) {
            "concrete").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
     }
 
-// Retrieve and parse the player data from localStorage
+
+
+        if (zoneType == "empty") {
+      scene.add.image(
+        x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+           "dirt").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
+    }
+
+
+    // Retrieve and parse the player data from localStorage
 const storedData = JSON.parse(localStorage.getItem("theGame_currentPlayerData"));
 
 // Safely extract playerX and playerY
@@ -1030,12 +1040,7 @@ const playerY = storedData?.location?.[1];
 
 if (x === playerX && y === playerY) continue;
 
-        if (zoneType == "empty") {
-      scene.add.image(
-        x * TILE_SIZE + TILE_SIZE / 2,
-          y * TILE_SIZE + TILE_SIZE / 2,
-           "dirt").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
-    }
+
             if (zoneType == "zone2" || zoneType == "zone4" || zoneType == "zone6") {
       scene.add.image(
         x * TILE_SIZE + TILE_SIZE / 2,
