@@ -736,6 +736,7 @@ let newZoom;
 let isPointerDown = false;
 let pointerDownTime = 0;
 let initialPointer = null;
+const allUsersMap = new Map();
 
 
 function getRandomEmptyTile(mapData) {
@@ -2064,7 +2065,6 @@ async function sellTile(x, y, playerData) {
 
 
 
-const allUsersMap = new Map();
 
 
   // Realtime sync for player movement and all players
