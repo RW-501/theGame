@@ -1049,7 +1049,9 @@ console.log("zonne type !!!!!!!!!!   ",zoneType);
           y * TILE_SIZE + TILE_SIZE / 2,
           info.imageKey
         ).setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
-      } else if (info.icon) {
+      } 
+      
+      if (!info.icon) {
         scene.add.text(
           x * TILE_SIZE + TILE_SIZE / 2,
           y * TILE_SIZE + TILE_SIZE / 2,
