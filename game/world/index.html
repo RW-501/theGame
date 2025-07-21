@@ -637,7 +637,7 @@ const zoneInfo = {
       zones[`zone${i}`] = {
         color: zoneColors[i - 1] || 0xcccccc,
         label: `Zone ${i}`,
-        type: "zone",
+        type: "company",
         icon: zoneIcons[i - 1] || "🏙️",
         tileImage: 'https://rw-501.github.io/theGame/game/images/tile_images/commercial/building-3.png', // fixed slashes and removed extra quotes
         price,
@@ -645,7 +645,7 @@ const zoneInfo = {
         income: 50 + incomeStep * (i - 1),
         taxRate: parseFloat((baseTax + i * 0.01).toFixed(2)),
         value: price + valueStep * (i - 1),
-        unlocked: i <= 3 // unlock first 3 zones by default
+        unlocked: i > 3 // unlock first 3 zones by default
       };
     }
 
