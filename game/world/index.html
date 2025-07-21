@@ -1015,7 +1015,7 @@ function drawMap(scene) {
 
           // Draw base concrete if not empty
     if (zoneType !== "empty") {
-      this.add.image(x, y, "concrete").setOrigin(0);
+      scene.add.image(x, y, "concrete").setOrigin(0);
     }
 
       // Draw image if available
@@ -1068,7 +1068,7 @@ function preload() {
 
   const usedImages = new Set(); // avoid duplicate loads
 
-this.load.image("concrete", "images/concrete.png"); // or wherever the file is
+this.load.image("concrete", "https://rw-501.github.io/theGame/game/images/tile_images/sk.png"); // or wherever the file is
 
 
   for (const zoneKey in zoneInfo) {
