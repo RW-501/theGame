@@ -1077,7 +1077,7 @@ this.load.image("concrete", "https://rw-501.github.io/theGame/game/images/tile_i
     const tileData = zoneInfo[zoneKey];
     if (tileData.tileImage && !usedImages.has(tileData.tileImage)) {
 
-      const imageKey = zoneKey + "_tile"; // already correct, just confirm uniqueness
+      const imageKey = zoneKey + ""; // already correct, just confirm uniqueness
       this.load.image(imageKey, tileData.tileImage);
       tileData.imageKey = imageKey; // store it for drawMap()
       usedImages.add(tileData.tileImage);
