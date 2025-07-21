@@ -123,7 +123,7 @@ selectedAvatar = avatar.dataset.avatar;
   if (!userSnap.exists()) {
     await setDoc(userRef, {
       username,
-    avatarImage: selectedAvatarImageUrl,
+    avatarImage: selectedAvatar,
       createdAt: serverTimestamp(),
       status: "active"
     });
@@ -134,7 +134,7 @@ selectedAvatar = avatar.dataset.avatar;
     playerUid: '',               // <-- will be filled after addDoc
     userID: uid,
     playerName: username,
-    avatarImage: selectedAvatarImageUrl,
+    avatarImage: selectedAvatar,
     status: "active",
     lastUpdate: serverTimestamp(),
     online: true,
