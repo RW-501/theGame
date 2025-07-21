@@ -1623,8 +1623,20 @@ async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
 }
 
 
+function createButton(text, className, onClick, parent = document.body, styles = {} ) {
+     if(!text){
+      console.trace("createButton called from:"); // Logs the call stack
 
+    return;
+  }  
+  const button = document.createElement("button");
+  button.textContent = text;
+  button.className = className;
+  button.onclick = onClick;
+  return button; // ✅ must return a DOM element
+}
 
+/*
 function createButton({ text, onClick, id, className, parent = document.body, styles = {} }) {
    if(!text){
       console.trace("createButton called from:"); // Logs the call stack
@@ -1662,6 +1674,8 @@ function createButton({ text, onClick, id, className, parent = document.body, st
 
   return button;
 }
+*/
+
 
 async function startCompany(x, y, tileData, uid, sector, name, symbol) {
   const tileId = `${x}_${y}`;
