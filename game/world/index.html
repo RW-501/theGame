@@ -1004,7 +1004,7 @@ function drawMap(scene) {
     for (let x = 0; x < MAP_SIZE; x++) {
 
       // Skip the player’s tile
-      if (x === playerX && y === playerY) continue;
+     // if (x === playerX && y === playerY) continue;
 
       const zoneType = mapData[y][x] || "empty";
       const info = zoneInfo[zoneType] || zoneInfo.empty;
@@ -1015,7 +1015,7 @@ function drawMap(scene) {
 
           // Draw base concrete if not empty
     if (zoneType == "empty") {
-      scene.add.image(x, y, "concrete").setOrigin(0);
+      scene.add.image(x, y, "concrete").setOrigin(0.5);
     }
 
       // Draw image if available
