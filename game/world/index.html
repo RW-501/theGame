@@ -1005,7 +1005,7 @@ scene.load.once('complete', () => {
   const nameText = scene.add.text(
     playerSprite.x,
     playerSprite.y + TILE_SIZE * 0.45,
-    state.playerName || 'Player',
+    playerData.playerName || 'Player',
     {
       font: '12px Arial',
       fill: '#ffffff',
