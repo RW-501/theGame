@@ -1028,6 +1028,7 @@ const storedData = JSON.parse(localStorage.getItem("theGame_currentPlayerData"))
 const playerX = storedData?.location?.[0]; // assuming location = [x, y]
 const playerY = storedData?.location?.[1];
 
+if (x === playerX && y === playerY) continue;
 
         if (zoneType == "empty") {
       scene.add.image(
