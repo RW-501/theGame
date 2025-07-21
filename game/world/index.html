@@ -1005,7 +1005,6 @@ function drawMap(scene) {
     for (let x = 0; x < MAP_SIZE; x++) {
 
       // Skip the player’s tile
-     // if (x === playerX && y === playerY) continue;
 
       const zoneType = mapData[y][x] || "empty";
       const info = zoneInfo[zoneType] || zoneInfo.empty;
@@ -1021,6 +1020,14 @@ function drawMap(scene) {
           y * TILE_SIZE + TILE_SIZE / 2,
            "concrete").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
     }
+
+// Retrieve and parse the player data from localStorage
+const storedData = JSON.parse(localStorage.getItem("theGame_currentPlayerData"));
+
+// Safely extract playerX and playerY
+const playerX = storedData?.location?.[0]; // assuming location = [x, y]
+const playerY = storedData?.location?.[1];
+
 
         if (zoneType == "empty") {
       scene.add.image(
