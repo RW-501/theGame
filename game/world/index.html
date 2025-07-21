@@ -1037,7 +1037,7 @@ function drawMap(scene) {
   }
 
   // Load avatar image
-scene.load.image('playerAvatar', playerData.avatarImage || 'https://robohash.org/3?size=50x50');
+scene.load.image('playerAvatar', playerState.avatarImage || 'https://robohash.org/3?size=50x50');
 
 // After load completes
 scene.load.once('complete', () => {
@@ -1061,7 +1061,7 @@ scene.load.once('complete', () => {
   const nameText = scene.add.text(
     playerSprite.x,
     playerSprite.y + TILE_SIZE * 0.45,
-    playerData.playerName || 'Player',
+    playerState.playerName || 'Player',
     {
       font: '12px Arial',
       fill: '#ffffff',
