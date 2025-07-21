@@ -2096,7 +2096,7 @@ console.log(" location   ",pos);
 });
 
 
-onSnapshot(playersCollection, (querySnapshot) => {
+onSnapshot(playerRef, (querySnapshot) => {
   console.log("🔥 Received Firestore snapshot");
 
   playerState.clear();
