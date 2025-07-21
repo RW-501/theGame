@@ -840,6 +840,8 @@ const userUnsub = onSnapshot(userRef, (doc) => {
 */
 
 function updateStatsUI() {
+  console.log("playerData  ",playerData);
+  
 document.getElementById("playerCashLabel").textContent = `Cash: $${playerData.bank.toFixed(2)}`;
   document.getElementById("cash").textContent = playerData.bank.toFixed(2);
   document.getElementById("health").textContent = playerData.health + "%";
