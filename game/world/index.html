@@ -2095,8 +2095,9 @@ console.log(" location   ",pos);
   }
 });
 
+const playersRef = collection(db, "players"); // not doc()
 
-onSnapshot(playerRef, (querySnapshot) => {
+onSnapshot(playersRef, (querySnapshot) => {
   console.log("🔥 Received Firestore snapshot");
 
   playerState.clear();
@@ -2106,10 +2107,8 @@ onSnapshot(playerRef, (querySnapshot) => {
     const data = doc.data();
     const id = doc.id;
 
-    // Save full player data
     allUsersMap.set(id, data);
 
-    // Save location if valid
     if (Array.isArray(data.location) && data.location.length === 2) {
       playerState.set(id, {
         x: data.location[0],
