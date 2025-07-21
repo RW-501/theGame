@@ -2073,12 +2073,15 @@ onSnapshot(playerRef, (docSnap) => {
     const data = docSnap.data();
 
     // Update position and move player sprite if position changed
-    const pos = data.position;
+    const pos = data.location;
     if (pos && (pos.x !== playerX || pos.y !== playerY)) {
       playerX = pos.x;
       playerY = pos.y;
       movePlayerSmoothly(scene, playerX, playerY);
     }
+
+
+console.log(" location   ",pos);
 
     // Update local playerData object with all fresh data from Firestore
     playerData = {
@@ -2097,7 +2100,7 @@ onSnapshot(playerRef, (docSnap) => {
     playerState.clear();
     querySnapshot.forEach(doc => {
       const data = doc.data();
-      if (data.position) {
+      if (data.location) {
         playerState.set(doc.id, data.position);
       }
     });
@@ -2404,6 +2407,7 @@ function renderAllPlayers(scene) {
       otherPlayerSprites.delete(key);
     }
   }
+console.log(" otherPlayerSprites   ",otherPlayerSprites);
 
   // Draw other players as red circles with initials
   for (const [playerId, pos] of playerState.entries()) {
@@ -2411,6 +2415,9 @@ function renderAllPlayers(scene) {
     if (!pos) continue;
 
     let sprite = otherPlayerSprites.get(playerId);
+
+    console.log(" sprite   ",sprite);
+
     if (!sprite) {
       // Create a container with red circle and initials text
       sprite = scene.add.container(pos.x * TILE_SIZE + TILE_SIZE/2, pos.y * TILE_SIZE + TILE_SIZE/2);
