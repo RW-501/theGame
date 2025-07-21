@@ -281,6 +281,10 @@
 }
 
 
+
+.modal {
+  z-index: 10000;
+}
   </style>
 </head>
 <body>
@@ -317,15 +321,17 @@
   <button id="openOwnedBtn">📦 Assets</button>
 
   <!-- Notification Bell Button -->
-  <button id="notifBellBtn">
+  <button id="notifBellBtn" style="box-shadow: none;">
     🔔
     <span id="notifBadge">!</span>
   </button>
 
-<button id="openChatBtn" title="Open Chat">
-  💬
-</button>
+  <button id="openChatBtn" title="Open Chat">💬</button>
+
+  <!-- Gear Toggle Button -->
+  <button id="toggleToolsBtn" title="Toggle Tools" style="margin-top: 8px;">⚙️</button>
 </div>
+
 
 
 </main>
@@ -542,6 +548,20 @@ notifBtn.addEventListener("click", () => {
 });
   }
 });
+
+document.getElementById("toggleToolsBtn").addEventListener("click", () => {
+  const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
+  toolButtons.forEach(btn => {
+    btn.style.display = btn.style.display === "none" ? "inline-block" : "none";
+  });
+});
+
+window.addEventListener("DOMContentLoaded", () => {
+  const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
+  toolButtons.forEach(btn => btn.style.display = "none");
+});
+
+
 
 
 // === Game Constants ===
