@@ -1492,7 +1492,7 @@ if (
 }
 
 if (
-  info.ownerName &&
+  //info.ownerName &&
   isUnlocked &&
   info.ownerName !== playerData.username &&
   trueType === "company"
@@ -1512,6 +1512,8 @@ async function showEmployeesModal(tileId) {
   const modalBody = modalEl.querySelector(".modal-body");
   modalBody.innerHTML = "Loading...";
 
+  let employsIDs = [];
+
   try {
     const tileRef = doc(db, "tiles", tileId);
     const tileSnap = await getDoc(tileRef);
@@ -1519,10 +1521,13 @@ async function showEmployeesModal(tileId) {
     if (!tileSnap.exists()) {
       modalBody.innerHTML = "No data found for this tile.";
       return;
-    }
+    }else {
 
+      
     const tileData = tileSnap.data();
-    const employsIDs = Array.isArray(tileData.employsIDs) ? tileData.employsIDs : [];
+     employsIDs = Array.isArray(tileData.employsIDs) ? tileData.employsIDs : [];
+
+    }
 
     if (employsIDs.length === 0) {
       modalBody.innerHTML = "No employees yet.";
@@ -1655,7 +1660,7 @@ async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
           }
 
           showMessageModal(`🎉 You’re now working at ${job.companyName}!`, "success");
-          closeModal();
+         // closeModal();
         }
       );
 
