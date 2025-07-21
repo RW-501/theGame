@@ -680,7 +680,10 @@ let game;
 let scene;
 let cam;
 let newZoom;
-let isPointerDown; 
+let isPointerDown = false;
+let pointerDownTime = 0;
+let initialPointer = null;
+
 
 function getRandomEmptyTile(mapData) {
   const emptyTiles = [];
@@ -785,7 +788,7 @@ cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZ
   if (playerData.location === 'start') {
 
     playerData.location = randomLocation;
-
+    
   const [x, y] =  randomLocation;
   playerX = x;
   playerY = y;
@@ -978,51 +981,6 @@ async function initializeMap(scene) {
 function drawMap(scene) {
   graphics.clear();
 
-  // Load avatar image
-scene.load.image('playerAvatar', playerData.avatarImage || 'https://robohash.org/3?size=50x50');
-
-// After load completes
-scene.load.once('complete', () => {
-  // Create player avatar image sprite
-  playerSprite = scene.add.image(
-    playerX * TILE_SIZE + TILE_SIZE / 2,
-    playerY * TILE_SIZE + TILE_SIZE / 2,
-    'playerAvatar'
-  ).setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8).setDepth(1);
-
-  console.log("Player sprite created:", playerSprite);
-
-  // Optional: Add a white border using graphics
-  const border = scene.add.circle(
-    playerSprite.x,
-    playerSprite.y,
-    TILE_SIZE * 0.45,
-    0xffffff,
-    0.2
-  ).setStrokeStyle(2, 0xffffff).setDepth(0);
-
-  // Add player name text below avatar
-  const nameText = scene.add.text(
-    playerSprite.x,
-    playerSprite.y + TILE_SIZE * 0.45,
-    playerData.playerName || 'Player',
-    {
-      font: '12px Arial',
-      fill: '#ffffff',
-      align: 'center',
-    }
-  ).setOrigin(0.5, 0).setDepth(2);
-
-
-});
-
-
-scene.load.start();
-
-
-
-
-
   for (let y = 0; y < MAP_SIZE; y++) {
     for (let x = 0; x < MAP_SIZE; x++) {
       const zoneType = mapData[y][x] || "empty";
@@ -1109,10 +1067,12 @@ function preload() {
   this.load.on('progress', (value) => {
     loadingText.setText(`Loading... ${Math.round(value * 100)}%`);
   });
-
+/*
   this.load.on('complete', () => {
     loadingText.setText('Loading Complete!');
   });
+
+  */
 }
 
 
@@ -1165,9 +1125,7 @@ function setupMapInteraction(scene) {
     }
   });
 
-  isPointerDown = false;
-let pointerDownTime = 0;
-let initialPointer = null;
+
 
 scene.input.on("pointerdown", pointer => {
   isPointerDown = true;
@@ -2065,6 +2023,15 @@ function movePlayerSmoothly(scene, x, y) {
 
 
 
+function update() {
+  // nothing needed here for now
+
+    this.load.on('complete', () => {
+    loadingText.setText('Loading Complete!');
+  });
+}
+
+
 // === Stats UI ===
 function updateStatsUI() {
   const state = playerState.get(uid);
@@ -2076,6 +2043,43 @@ function updateStatsUI() {
   const now = Date.now();
   
   
+// Load avatar image
+scene.load.image('playerAvatar', state.avatarImage || 'https://robohash.org/3?size=50x50');
+
+// After load completes
+scene.load.once('complete', () => {
+  // Create player avatar image sprite
+  playerSprite = scene.add.image(
+    playerX * TILE_SIZE + TILE_SIZE / 2,
+    playerY * TILE_SIZE + TILE_SIZE / 2,
+    'playerAvatar'
+  ).setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8).setDepth(1);
+
+  // Optional: Add a white border using graphics
+  const border = scene.add.circle(
+    playerSprite.x,
+    playerSprite.y,
+    TILE_SIZE * 0.45,
+    0xffffff,
+    0.2
+  ).setStrokeStyle(2, 0xffffff).setDepth(0);
+
+  // Add player name text below avatar
+  const nameText = scene.add.text(
+    playerSprite.x,
+    playerSprite.y + TILE_SIZE * 0.45,
+    state.playerName || 'Player',
+    {
+      font: '12px Arial',
+      fill: '#ffffff',
+      align: 'center',
+    }
+  ).setOrigin(0.5, 0).setDepth(2);
+});
+
+scene.load.start();
+
+
 
   document.getElementById("level").textContent = `${state.level ?? 0}`;
   document.getElementById("xp").textContent = `${state.xp ?? 0}`;
@@ -2276,10 +2280,6 @@ function renderAttackTargets() {
       new bootstrap.Modal(document.getElementById("hackerModal")).show();
       break;
 */
-
-function update() {
-  // nothing needed here for now
-}
 
 function isAdjacent(x1, y1, x2, y2) {
   const dx = Math.abs(x1 - x2);
