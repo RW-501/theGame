@@ -2402,6 +2402,10 @@ function isAdjacent(x1, y1, x2, y2) {
 
 
 
+const tileSpriteMap = new Map(); // Similar to otherPlayerSprites
+let tileDataMap; 
+
+
 
 // Render other players except local player
 function renderAllPlayers(scene) {
@@ -2480,12 +2484,25 @@ function renderAllPlayers(scene) {
       );
     }
   }
- renderAllOwnedTiles(scene);
+  
+// Example use
+loadTileData(); // Make sure tileDataMap is populated
+renderAllOwnedTiles(scene);
 
   console.log("✅ Render Complete. Current Sprites:", Array.from(otherPlayerSprites.keys()));
 }
 
-const tileSpriteMap = new Map(); // Similar to otherPlayerSprites
+async function loadTileData() {
+  const tilesSnapshot = await getDocs(collection(db, "tiles"));
+  tileDataMap = new Map();
+
+  tilesSnapshot.forEach(doc => {
+    const data = doc.data();
+    tileDataMap.set(doc.id, data);
+  });
+}
+
+
 
 function renderAllOwnedTiles(scene) {
   console.log("🎨 Rendering All Owned Tiles...");
