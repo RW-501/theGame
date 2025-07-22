@@ -1569,8 +1569,7 @@ if (
   info.ownerName &&
   isUnlocked &&
   info.ownerName === playerData.username &&
-  info.unlocked &&
-  (trueType === "zone" || trueType === "empty")
+  (trueType === "zone" || trueType === "land")
 ) {
   createButton({
     text: `Start Company $${info.value}`,
