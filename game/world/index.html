@@ -563,7 +563,7 @@
         <!-- Content is dynamically inserted here -->
       </div>
             <div class="modal-footer">
-        <button class="btn btn-success" id="confirmStartCompanyBtn">Confirm</button>
+        <button class="btn btn-success" id="workForCompanyBtn">Work For Company</button>
       </div>
     </div>
   </div>
@@ -587,7 +587,29 @@
   </div>
 </div>
 
+<!-- Manage Company Modal -->
+<div class="modal fade gameMode" id="manageCompanyModal" tabindex="-1" aria-labelledby="manageCompanyLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
 
+      <div class="modal-header">
+        <h5 class="modal-title" id="manageCompanyLabel">Company</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <div id="manageCompanyContent">
+          <!-- Dynamic content goes here -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
@@ -2216,6 +2238,8 @@ async function startCompany(x, y, tileData, uid, sector, name, symbol) {
   const updatedTile = {
     type: "company",
     name,
+    x,
+    y,
     stockSymbol: symbol,
     stockMarketListed: true,
     value: tileData.value * 2,
@@ -2252,8 +2276,139 @@ await Promise.all([
   playerData.companiesOwned = playerData.companiesOwned || [];
   playerData.companiesOwned.push(tileId);
 
-  showMessageModal(`Company '${name}' (${symbol}) started at tile ${tileId} in sector '${sector}'`);
+  showMessageModal(`Company ${name}`,`${name} Symbol: (${symbol}) on the Stock Market in sector '${sector}'
+  <br> invite players to work for you... () <br> Manage ${name} <br> ${createButton({
+  text: "Manage Company",
+  className: "btn manage-company-btn",
+  onClick: () => openManageCompanyModal(updatedTile, x, y, playerData)
+})} `);
 }
+
+async function openManageCompanyModal(company, x, y, playerData) {
+  const modalElement = document.getElementById("manageCompanyModal");
+  const content = document.getElementById("manageCompanyContent");
+  const { name, stockSymbol, sector, level, employsIDs, ownerID, value } = company;
+
+  // Fetch player info if you want to show usernames
+  let employeesHtml = "<p>No employees.</p>";
+  if (employsIDs && employsIDs.length > 0) {
+    const employeeList = await Promise.all(
+      employsIDs.map(async uid => {
+        const snap = await getDoc(doc(db, "players", uid));
+        const data = snap.exists() ? snap.data() : { name: "Unknown" };
+        return `
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span>${data.name || "Unnamed"} (${uid.slice(0, 6)}...)</span>
+            <button class="btn btn-sm btn-danger" onclick="fireEmployee('${company.name}', '${uid}')">Fire</button>
+          </li>
+        `;
+      })
+    );
+    employeesHtml = `<ul class="list-group mb-3">${employeeList.join("")}</ul>`;
+  }
+
+  content.innerHTML = `
+    <h5 class="mb-2">${name} <small>(${stockSymbol})</small></h5>
+    <p><strong>Sector:</strong> ${sector}</p>
+    <p><strong>Level:</strong> ${level}</p>
+    <p><strong>Owner:</strong> ${ownerID}</p>
+    <p><strong>Value:</strong> $${value.toLocaleString()}</p>
+    <h6>Employees (${employsIDs.length}):</h6>
+    ${employeesHtml}
+
+    <div class="d-grid gap-2">
+      <button hidden class="btn btn-primary" onclick="recruitEmployee('${name}')">Recruit</button>
+      <button class="btn btn-warning" onclick="upgradeCompany('${x}, ${y}, ${name}')">Upgrade</button>
+      <button hidden class="btn btn-info" onclick="inviteToCompany('${name}')">Invite Players</button>
+      <button class="btn btn-danger" onclick="sellTile('${name}, ${x}, ${y}, ${playerData}')">Sell Company</button>
+    </div>
+  `;
+
+  const modal = new bootstrap.Modal(modalElement);
+  modal.show();
+}
+
+
+
+async function fireEmployee(companyName, uid) {
+  if (!uid) return;
+
+  const confirmFire = confirm(`Are you sure you want to fire this employee?`);
+  if (!confirmFire) return;
+
+  const companyTile = await findTileByCompanyName(companyName);
+  if (!companyTile) return alert("Company not found.");
+
+  const tileRef = doc(db, "tiles", companyTile.id);
+  const tileSnap = await getDoc(tileRef);
+
+  if (!tileSnap.exists()) return;
+
+  const tileData = tileSnap.data();
+  const updatedEmployees = tileData.employsIDs.filter(id => id !== uid);
+  await updateDoc(tileRef, { employsIDs: updatedEmployees });
+
+  showMessageModal("Employee Removed", `Employee (${uid.slice(0, 6)}...) has been fired from ${companyName}.`);
+
+  // Refresh modal
+  openManageCompanyModal({ ...tileData, name: companyName });
+}
+
+async function findTileByCompanyName(name) {
+  const q = query(collection(db, "tiles"), where("name", "==", name));
+  const snap = await getDocs(q);
+  return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() };
+}
+
+window.fireEmployee = fireEmployee;
+
+
+async function upgradeCompany(x, y) {
+  const tileId = `${x}_${y}`;
+  const tileRef = doc(db, "tiles", tileId);
+  const playerRef = doc(db, "players", playerData.playerUid);
+
+  const [tileSnap, playerSnap] = await Promise.all([
+    getDoc(tileRef),
+    getDoc(playerRef)
+  ]);
+
+  if (!tileSnap.exists() || !playerSnap.exists()) return;
+
+  const tileData = tileSnap.data();
+  const player = playerSnap.data();
+
+  const currentLevel = tileData.level || 1;
+  const upgradeCost = (currentLevel + 1) * 1500; // Companies cost more
+
+  if (player.bank < upgradeCost) {
+    showMessageModal("Not enough money to upgrade your company.");
+    return;
+  }
+
+  const newLevel = currentLevel + 1;
+  const newValue = tileData.value + newLevel * 2000;
+
+  let companyType = "Startup";
+  if (newLevel > 3) companyType = "Tech Firm";
+  if (newLevel > 6) companyType = "Enterprise";
+  if (newLevel > 10) companyType = "Conglomerate";
+
+  await Promise.all([
+    updateDoc(tileRef, {
+      level: newLevel,
+      value: newValue,
+      label: `${companyType} (Lv ${newLevel})`
+    }),
+    updateDoc(playerRef, {
+      bank: player.bank - upgradeCost,
+      xp: increment(upgradeCost * 1.25) // Slight XP bonus for company upgrades
+    })
+  ]);
+
+  showMessageModal(`Company upgraded to ${companyType} level ${newLevel}.`);
+}
+window.upgradeCompany = upgradeCompany;
 
 
 document.getElementById("confirmStartCompanyBtn").addEventListener("click", async () => {
@@ -2597,7 +2752,7 @@ async function sellTile(x, y, playerData) {
     console.error("Error selling tile:", error);
   }
 }
-
+window.sellTile = sellTile;
 
 
 
@@ -2948,7 +3103,7 @@ function renderAllOwnedTiles(scene) {
 
 function showMessageModal(title, message) {
   document.getElementById("messageModalTitle").textContent = title;
-  document.getElementById("messageModalBody").textContent = message;
+  document.getElementById("messageModalBody").innerHTML = message;
 
   const modal = new bootstrap.Modal(document.getElementById('messageModal'));
   modal.show();
