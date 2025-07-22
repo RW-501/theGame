@@ -2262,7 +2262,7 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
     if (!playerData.landOwned) playerData.landOwned = [];
     if (!playerData.companiesOwned) playerData.companiesOwned = [];
 
-    if (type === 'zone' && !playerData.landOwned.includes(tileId)) {
+    if (type === 'land' && !playerData.landOwned.includes(tileId)) {
       playerData.landOwned.push(tileId);
     }
 
