@@ -2529,7 +2529,7 @@ onSnapshot(playersRef, (querySnapshot) => {
       playerState.set(id, {
         x: data.location[0],
         y: data.location[1]
-      });
+      },data);
     }
   });
 
