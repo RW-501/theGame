@@ -1466,14 +1466,14 @@ const info = {
   await handleHackPlayer(playerData, data); // attacker, defender
   bootstrap.Modal.getInstance(modalEl)?.hide();
 });
-hackBtn.disabled = isInCombat; // || playerData.trainingMode;
+hackBtn.disabled = data.isInCombat; // || playerData.trainingMode;
 modalFooter.appendChild(hackBtn);
 
     const talkBtn = createButton("Talk", "btn btn-primary", () => {
       showMessageModal(`Talking to ${info.playerName}...`);
       bootstrap.Modal.getInstance(modalEl)?.hide();
     });
-    talkBtn.disabled = isInCombat;
+    talkBtn.disabled = data.isInCombat;
     modalFooter.appendChild(talkBtn);
   }
 
