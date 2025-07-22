@@ -1417,19 +1417,28 @@ const info = {
       <p>Security: ${info.security}</p>
     `;
 
-    const hackBtn = createButton("Hack", "btn btn-danger", async () => {
-  await handleHackPlayer(playerData, data); // attacker, defender
-  bootstrap.Modal.getInstance(modalEl)?.hide();
+ const hackBtn = createButton({
+  text: "Hack",
+  className: "btn btn-danger",
+  onClick: async () => {
+    await handleHackPlayer(playerData, data);
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  },
+  parent: modalFooter
 });
-//hackBtn.disabled = data.isInCombat; // || playerData.trainingMode;
-modalFooter.appendChild(hackBtn);
+hackBtn.disabled = data.isInCombat;
 
-    const talkBtn = createButton("Talk", "btn btn-primary", () => {
-      showMessageModal(`Talking to ${info.playerName}...`);
-      bootstrap.Modal.getInstance(modalEl)?.hide();
-    });
-    //talkBtn.disabled = data.isInCombat;
-    modalFooter.appendChild(talkBtn);
+const talkBtn = createButton({
+  text: "Talk",
+  className: "btn btn-primary",
+  onClick: () => {
+    showMessageModal(`Talking to ${info.playerName}...`);
+    bootstrap.Modal.getInstance(modalEl)?.hide();
+  },
+  parent: modalFooter
+});
+talkBtn.disabled = data.isInCombat;
+
   }
 
 
