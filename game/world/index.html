@@ -2100,7 +2100,7 @@ async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
   const trueType = info.type;
   const jobLimit = 3;
 
-  if (info.ownerName !== playerData.username && trueType === "company") {
+  if (info.ownerName !== playerData.playerName && trueType === "company") {
     const currentJobs = Array.isArray(playerData.jobs) ? playerData.jobs.length : 0;
 
     if (currentJobs < jobLimit) {
