@@ -400,6 +400,8 @@
 
   <button id="openChatBtn" title="Open Chat">💬</button>
 
+<button id="toggleFullscreenBtn">🔳 Toggle Fullscreen</button>
+
   <!-- Gear Toggle Button -->
   <button id="toggleToolsBtn" title="Toggle Tools" style="margin-top: 8px;">⚙️</button>
 </div>
@@ -609,6 +611,30 @@ window.addEventListener("DOMContentLoaded", () => {
   toolButtons.forEach(btn => btn.style.display = "none");
 });
 
+document.getElementById("toggleFullscreenBtn").addEventListener("click", () => {
+
+  const main = document.querySelector("main");
+
+  if (!document.fullscreenElement) {
+    // Request fullscreen on main element
+    if (main.requestFullscreen) {
+      main.requestFullscreen();
+    } else if (main.webkitRequestFullscreen) { // Safari
+      main.webkitRequestFullscreen();
+    } else if (main.msRequestFullscreen) { // IE11
+      main.msRequestFullscreen();
+    }
+  } else {
+    // Exit fullscreen
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) { // Safari
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { // IE11
+      document.msExitFullscreen();
+    }
+  }
+});
 
 
 
