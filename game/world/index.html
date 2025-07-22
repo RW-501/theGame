@@ -2568,13 +2568,17 @@ function movePlayerSmoothly(scene, x, y) {
 function updateStatsUI() {
   const state = playerState.get(playerData.playerUid);
   if (!state) {
-    console.warn("Missing player state UID:", playerData.playerUid);
+    console.warn("Missing player state playerData:", playerData);
+    console.warn("Missing player state UID:", uid);
     return;
+  }else{
+
+
   }
 
   const now = Date.now();
   
-  
+
 
   document.getElementById("level").textContent = `${state.level ?? 0}`;
   document.getElementById("xp").textContent = `${state.xp ?? 0}`;
