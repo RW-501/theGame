@@ -366,7 +366,7 @@
   <div id="game-container"></div>
 </div>
 
-<div class="info-box" id="statsBox">
+<div class="info-box fade" id="statsBox">
   <div class="stats-row">
     🎖️ Level: <span id="level">0</span> |
     💰 xp: <span id="xp">$0</span> |
@@ -387,7 +387,7 @@
 <div id="tileTooltip"></div>
 
 
-<div id="userTool">
+<div id="userTool" class="fade">
   <button id="returnToLocationBtn">📍 Return to My Location</button>
   <button id="goToPlatformBtn">🌐 Go to Platform</button>
   <button id="openOwnedBtn">📦 Assets</button>
@@ -1325,6 +1325,8 @@ scene.input.on("pointerdown", pointer => {
 scene.input.on("pointerup", pointer => {
   if (!isPointerDown) return;
   isPointerDown = false;
+  // Hide statsBox while moving
+  document.getElementById("statsBox").style.display = "block";
 
   const timeHeld = Date.now() - pointerDownTime;
   const movedDistance = Phaser.Math.Distance.Between(pointer.x, pointer.y, initialPointer.x, initialPointer.y);
@@ -1380,6 +1382,9 @@ for (const [pid, pos] of entries) {
 });
 
 scene.input.on("pointermove", pointer => {
+    // Hide statsBox while moving
+  document.getElementById("statsBox").style.display = "none";
+
   cam = scene.cameras.main;
 
   const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
