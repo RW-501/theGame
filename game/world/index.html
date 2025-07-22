@@ -1972,7 +1972,7 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
     }
 
     // Tile already owned by another player
-    if (tileData.ownerID && tileData.ownerID !== playerData.userID) {
+    if (tileData.ownerID && tileData.ownerID !== playerData.playerUid) {
       return showMessageModal("Oops!", "Tile already owned by someone else.");
     }
 
@@ -2011,7 +2011,7 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
 
     // Firestore updates
     const updates = [
-      updateDoc(doc(db, "players", playerData.userID), {
+      updateDoc(doc(db, "players", playerData.playerUid), {
         bank: updatedBank,
         ...(shouldMove ? { location: [x, y] } : {}),
         landOwned: arrayUnion(tileId),
