@@ -1576,7 +1576,9 @@ if (
     text: `Start Company $${info.value}`,
     className: "btn btn-success",
     onClick: () => {
-      document.getElementById("confirmStartCompanyBtn").dataset.tile = `${x}_${y}`;
+const confirmBtn = document.getElementById("confirmStartCompanyBtn");
+confirmBtn.dataset.selectedTileX = x;
+confirmBtn.dataset.selectedTileY = y;
       bootstrap.Modal.getInstance(modalEl)?.hide();
       new bootstrap.Modal(document.getElementById("startCompanyModal")).show();
     },
@@ -2166,8 +2168,10 @@ document.getElementById("confirmStartCompanyBtn").addEventListener("click", asyn
   }
 
   // Replace these with your actual tile context values
-  const x = selectedTileX;
-  const y = selectedTileY;
+const confirmBtn = document.getElementById("confirmStartCompanyBtn");
+const x = parseInt(confirmBtn.dataset.selectedTileX, 10);
+const y = parseInt(confirmBtn.dataset.selectedTileY, 10);
+
   const tileData = await getTileDataAt(x, y);
   const uid = currentUser?.uid;
 
