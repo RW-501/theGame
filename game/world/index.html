@@ -1269,7 +1269,7 @@ console.log("Entries to check:", Array.from(entries));  // Log all entries as an
 
 for (const [pid, pos] of entries) {
   console.log(`Checking player id: ${pid}, position:`, pos);
-  if (pid !== uid && pos.x === clickedX && pos.y === clickedY) {
+  if (pid !== playerData.playerUid && pos.x === clickedX && pos.y === clickedY) {
     otherPlayerId = pid;
     console.log(`Found otherPlayerId at clicked position: ${otherPlayerId}`);
     break;
