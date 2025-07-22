@@ -1434,6 +1434,20 @@ modalFooter.appendChild(hackBtn);
 
 
 
+if (!otherPlayerId && trueType === "land") {
+  let landType = level > 1 ? "Property" : "Land";
+
+  createButton({
+    text: `Upgrade ${landType}`,
+    className: "btn btn-success",
+    onClick: async () => {
+      await upgradeLand(x, y, "land", false);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    },
+    parent: modalFooter
+  });
+}
+
 
 if (!otherPlayerId && trueType === "home") {
   let homeType = level > 5 ? "House" : "Appartment";
@@ -1454,7 +1468,7 @@ if (!otherPlayerId && isUnlocked && (trueType === "zone" || trueType === "empty"
     text: `Buy Land $${info.price}`,
     className: "btn btn-success",
     onClick: async () => {
-      await purchaseTile(x, y, "zone", false);
+      await purchaseTile(x, y, "land", false);
       bootstrap.Modal.getInstance(modalEl)?.hide();
     },
     parent: modalFooter
@@ -1465,7 +1479,7 @@ if (!otherPlayerId && isUnlocked && (trueType === "zone" || trueType === "empty"
     text: `Move Here (Buy for $${newValue})`,
     className: "btn btn-primary",
     onClick: async () => {
-      await purchaseTile(x, y, "zone", true);
+      await purchaseTile(x, y, "home", true);
       bootstrap.Modal.getInstance(modalEl)?.hide();
     },
     parent: modalFooter
@@ -1589,7 +1603,58 @@ async function showEmployeesModal(tileId) {
   }
 }
 
-async function upgradeHomeBase(x, y, playerData) {
+
+async function upgradeLand(x, y, options = {}) {
+  const tileId = `${x}_${y}`;
+  const tileRef = doc(db, "tiles", tileId);
+  const playerRef = doc(db, "players", playerData.playerUid);
+
+  const [tileSnap, playerSnap] = await Promise.all([
+    getDoc(tileRef),
+    getDoc(playerRef)
+  ]);
+
+  if (!tileSnap.exists() || !playerSnap.exists()) return;
+
+  const tileData = tileSnap.data();
+  const player = playerSnap.data();
+
+  const currentLevel = tileData.level || 1;
+  const upgradeCost = (currentLevel + 1) * 500;
+
+  if (player.bank < upgradeCost) {
+    showMessageModal("Not enough money to upgrade.");
+    return;
+  }
+
+  const newLevel = currentLevel + 1;
+  const newValue = tileData.value + newLevel * 500;
+
+  // Determine land type based on level
+  let landType = "Plot";
+  if (newLevel > 5) landType = "Farm";
+  if (newLevel > 10) landType = "Estate";
+
+  // Allow optional custom label override
+  const customLabel = options.getLabel?.(newLevel, tileData) 
+                    || `${landType} (Lv ${newLevel})`;
+
+  await Promise.all([
+    updateDoc(tileRef, {
+      level: newLevel,
+      value: newValue,
+      label: customLabel
+    }),
+    updateDoc(playerRef, {
+      bank: player.bank - upgradeCost,
+      xp: increment(upgradeCost)
+    })
+  ]);
+
+  showMessageModal(`Land upgraded to ${customLabel}.`);
+}
+
+async function upgradeHomeBase(x, y) {
   const tileId = `${x}_${y}`;
   const tileRef = doc(db, "tiles", tileId);
   const playerRef = doc(db, "players", playerData.playerUid);
@@ -1626,7 +1691,9 @@ async function upgradeHomeBase(x, y, playerData) {
       label: `${homeType} (Lv ${newLevel})`
     }),
     updateDoc(playerRef, {
-      bank: player.bank - upgradeCost
+      bank: player.bank - upgradeCost,
+      xp: increment(upgradeCost)
+
     })
   ]);
 
@@ -1834,7 +1901,9 @@ await Promise.all([
   updateDoc(tileRef, updatedTile),
   updateDoc(playerRef, {
     bank: newBankValue,
-    companiesOwned: arrayUnion(tileId)
+    companiesOwned: arrayUnion(tileId),
+    xp: increment(tileData.value)
+
   })
 ]);
 
@@ -1936,7 +2005,9 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
       updateDoc(doc(db, "players", playerData.userID), {
         bank: updatedBank,
         ...(shouldMove ? { location: [x, y] } : {}),
-        landOwned: arrayUnion(tileId)
+        landOwned: arrayUnion(tileId),
+        xp: increment(info.value)
+
       }),
       setDoc(tileRef, newTile, { merge: true })
     ];
@@ -2115,7 +2186,7 @@ function openTileDetails(x, y) {
 async function upgradeTile(tileId) {
   // Firebase logic to apply upgrades
   const ref = doc(db, "tiles", tileId);
-  await updateDoc(ref, { level: increment(1) });
+  await updateDoc(ref, { level: increment(1),  });
 }
 
 async function refreshOwnedTiles() {
@@ -2152,6 +2223,8 @@ async function sellTile(x, y, playerData) {
     await updateDoc(playerRef, {
       [fieldToRemove]: arrayRemove(tileId),
       bank: increment(tile.value || 100), // Default fallback value
+      xp: increment(tile.value)
+
     });
 
    
@@ -2229,6 +2302,7 @@ onSnapshot(playersRef, (querySnapshot) => {
   renderAllPlayers(scene);
 });
 
+  updateStatsUI();
 
 }
 
@@ -2402,6 +2476,7 @@ function renderAllPlayers(scene) {
 function showMessageModal(title, message) {
   document.getElementById("messageModalTitle").textContent = title;
   document.getElementById("messageModalBody").textContent = message;
+  updateStatsUI();
 
   const modal = new bootstrap.Modal(document.getElementById('messageModal'));
   modal.show();
