@@ -1569,8 +1569,8 @@ if (trueType === "company") {
 if (
   info.ownerName &&
   isUnlocked &&
-  info.ownerName === playerData.username &&
-  (trueType === "zone" || trueType === "land")
+  info.ownerName === playerData.playerName &&
+  (trueType === "property" || trueType === "land")
 ) {
   createButton({
     text: `Start Company $${info.value}`,
@@ -1587,7 +1587,7 @@ if (
 if (
   //info.ownerName &&
   isUnlocked &&
-   info.ownerName != playerData.username &&
+   info.ownerName != playerData.playerName &&
   trueType === "company"
 ) {
   createWorkForCompanyButton(info, playerData, modalFooter, x, y);
