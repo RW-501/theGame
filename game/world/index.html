@@ -1363,6 +1363,7 @@ const info = dbTileInfo ? dbTileInfo : zoneInfo[tileInfo] || zoneInfo.empty;
 
 const trueType = info.type;
 const now = Date.now();
+console.log("Check Tile info:", info);
 
 // Optional checks
 const isUnlocked = info.unlocked ?? true; // fallback to true if not specified
@@ -1592,6 +1593,9 @@ if (
   createWorkForCompanyButton(info, playerData, modalFooter, x, y);
   bootstrap.Modal.getInstance(modalEl)?.hide();
 }
+
+
+
 
   new bootstrap.Modal(modalEl).show();
 }
