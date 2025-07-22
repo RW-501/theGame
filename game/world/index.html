@@ -352,7 +352,20 @@
   }
 
 
-  
+  .fade-out {
+  animation: fadeOut 0.5s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
 
 .modal {
   z-index: 10000;
@@ -366,7 +379,7 @@
   <div id="game-container"></div>
 </div>
 
-<div class="info-box fade" id="statsBox">
+<div class="info-box" id="statsBox">
   <div class="stats-row">
     🎖️ Level: <span id="level">0</span> |
     💰 xp: <span id="xp">$0</span> |
@@ -387,7 +400,7 @@
 <div id="tileTooltip"></div>
 
 
-<div id="userTool" class="fade">
+<div id="userTool" class="fade-out">
   <button id="returnToLocationBtn">📍 Return to My Location</button>
   <button id="goToPlatformBtn">🌐 Go to Platform</button>
   <button id="openOwnedBtn">📦 Assets</button>
