@@ -280,7 +280,49 @@
   color: #66bb6a !important;
 }
 
+@keyframes tileZoomIn {
+  0% { transform: scale(1); z-index: 2; }
+  50% { transform: scale(1.25); z-index: 5; }
+  100% { transform: scale(1); z-index: 2; }
+}
 
+@keyframes electricShock {
+  0% { box-shadow: 0 0 8px 4px #00f6ff; background-color: rgba(0,255,255,0.2); }
+  50% { box-shadow: 0 0 12px 6px #00f6ff; background-color: rgba(0,255,255,0.4); }
+  100% { box-shadow: 0 0 8px 4px #00f6ff; background-color: rgba(0,255,255,0.2); }
+}
+
+  @keyframes zapEffect {
+    0% {
+      opacity: 0;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1);
+    }
+  }
+  .hack-overlay {
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    z-index: 1000;
+    pointer-events: none;
+    animation: zapEffect 0.6s ease-out;
+   /* background: url('/assets/electric-shock.gif') center center no-repeat; */
+    background-size: cover;
+      animation: tileZoomIn 0.6s ease-in-out;
+        animation: electricShock 1.2s ease-in-out;
+
+
+  }
+
+
+  
 
 .modal {
   z-index: 10000;
@@ -996,16 +1038,6 @@ async function initializeMap(scene) {
   // Draw the map based on loaded data
   drawMap(scene);
 
-  /*
-  // Create player sprite at current player position
-  playerSprite = scene.add.circle(
-    playerX * TILE_SIZE + TILE_SIZE / 2,
-    playerY * TILE_SIZE + TILE_SIZE / 2,
-    TILE_SIZE * 0.4,
-    0x0000ff
-  );
-  playerSprite.setStrokeStyle(3, 0xffffff);
-*/
 
 
   const mapWidth = MAP_SIZE * TILE_SIZE;
@@ -1265,9 +1297,10 @@ let otherPlayerId = null;
 const entries = playerState instanceof Map
   ? Array.from(playerState.entries())
   : Object.entries(playerState);
-
+/*
 console.log("Entries to check:", entries);
 console.log("Clicked position:", clickedX, clickedY);
+*/
 console.log("Current user:", playerData.playerUid);
 
 for (const [pid, pos] of entries) {
@@ -1277,7 +1310,6 @@ for (const [pid, pos] of entries) {
     continue;
   }
 
-  console.log(`Checking player id: ${pid}, position: x=${pos.x}, y=${pos.y}`);
 
   // Compare position and exclude current user
   if (
@@ -1289,10 +1321,6 @@ for (const [pid, pos] of entries) {
     console.log(`✅ Found other player at this tile: ${otherPlayerId}`);
     break;
   }
-}
-
-if (!otherPlayerId) {
-  console.log("No other player found on this tile.");
 }
 
     console.log(`clicked position: ${otherPlayerId}`);
@@ -1384,17 +1412,8 @@ modalBody.innerHTML = `
     return new bootstrap.Modal(modalEl).show();
   }
 
-  const isInCombat = playerData?.inCombat ?? false;
-  const hasActions = playerData?.actionsLeft > 0;
 
-  function isOnCooldown(action) {
-    return playerData?.cooldowns?.[action] && playerData.cooldowns[action] > now;
-  }
-
-  function cooldownLeft(action) {
-    return isOnCooldown(action) ? Math.ceil((playerData.cooldowns[action] - now) / 1000) : 0;
-  }
-
+  
   // === Player tile interaction ===
   if (otherPlayerId) {
 /*
@@ -1443,17 +1462,12 @@ const info = {
       <p>Security: ${info.security}</p>
     `;
 
-    const attackBtn = createButton(
-      `Attack${isOnCooldown("attack") ? ` (${cooldownLeft("attack")}s)` : ""}`,
-      "btn btn-danger",
-      async () => {
-        if (isInCombat || !hasActions || isOnCooldown("attack")) return;
-        await performAttack(otherPlayerId);
-        bootstrap.Modal.getInstance(modalEl)?.hide();
-      }
-    );
-    attackBtn.disabled = isInCombat || !hasActions || isOnCooldown("attack");
-    modalFooter.appendChild(attackBtn);
+    const hackBtn = createButton("Hack", "btn btn-danger", async () => {
+  await handleHackPlayer(playerData, data); // attacker, defender
+  bootstrap.Modal.getInstance(modalEl)?.hide();
+});
+hackBtn.disabled = isInCombat; // || playerData.trainingMode;
+modalFooter.appendChild(hackBtn);
 
     const talkBtn = createButton("Talk", "btn btn-primary", () => {
       showMessageModal(`Talking to ${info.playerName}...`);
@@ -1462,6 +1476,9 @@ const info = {
     talkBtn.disabled = isInCombat;
     modalFooter.appendChild(talkBtn);
   }
+
+
+
 
 if (!otherPlayerId && trueType === "home") {
   let homeType = level > 5 ? "House" : "Appartment";
@@ -1664,6 +1681,86 @@ async function upgradeHomeBase(x, y, playerData) {
 
   showMessageModal(`Home upgraded to ${homeType} level ${newLevel}.`);
 }
+
+
+async function handleHackPlayer(attacker, defender) {
+  console.log("🛠️ Hacking...", attacker.playerName, "vs", defender.playerName);
+
+    const attackerLocation = attacker.location || [];
+  const defenderLocation = defender.location || [];
+
+
+  
+  // 🔍 Find tile DOM element
+  const [dx, dy] = defender.location || [];
+  const tile = document.querySelector(`[data-x="${dx}"][data-y="${dy}"]`);
+  if (tile) {
+    const overlay = document.createElement("div");
+    overlay.className = "hack-overlay";
+    overlay.style.left = `${tile.offsetLeft}px`;
+    overlay.style.top = `${tile.offsetTop}px`;
+    overlay.style.position = "absolute";
+
+    tile.parentNode.appendChild(overlay);
+
+    // 🧹 Remove after animation ends
+    setTimeout(() => overlay.remove(), 700);
+  }
+  const attackerStrength = attacker.techStrength || 1;
+  const defenderSecurity = defender.security || 1;
+
+  const attackerLevel = attacker.level || 1;
+  const defenderLevel = defender.level || 1;
+
+  const attackerBank = attacker.bank || 0;
+  const defenderBank = defender.bank || 0;
+
+  const damage = 10 + attackerLevel * 2; // Basic formula
+  const xpGain = 5 + Math.abs(attackerLevel - defenderLevel);
+  const stealAmount = Math.min(defenderBank, 100 + attackerLevel * 20); // max cap
+
+  const attackerRef = doc(db, "players", attacker.playerUid);
+  const defenderRef = doc(db, "players", defender.playerUid);
+
+  const attackerWins = attackerStrength >= defenderSecurity;
+
+  // Get the tile DOM element based on defender's location
+const tileSelector = `[data-x="${defenderLocation[0]}"][data-y="${defenderLocation[1]}"]`;
+const tileEl = document.querySelector(tileSelector);
+
+if (tileEl) {
+  tileEl.classList.add("tile-zoom", "electric-shock");
+
+  // Remove classes after animation (1.2s total)
+  setTimeout(() => {
+    tileEl.classList.remove("tile-zoom", "electric-shock");
+  }, 1200);
+}
+
+  // Begin updates
+  await Promise.all([
+    updateDoc(attackerRef, {
+      inCombat: true,
+      xp: increment(xpGain),
+      bank: increment(attackerWins ? stealAmount : -stealAmount / 2),
+      attacks: increment(1)
+    }),
+    updateDoc(defenderRef, {
+      inCombat: true,
+      health: increment(attackerWins ? -damage : -damage / 2),
+      bank: increment(attackerWins ? -stealAmount : -stealAmount / 2),
+      attacked: increment(1)
+    })
+  ]);
+
+  const msg = attackerWins
+    ? `💥 Success! You hacked ${defender.playerName} and stole $${stealAmount}.`
+    : `❌ Hack failed! ${defender.playerName} defended successfully.`;
+
+  showMessageModal(msg);
+}
+
+
 
 async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
   const trueType = info.type;
@@ -2248,174 +2345,6 @@ async function create() {
 }
 
 
-async function performAttack(targetPlayerId) {
-  if (!playerState.actionsLeft || playerState.inCombat) return;
-
-  playerState.inCombat = true;
-  playerState.actionsLeft--;
-  playerState.cooldowns.attack = Date.now() + 10000;
-
-  await setDoc(doc(db, "users", uid), {
-    inCombat: true,
-    actionsLeft: playerState.actionsLeft,
-    cooldowns: playerState.cooldowns
-  }, { merge: true });
-
-  await handleCombat(uid, targetPlayerId);
-
-  setTimeout(async () => {
-    playerState.inCombat = false;
-    await setDoc(doc(db, "users", uid), { inCombat: false }, { merge: true });
-  }, 15000);
-}
-
-
-async function handleCombat(attackerId, defenderId) {
-  const attackerRef = doc(db, "players", attackerId);
-  const defenderRef = doc(db, "players", defenderId);
-
-  const [attackerSnap, defenderSnap] = await Promise.all([
-    getDoc(attackerRef), getDoc(defenderRef)
-  ]);
-
-  if (!attackerSnap.exists() || !defenderSnap.exists()) return;
-
-  const attacker = attackerSnap.data();
-  const defender = defenderSnap.data();
-
-  const damage = calculateDamage(attacker, defender);
-  const newHp = Math.max((defender.hp ?? 10) - damage, 0);
-
-  await updateDoc(defenderRef, {
-    hp: newHp,
-    lastDamagedBy: attackerId,
-    lastCombat: serverTimestamp()
-  });
-
-  showCombatAnimation(attackerId, defenderId, damage);
-  updateCombatUI(attacker, { ...defender, hp: newHp });
-
-  if (newHp === 0) {
-    await updateDoc(defenderRef, { status: "defeated" });
-    alert(`${attacker.name ?? "Player"} defeated ${defender.name ?? "Enemy"}!`);
-  }
-}
-
-
-function calculateDamage(attacker, defender) {
-  const atk = attacker.attack ?? 5;
-  const def = defender.defense ?? 2;
-  return Math.max(1, atk - def + Math.floor(Math.random() * 3));
-}
-
-
-function showCombatAnimation(attackerId, defenderId, damage) {
-  const scene = game.scene.scenes[0];
-  const targetGraphics = scene.add.graphics();
-  targetGraphics.lineStyle(3, 0xff0000, 1);
-  targetGraphics.strokeRect(playerX * TILE_SIZE, playerY * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-  setTimeout(() => targetGraphics.destroy(), 500);
-
-  const tile = document.querySelector(`[data-player-id="${defenderId}"]`);
-  if (tile) {
-    const dmg = document.createElement("div");
-    dmg.className = "damage-popup";
-    dmg.innerText = `-${damage} HP`;
-    tile.appendChild(dmg);
-    setTimeout(() => dmg.remove(), 1200);
-  }
-}
-
-
-function updateCombatUI(attacker, defender) {
-  const attackerEl = document.getElementById(`${attacker.id}-hp`);
-  const defenderEl = document.getElementById(`${defender.id}-hp`);
-  if (attackerEl) attackerEl.textContent = attacker.hp;
-  if (defenderEl) defenderEl.textContent = defender.hp;
-
-  const isDisabled = attacker.inCombat || attacker.actionsLeft <= 0;
-  document.querySelectorAll(".action-button").forEach(btn => {
-    btn.disabled = isDisabled;
-  });
-}
-
-
-async function performHackAction(action) {
-  const hackerStatus = document.getElementById("hackerStatus");
-  hackerStatus.textContent = `Performing ${action}...`;
-
-  await new Promise(r => setTimeout(r, 1500)); // Fake delay
-
-  const successChance = playerData.techStrength / (playerData.security + 1);
-  const success = Math.random() < successChance;
-
-  if (success) {
-    hackerStatus.textContent = `${action} succeeded!`;
-    await setDoc(doc(collection(db, "hacks")), {
-      user: uid,
-      action,
-      success,
-      timestamp: new Date()
-    });
-  } else {
-    hackerStatus.textContent = `${action} failed. Try again later.`;
-  }
-}
-
-function setupHackerPanel() {
-  document.getElementById("hackerStatus").textContent = "";
-}
-
-document.getElementById("spyBtn").addEventListener("click", () => performHackAction("spy"));
-document.getElementById("corruptBtn").addEventListener("click", () => performHackAction("corrupt_trade"));
-document.getElementById("stealBtn").addEventListener("click", () => performHackAction("steal_data"));
-
-
-/*
-
-// ====== ATTACK ======
-async function loadAttackTargets() {
-  document.getElementById("attackMessage").textContent = "";
-  const playersSnap = await getDocs(collection(db, "players"));
-  playersList = [];
-  playersSnap.forEach(doc => {
-    const data = doc.data();
-    if (doc.id !== uid) { // exclude current player
-      playersList.push({ id: doc.id, name: data.name || "Unnamed", security: data.security || 1 });
-    }
-  });
-
-  renderAttackTargets();
-}
-
-function renderAttackTargets() {
-  const attackTargetsEl = document.getElementById("attackTargets");
-  attackTargetsEl.innerHTML = "";
-  playersList.forEach(player => {
-    const li = document.createElement("li");
-    li.className = "list-group-item d-flex justify-content-between align-items-center";
-    li.textContent = `${player.name} (Security: ${player.security})`;
-    li.style.cursor = "pointer";
-    li.onclick = () => {
-      selectedAttackTarget = player;
-      // highlight selected
-      Array.from(attackTargetsEl.children).forEach(child => child.classList.remove("active"));
-      li.classList.add("active");
-    };
-    attackTargetsEl.appendChild(li);
-  });
-}
-
-
-      case "attack":
-      loadAttackTargets();
-      new bootstrap.Modal(document.getElementById("attackModal")).show();
-      break;
-    case "hacker":
-      setupHackerPanel();
-      new bootstrap.Modal(document.getElementById("hackerModal")).show();
-      break;
-*/
 
 function isAdjacent(x1, y1, x2, y2) {
   const dx = Math.abs(x1 - x2);
