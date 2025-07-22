@@ -150,7 +150,7 @@ if (savedPlayerJSON) {
   try {
     const savedPlayer = JSON.parse(savedPlayerJSON);
     playerName = savedPlayer.playerName || "";
-    avatarImage = savedPlayer.avatarImage || "";
+    avatarImage = savedPlayer.avatarUrl || "";
   } catch {
     // corrupted localStorage data, fallback below
   }

@@ -124,6 +124,7 @@ selectedAvatar = avatar.dataset.avatar;
     await setDoc(userRef, {
       username,
     avatarImage: selectedAvatar,
+        avatarUrl: selectedAvatarImageUrl,
       createdAt: serverTimestamp(),
       status: "active"
     });
@@ -135,6 +136,7 @@ selectedAvatar = avatar.dataset.avatar;
     userID: uid,
     playerName: username,
     avatarImage: selectedAvatar,
+    avatarUrl: selectedAvatarImageUrl,
     status: "active",
     lastUpdate: serverTimestamp(),
     online: true,
@@ -201,10 +203,10 @@ selectedAvatar = avatar.dataset.avatar;
         // Save key info to localStorage
         localStorage.setItem("theGame_uid", uid);
         localStorage.setItem("theGame_username", username);
-        localStorage.setItem("theGame_avatar", selectedAvatar);
+        localStorage.setItem("theGame_avatar", selectedAvatarImageUrl);
 
         // Create Firestore user/player if needed
-        await createUserAndPlayer(uid, username, selectedAvatar);
+        await createUserAndPlayer(uid, username, selectedAvatarImageUrl);
 
 
         // Welcome + Redirect

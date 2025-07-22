@@ -858,7 +858,7 @@ cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZ
       playerUid: "", // will be updated below
       userID: uid,
       playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
-      avatarImage: 'https://robohash.org/1?size=50x50',
+      avatarUrl: 'https://robohash.org/1?size=50x50',
       status: "active",
       lastUpdate: serverTimestamp(),
       online: true,
@@ -2435,7 +2435,6 @@ function renderAllPlayers(scene) {
     // Get player data (e.g., from allUsersMap or Firestore cache)
     const playerData = allUsersMap.get(playerId); // Ensure this map exists
     const displayName = playerData?.playerName || "Player";
-    const avatarUrl = playerData?.avatarImage || ""; // fallback
     const online = playerData?.online || true;
 
     const security = playerData?.security || 1;

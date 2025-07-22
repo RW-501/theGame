@@ -841,7 +841,7 @@ const userUnsub = onSnapshot(userRef, (doc) => {
 
 function updateStatsUI() {
   console.log("playerData  ",playerData);
-  
+
 document.getElementById("playerCashLabel").textContent = `Cash: $${playerData.bank.toFixed(2)}`;
   document.getElementById("cash").textContent = playerData.bank.toFixed(2);
   document.getElementById("health").textContent = playerData.health + "%";
@@ -1032,7 +1032,7 @@ async function loadProfileDetails() {
     const xp = playerData.xp || 0;
 
      // Update DOM
-  document.getElementById("profileAvatar").src = playerData.avatarImage;
+  document.getElementById("profileAvatar").src = playerData.avatarUrl;
   document.getElementById("profileUsername").textContent = playerData.playerName;
   document.getElementById("profileLevel").textContent = `Level: ${playerData.level}`;
   document.getElementById("profileXP").textContent = `XP: ${playerData.xp}`;
