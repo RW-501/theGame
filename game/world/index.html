@@ -2173,7 +2173,7 @@ const x = parseInt(confirmBtn.dataset.selectedTileX, 10);
 const y = parseInt(confirmBtn.dataset.selectedTileY, 10);
 
   const tileData = await getTileDataAt(x, y);
-  const uid = currentUser?.uid;
+    const uid = auth.currentUser?.uid;
 
   if (!uid) return alert("User not logged in.");
 
