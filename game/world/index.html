@@ -1575,16 +1575,14 @@ if (
 
 
 
-
 async function showEmployeesModal(tileId) {
-
-  console.log("??????????????????? ");
-
   const modalEl = document.getElementById("employeesModal");
   const modalBody = modalEl.querySelector(".modal-body");
   modalBody.innerHTML = "Loading...";
 
-  let employsIDs = [];
+  // Always try to show the modal
+  const bsModal = new bootstrap.Modal(modalEl);
+  bsModal.show();
 
   try {
     const tileRef = doc(db, "tiles", tileId);
@@ -1593,13 +1591,10 @@ async function showEmployeesModal(tileId) {
     if (!tileSnap.exists()) {
       modalBody.innerHTML = "No data found for this tile.";
       return;
-    }else {
-
-      
-    const tileData = tileSnap.data();
-     employsIDs = Array.isArray(tileData.employsIDs) ? tileData.employsIDs : [];
-
     }
+
+    const tileData = tileSnap.data();
+    const employsIDs = Array.isArray(tileData.employsIDs) ? tileData.employsIDs : [];
 
     if (employsIDs.length === 0) {
       modalBody.innerHTML = "No employees yet.";
@@ -1632,14 +1627,12 @@ async function showEmployeesModal(tileId) {
 
     html += `</ul>`;
     modalBody.innerHTML = html;
-    new bootstrap.Modal(modalEl).show();
 
   } catch (error) {
     modalBody.innerHTML = "An error occurred loading employees.";
     console.error("showEmployeesModal error:", error);
   }
 }
-
 
 async function upgradeHomeBase(x, y, playerData) {
   const tileId = `${x}_${y}`;
