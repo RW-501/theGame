@@ -1599,18 +1599,37 @@ if (
 
 
 
-const BASE_COST = 500;
-const XP_PER_LEVEL = 10;
+const BASE_COST = 1000;
+const XP_PER_LEVEL = 50;
 
-function calculateUpgradeCost(currentLevel) {
-  // Simple linear cost: base * (level + 1)
-  return BASE_COST * (currentLevel + 1);
+function calculateUpgradeStats(currentLevel, statType = "default") {
+  let costMultiplier = 1;
+  let xpMultiplier = 1;
+
+  // Optional: different stat types could have different multipliers
+  switch (statType) {
+    case "tech":
+      costMultiplier = 1.2;
+      xpMultiplier = 1.5;
+      break;
+    case "security":
+      costMultiplier = 1.4;
+      xpMultiplier = 1.3;
+      break;
+    case "health":
+      costMultiplier = 1.1;
+      xpMultiplier = 1.2;
+      break;
+    default:
+      break;
+  }
+
+  const cost = Math.floor(BASE_COST * (currentLevel + 1) * costMultiplier);
+  const xpGain = Math.floor(XP_PER_LEVEL * (currentLevel + 1) * xpMultiplier);
+
+  return { cost, xpGain };
 }
 
-function calculateXpGain(currentLevel) {
-  // XP gain could be proportional to new level
-  return XP_PER_LEVEL * (currentLevel + 1);
-}
 
 async function upgradeHomeStat(x, y, stat) {
   const tileId = `${x}_${y}`;
@@ -1626,19 +1645,26 @@ async function upgradeHomeStat(x, y, stat) {
   const tileData = tileSnap.data();
   const player = playerSnap.data();
 
-  // Current level for the stat or default 0
-  const currentLevel = tileData[stat + "Level"] || 0; // e.g. techLevel or securityLevel
-  const cost = calculateUpgradeCost(currentLevel);
-  const xpGain = calculateXpGain(currentLevel);
+  const currentLevel = tileData[`${stat}Level`] || 0;
+
+  // 🧮 Use the new logic
+  const { cost, xpGain } = calculateUpgradeStats(currentLevel, stat);
+
+const statLabels = {
+  tech: "Tech Strength",
+  security: "Security",
+  health: "Health"
+};
+
+
 
   if (player.bank < cost) {
-    showMessageModal(`Not enough money to upgrade ${stat}. Cost: $${cost}`);
+    showMessageModal(`Not enough money to upgrade ${statLabels[stat] || stat}. Cost: $${cost}`);
     return;
   }
 
-  // Update Firestore: increment stat level, reduce bank, add xp
   const updates = {};
-  updates[stat + "Level"] = currentLevel + 1;
+  updates[`${stat}Level`] = currentLevel + 1;
 
   await Promise.all([
     updateDoc(tileRef, updates),
@@ -1648,8 +1674,11 @@ async function upgradeHomeStat(x, y, stat) {
     }),
   ]);
 
-  showMessageModal(`Successfully upgraded ${stat} to level ${currentLevel + 1}. Spent $${cost}, gained ${xpGain} XP.`);
+
+
+showMessageModal(`✅ Upgraded ${statLabels[stat] || stat} to level ${currentLevel + 1}. Spent $${cost}, gained ${xpGain} XP.`);
 }
+
 
 
 
@@ -1676,7 +1705,7 @@ async function repairHomeHealth(x, y) {
 
   // Repair cost proportional to damage
   const healthToRepair = maxHealth - currentHealth;
-  const costPerHealth = 10; // adjust cost per health point repaired
+  const costPerHealth = 100; // adjust cost per health point repaired
   const repairCost = healthToRepair * costPerHealth;
 
   if (player.bank < repairCost) {
