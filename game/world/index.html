@@ -991,7 +991,7 @@ await updateDoc(playerRef, {
  
 
   console.log("✅ Player loaded:", playerData);
-  updateStatsUI();
+  updateStatsUI(playerData);
 }, 1000);
 
 
@@ -1047,7 +1047,7 @@ async function initializeMap(scene) {
   cam.scrollX = (mapWidth / 2) - (screenWidth / (2 * zoom));
   cam.scrollY = (mapHeight / 2) - (screenHeight / (2 * zoom));
 
-  updateStatsUI();
+ // updateStatsUI();
 }
 
 function drawMap(scene) {
@@ -2272,7 +2272,6 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
       movePlayerSmoothly(scene, x, y);
     }
 
-    updateStatsUI();
     showMessageModal("Success", `You purchased a ${type} tile!`);
 
   } catch (err) {
@@ -2500,7 +2499,7 @@ onSnapshot(playerRef, (docSnap) => {
     }
 
 
-console.log(" location   ",pos);
+console.log("player location   ",pos);
 
     // Update local playerData object with all fresh data from Firestore
     playerData = {
@@ -2509,7 +2508,7 @@ console.log(" location   ",pos);
     };
 
     // Refresh UI after updating playerData
-    updateStatsUI();
+    updateStatsUI(data);
   }
 });
 
@@ -2548,7 +2547,7 @@ playerState.set(id, {
   renderAllPlayers(scene);
 });
 
-  updateStatsUI();
+ // updateStatsUI();
 
 }
 
@@ -2576,9 +2575,11 @@ function movePlayerSmoothly(scene, x, y) {
 
 
 // === Stats UI ===
-function updateStatsUI() {
+function updateStatsUI(state) {
   console.log("uid ", uid);
-  
+  console.log("state ", state);
+
+  /*
   let state = playerState.get(uid);
   if (!state) {
     console.warn("Missing player state playerData:", playerData);
@@ -2587,7 +2588,10 @@ function updateStatsUI() {
   }else{
     state = playerData;
   }
-
+*/
+  if (!state) {
+    state = playerData;
+  }
   const now = Date.now();
   
   document.getElementById("level").textContent = `${state.level ?? 0}`;
@@ -2809,7 +2813,7 @@ function renderAllOwnedTiles(scene) {
   }
 
   console.log("✅ Tile Render Complete. Tiles drawn:", tileSpriteMap.size);
-  updateStatsUI();
+  // updateStatsUI();
 }
 
 function showMessageModal(title, message) {
