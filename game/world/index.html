@@ -599,11 +599,23 @@ notifBtn.addEventListener("click", () => {
   }
 });
 
-document.getElementById("toggleToolsBtn").addEventListener("click", () => {
+document.getElementById("toggleToolsBtn").addEventListener("click", (e) => {
+  e.stopPropagation(); // Prevent body click from firing right away
+
   const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
+  const isHidden = toolButtons[0]?.style.display === "none";
+
   toolButtons.forEach(btn => {
-    btn.style.display = btn.style.display === "none" ? "inline-block" : "none";
+    btn.style.display = isHidden ? "inline-block" : "none";
   });
+});
+document.body.addEventListener("click", (e) => {
+  const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
+  const clickedInsideTools = document.getElementById("userTool").contains(e.target);
+
+  if (!clickedInsideTools) {
+    toolButtons.forEach(btn => btn.style.display = "none");
+  }
 });
 
 window.addEventListener("DOMContentLoaded", () => {
