@@ -1034,6 +1034,9 @@ function drawMap(scene) {
       graphics.fillStyle(info.color, 1);
       graphics.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
 
+
+      console.log("zonne info !!!!!!!!!!   ",info);
+
           // Draw base concrete if not empty
     if (zoneType != "empty") {
       scene.add.image(
@@ -1074,7 +1077,6 @@ if (x === playerX && y === playerY) continue;
           y * TILE_SIZE + TILE_SIZE / 2,
            "zone1_company").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
     }
-console.log("zonne type !!!!!!!!!!   ",zoneType);
 
       // Draw image if available
       if (info.imageKey) {
