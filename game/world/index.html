@@ -2528,7 +2528,7 @@ console.log("player data   ",data);
 
     allUsersMap.set(id, data);
 
-    if (Array.isArray(data.location) && data.location.length === 2) {
+    if (playerData.playerUid == data.playerUid) {
 playerState.set(id, {
   x: data.location[0],
   y: data.location[1],
@@ -2541,7 +2541,7 @@ playerState.set(id, {
   security: data.security ?? 0,
   ...data // optionally spread everything else
 });
-
+updateStatsUI(data);
     }
   });
 
@@ -2656,7 +2656,7 @@ function renderAllPlayers(scene) {
   console.log("🧍 All Player States:", Array.from(playerState.entries()));
 
   for (const [key, sprite] of otherPlayerSprites) {
-    if (!playerState.has(key) || key === uid) {
+    if (!playerState.has(key) || key === playerData.playerUid) {
       console.log(`❌ Removing sprite for: ${key}`);
       sprite.destroy();
       otherPlayerSprites.delete(key);
@@ -2824,7 +2824,7 @@ function showMessageModal(title, message) {
 
   const modal = new bootstrap.Modal(document.getElementById('messageModal'));
   modal.show();
-    updateStatsUI();
+   // updateStatsUI();
 }
 
 </script>
