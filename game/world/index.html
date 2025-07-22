@@ -2359,19 +2359,36 @@ function renderOwnedList() {
     return 0;
   });
 
-  listEl.innerHTML = "";
-  sorted.forEach(tile => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${tile.name}</strong> (${tile.x}, ${tile.y})<br>
-      💰 Value: $${tile.value} | 📊 Tax: ${tile.taxRate}% | 🔓 ${tile.unlocked ? "Unlocked" : "Locked"}
-      <br>
-      <button class="view-btn" data-x="${tile.x}" data-y="${tile.y}">View</button>
-      <button class="sell-btn" data-id="${tile.id}">Sell</button>
-      <button class="upgrade-btn" data-id="${tile.id}">Upgrade</button>
-    `;
-    listEl.appendChild(li);
-  });
+listEl.innerHTML = ""; 
+sorted.forEach(tile => {  
+  const li = document.createElement("li");
+  li.innerHTML = `
+    <strong>${tile.name}</strong> (${tile.x}, ${tile.y})<br>
+    💰 Value: $${tile.value} | 📊 Tax: ${tile.taxRate}% | 🔓 ${tile.unlocked ? "Unlocked" : "Locked"}
+    <br>
+    <button class="view-btn" data-x="${tile.x}" data-y="${tile.y}">View</button>
+    <button class="sell-btn" data-id="${tile.id}">Sell</button>
+    <button class="upgrade-btn" data-id="${tile.id}">Upgrade</button>
+
+    <details>
+      <summary>More Details</summary>
+      <ul style="margin-left:1rem;">
+        <li><strong>Type:</strong> ${tile.type || "N/A"}</li>
+        <li><strong>Original Cost:</strong> $${tile.originalCost || "N/A"}</li>
+        <li><strong>For Sale:</strong> ${tile.forSale ? "Yes" : "No"}</li>
+        <li><strong>Income:</strong> $${tile.income || 0}</li>
+        <li><strong>Level:</strong> ${tile.level || 1}</li>
+        <li><strong>History:</strong>
+          <ul>
+            ${(tile.tileHistory || []).map(h => `<li>${h}</li>`).join("") || "<li>No history</li>"}
+          </ul>
+        </li>
+      </ul>
+    </details>
+  `;
+  listEl.appendChild(li);
+});
+
 
   attachOwnedListeners();
 }
@@ -2434,7 +2451,7 @@ async function upgradeTile(tileId) {
 
 async function refreshOwnedTiles() {
   // Pull owned tiles again
-  const snap = await getDocs(query(collection(db, "tiles"), where("ownerId", "==", playerData.userID)));
+  const snap = await getDocs(query(collection(db, "tiles"), where("ownerId", "==", playerData.playerUid)));
   ownedTiles = snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
   renderOwnedList();
 }
