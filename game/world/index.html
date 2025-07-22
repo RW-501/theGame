@@ -207,6 +207,7 @@
 
 
 /* Shared Modal Styles for TileAction and Message Modals */
+#manageHomeModal .modal-content,
 #tileActionModal .modal-content,
 #messageModal .modal-content {
   background: rgba(20, 20, 30, 0.95);
@@ -218,6 +219,7 @@
 }
 
 /* Modal Header */
+#manageHomeModal .modal-header,
 #tileActionModal .modal-header,
 #messageModal .modal-header {
   border-bottom: 1px solid #555;
@@ -226,6 +228,7 @@
 }
 
 /* Card inside modal */
+#manageHomeModal .card,
 #tileActionModal .card,
 #messageModal .card {
   background-color: #1f1f2b;
@@ -235,6 +238,7 @@
 }
 
 /* Card Title */
+#manageHomeModal .card-title,
 #tileActionModal .card-title,
 #messageModal .card-title {
   color: #4caf50;
@@ -243,12 +247,14 @@
 }
 
 /* Row Labels */
+#manageHomeModal .row strong,
 #tileActionModal .row strong,
 #messageModal .row strong {
   color: #90caf9;
 }
 
 /* Modal Footer Buttons */
+#manageHomeModal .modal-footer .btn,
 #tileActionModal .modal-footer .btn,
 #messageModal .modal-footer .btn {
   border-radius: 8px;
@@ -259,23 +265,27 @@
 }
 
 /* Success Button */
+#manageHomeModal .btn-success,
 #tileActionModal .btn-success,
 #messageModal .btn-success {
   background-color: #4caf50;
   border-color: #4caf50;
 }
 
+#manageHomeModal .btn-success:hover,
 #tileActionModal .btn-success:hover,
 #messageModal .btn-success:hover {
   background-color: #66bb6a;
 }
 
 /* Text Colors */
+#manageHomeModal .text-danger,
 #tileActionModal .text-danger,
 #messageModal .text-danger {
   color: #e53935 !important;
 }
 
+#manageHomeModal .text-success,
 #tileActionModal .text-success,
 #messageModal .text-success {
   color: #66bb6a !important;
@@ -524,6 +534,25 @@
     </div>
   </div>
 </div>
+
+
+<div class="modal fade" id="manageHomeModal" tabindex="-1" aria-labelledby="manageHomeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="manageHomeModalLabel">Manage Home Systems</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!-- dynamically filled -->
+      </div>
+      <div class="modal-footer">
+        <!-- dynamically filled -->
+      </div>
+    </div>
+  </div>
+</div>
+
 
 
 <script type="module">
@@ -1473,7 +1502,19 @@ if (!otherPlayerId && trueType === "home") {
     },
     parent: modalFooter
   });
+
+  // 🔧 New Button: Open Upgrade/Repair Modal
+  createButton({
+    text: "Manage Home Systems",
+    className: "btn btn-warning",
+    onClick: () => {
+      showManageHomeModal(x, y);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    },
+    parent: modalFooter
+  });
 }
+
 
 if (!otherPlayerId && isUnlocked && (trueType === "zone" || trueType === "empty")) {
   createButton({
@@ -1555,6 +1596,159 @@ if (
 }
 
 
+
+
+
+const BASE_COST = 500;
+const XP_PER_LEVEL = 10;
+
+function calculateUpgradeCost(currentLevel) {
+  // Simple linear cost: base * (level + 1)
+  return BASE_COST * (currentLevel + 1);
+}
+
+function calculateXpGain(currentLevel) {
+  // XP gain could be proportional to new level
+  return XP_PER_LEVEL * (currentLevel + 1);
+}
+
+async function upgradeHomeStat(x, y, stat) {
+  const tileId = `${x}_${y}`;
+  const tileRef = doc(db, "tiles", tileId);
+  const playerRef = doc(db, "players", playerData.playerUid);
+
+  const [tileSnap, playerSnap] = await Promise.all([getDoc(tileRef), getDoc(playerRef)]);
+  if (!tileSnap.exists() || !playerSnap.exists()) {
+    showMessageModal("Tile or player not found.");
+    return;
+  }
+
+  const tileData = tileSnap.data();
+  const player = playerSnap.data();
+
+  // Current level for the stat or default 0
+  const currentLevel = tileData[stat + "Level"] || 0; // e.g. techLevel or securityLevel
+  const cost = calculateUpgradeCost(currentLevel);
+  const xpGain = calculateXpGain(currentLevel);
+
+  if (player.bank < cost) {
+    showMessageModal(`Not enough money to upgrade ${stat}. Cost: $${cost}`);
+    return;
+  }
+
+  // Update Firestore: increment stat level, reduce bank, add xp
+  const updates = {};
+  updates[stat + "Level"] = currentLevel + 1;
+
+  await Promise.all([
+    updateDoc(tileRef, updates),
+    updateDoc(playerRef, {
+      bank: player.bank - cost,
+      xp: (player.xp || 0) + xpGain,
+    }),
+  ]);
+
+  showMessageModal(`Successfully upgraded ${stat} to level ${currentLevel + 1}. Spent $${cost}, gained ${xpGain} XP.`);
+}
+
+
+
+async function repairHomeHealth(x, y) {
+  const tileId = `${x}_${y}`;
+  const tileRef = doc(db, "tiles", tileId);
+  const playerRef = doc(db, "players", playerData.playerUid);
+
+  const [tileSnap, playerSnap] = await Promise.all([getDoc(tileRef), getDoc(playerRef)]);
+  if (!tileSnap.exists() || !playerSnap.exists()) {
+    showMessageModal("Tile or player not found.");
+    return;
+  }
+
+  const tileData = tileSnap.data();
+  const player = playerSnap.data();
+
+  const maxHealth = 100; // max health cap, adjust if you want
+  const currentHealth = tileData.health || maxHealth;
+  if (currentHealth >= maxHealth) {
+    showMessageModal("Health is already full.");
+    return;
+  }
+
+  // Repair cost proportional to damage
+  const healthToRepair = maxHealth - currentHealth;
+  const costPerHealth = 10; // adjust cost per health point repaired
+  const repairCost = healthToRepair * costPerHealth;
+
+  if (player.bank < repairCost) {
+    showMessageModal(`Not enough money to repair health. Cost: $${repairCost}`);
+    return;
+  }
+
+  await Promise.all([
+    updateDoc(tileRef, { health: maxHealth }),
+    updateDoc(playerRef, {
+      bank: player.bank - repairCost,
+      xp: (player.xp || 0) + Math.floor(healthToRepair / 10), // XP proportional to health repaired
+    }),
+  ]);
+
+  showMessageModal(`Repaired health to full for $${repairCost}.`);
+}
+
+
+function showManageHomeModal(x, y) {
+  const modalEl = document.getElementById("manageHomeModal");
+  const modalBody = modalEl.querySelector(".modal-body");
+  const modalFooter = modalEl.querySelector(".modal-footer");
+  
+  modalBody.innerHTML = `
+    <p>Upgrade different aspects of your home tile.</p>
+    <ul>
+      <li><strong>Tech Strength</strong>: Improves hacking defense.</li>
+      <li><strong>Security</strong>: Adds guard presence & alert systems.</li>
+      <li><strong>Health Repair</strong>: Restores structural integrity.</li>
+    </ul>
+  `;
+
+  modalFooter.innerHTML = ""; // clear previous buttons
+
+const options = [
+  {
+    text: "Upgrade Tech Strength",
+    onClick: async () => {
+      await upgradeHomeStat(x, y, "tech");
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    },
+  },
+  {
+    text: "Upgrade Security",
+    onClick: async () => {
+      await upgradeHomeStat(x, y, "security");
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    },
+  },
+  {
+    text: "Repair Health",
+    onClick: async () => {
+      await repairHomeHealth(x, y);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    },
+  }
+];
+
+
+  options.forEach(({ text, onClick }) => {
+    createButton({
+      text,
+      className: "btn btn-outline-primary me-2",
+      onClick,
+      parent: modalFooter
+    });
+  });
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+}
 
 async function showEmployeesModal(tileId) {
   const modalEl = document.getElementById("employeesModal");
@@ -2484,7 +2678,7 @@ function renderAllPlayers(scene) {
       );
     }
   }
-  
+
 // Example use
 loadTileData(); // Make sure tileDataMap is populated
 renderAllOwnedTiles(scene);
