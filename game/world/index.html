@@ -2708,11 +2708,20 @@ function renderAllPlayers(scene) {
     }
   }
 
-// Example use
-loadTileData(); // Make sure tileDataMap is populated
-renderAllOwnedTiles(scene);
+loadTileDataAndRender(scene);
 
   console.log("✅ Render Complete. Current Sprites:", Array.from(otherPlayerSprites.keys()));
+}
+
+
+
+async function loadTileDataAndRender(scene) {
+  await loadTileData(); // <- this populates tileDataMap
+  if (!tileDataMap) {
+    console.error("❌ tileDataMap failed to load.");
+    return;
+  }
+  renderAllOwnedTiles(scene); // <- now it's safe to call
 }
 
 async function loadTileData() {
