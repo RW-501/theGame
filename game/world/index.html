@@ -352,19 +352,16 @@
   }
 
 
-  .fade-out {
-  animation: fadeOut 0.5s ease-out forwards;
+.fade-out {
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-    visibility: hidden;
-  }
+.fade-out.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
+
 
 
 .modal {
@@ -618,23 +615,49 @@ document.getElementById("toggleToolsBtn").addEventListener("click", (e) => {
   const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
   const isHidden = toolButtons[0]?.style.display === "none";
 
-  toolButtons.forEach(btn => {
-    btn.style.display = isHidden ? "inline-block" : "none";
-  });
-});
-document.body.addEventListener("click", (e) => {
-  const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
-  const clickedInsideTools = document.getElementById("userTool").contains(e.target);
-
-  if (!clickedInsideTools) {
-    toolButtons.forEach(btn => btn.style.display = "none");
+toolButtons.forEach(btn => {
+  if (isHidden) {
+    btn.classList.remove("hide");
+    btn.style.display = "inline-block";
+  } else {
+    btn.classList.add("hide");
+    setTimeout(() => {
+      btn.style.display = "none";
+    }, 300); // match transition time
   }
 });
+
+});
+document.body.addEventListener("click", (e) => {
+  const userTool = document.getElementById("userTool");
+  const clickedInsideTools = userTool.contains(e.target);
+
+  if (!clickedInsideTools) {
+    const toolButtons = userTool.querySelectorAll("button:not(#toggleToolsBtn)");
+toolButtons.forEach(btn => {
+  if (isHidden) {
+    btn.classList.remove("hide");
+    btn.style.display = "inline-block";
+  } else {
+    btn.classList.add("hide");
+    setTimeout(() => {
+      btn.style.display = "none";
+    }, 300); // match transition time
+  }
+});  }
+});
+
+
+
+
+
 
 window.addEventListener("DOMContentLoaded", () => {
   const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
   toolButtons.forEach(btn => btn.style.display = "none");
 });
+
+
 
 document.getElementById("toggleFullscreenBtn").addEventListener("click", () => {
 
