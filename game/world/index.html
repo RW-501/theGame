@@ -2151,7 +2151,7 @@ function createButton({ text, className, onClick, parent = document.body, styles
 async function startCompany(x, y, tileData, uid, sector, name, symbol) {
   const tileId = `${x}_${y}`;
   const tileRef = doc(db, "tiles", tileId);
-  const playerRef = doc(db, "players", playerUid);
+  const playerRef = doc(db, "players", playerData.playerUid);
   const info = getTileDataAt(x, y);
   const now = Date.now();
 
