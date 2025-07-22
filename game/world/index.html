@@ -631,9 +631,11 @@ toolButtons.forEach(btn => {
 document.body.addEventListener("click", (e) => {
   const userTool = document.getElementById("userTool");
   const clickedInsideTools = userTool.contains(e.target);
+    const toolButtons = userTool.querySelectorAll("button:not(#toggleToolsBtn)");
+
+  const isHidden = toolButtons[0]?.style.display === "none";
 
   if (!clickedInsideTools) {
-    const toolButtons = userTool.querySelectorAll("button:not(#toggleToolsBtn)");
 toolButtons.forEach(btn => {
   if (isHidden) {
     btn.classList.remove("hide");
