@@ -2577,6 +2577,8 @@ function movePlayerSmoothly(scene, x, y) {
 
 // === Stats UI ===
 function updateStatsUI() {
+  console.log("uid ", uid);
+  
   let state = playerState.get(uid);
   if (!state) {
     console.warn("Missing player state playerData:", playerData);
