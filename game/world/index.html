@@ -2526,10 +2526,19 @@ onSnapshot(playersRef, (querySnapshot) => {
     allUsersMap.set(id, data);
 
     if (Array.isArray(data.location) && data.location.length === 2) {
-      playerState.set(id, {
-        x: data.location[0],
-        y: data.location[1]
-      },data);
+playerState.set(id, {
+  x: data.location[0],
+  y: data.location[1],
+  bank: data.bank ?? 0,
+  crypto: data.crypto ?? 0,
+  level: data.level ?? 0,
+  xp: data.xp ?? 0,
+  health: data.health ?? 100,
+  techStrength: data.techStrength ?? 0,
+  security: data.security ?? 0,
+  ...data // optionally spread everything else
+});
+
     }
   });
 
@@ -2566,7 +2575,7 @@ function movePlayerSmoothly(scene, x, y) {
 
 // === Stats UI ===
 function updateStatsUI() {
-  const state = playerState.get(playerData.playerUid);
+  const state = playerState.get(uid);
   if (!state) {
     console.warn("Missing player state playerData:", playerData);
     console.warn("Missing player state UID:", uid);
