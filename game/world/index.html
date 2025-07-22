@@ -2528,7 +2528,7 @@ console.log("player data   ",data);
 
     allUsersMap.set(id, data);
 
-    if (playerData.playerUid == data.playerUid) {
+    if (Array.isArray(data.location) && data.location.length === 2) {
 playerState.set(id, {
   x: data.location[0],
   y: data.location[1],
@@ -2541,15 +2541,18 @@ playerState.set(id, {
   security: data.security ?? 0,
   ...data // optionally spread everything else
 });
-updateStatsUI(data);
-    }
-  });
+if (playerData.playerUid == data.playerUid) {
+
+updateStatsUI(data);  
+  }
 
   console.log("🧠 Updated playerState:", Array.from(playerState.entries()));
   renderAllPlayers(scene);
+}
+});
 });
 
- // updateStatsUI();
+
 
 }
 
