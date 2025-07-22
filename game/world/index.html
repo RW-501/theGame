@@ -2499,7 +2499,6 @@ onSnapshot(playerRef, (docSnap) => {
     }
 
 
-console.log("player location   ",pos);
 
     // Update local playerData object with all fresh data from Firestore
     playerData = {
@@ -2523,6 +2522,9 @@ onSnapshot(playersRef, (querySnapshot) => {
   querySnapshot.forEach(doc => {
     const data = doc.data();
     const id = doc.id;
+
+console.log("player id   ",id);
+console.log("player data   ",data);
 
     allUsersMap.set(id, data);
 
