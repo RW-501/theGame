@@ -23,8 +23,9 @@
   margin: auto;
   width: fit-content;
   max-width: 100vw;
-  max-height: fit-content;
+  height: 90%;
   margin: 5rem;
+  overflow: scroll;
   /*
  background: #222;
   box-shadow: 0 0 15px #333;
@@ -332,7 +333,7 @@
 <body>
 
   <main>
-<div class="d-flex justify-content-center align-items-center vh-100">
+<div id="mainArea" class="d-flex justify-content-center align-items-center vh-100">
   <div id="game-container"></div>
 </div>
 
@@ -405,52 +406,6 @@
       </div>
       <div class="modal-footer" id="tileActionFooter">
         <!-- Buttons added dynamically -->
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- ATTACK Modal -->
-<div class="modal fade" id="attackModal" tabindex="-1" aria-labelledby="attackLabel" aria-hidden="true">
-  <div class="modal-dialog modal-md modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="attackLabel">💣 Attack Panel</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <ul id="attackTargets" class="list-group mb-3" style="max-height: 250px; overflow-y: auto;"></ul>
-        <div class="mb-3">
-          <label for="attackMethod" class="form-label">Attack Method:</label>
-          <select id="attackMethod" class="form-select">
-            <option value="brute_force">Brute Force</option>
-            <option value="social_engineering">Social Engineering</option>
-            <option value="bot_attack">Bot Attack</option>
-          </select>
-        </div>
-        <button id="attackBtn" class="btn btn-danger w-100">Launch Attack</button>
-        <div id="attackMessage" class="mt-2 fw-semibold text-danger"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- HACKER Modal -->
-<div class="modal fade" id="hackerModal" tabindex="-1" aria-labelledby="hackerLabel" aria-hidden="true">
-  <div class="modal-dialog modal-md modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="hackerLabel">👨‍💻 Hacker Tools</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center">
-        <div class="d-grid gap-2 mb-3">
-          <button id="spyBtn" class="btn btn-outline-primary">🕵️ Spy</button>
-          <button id="corruptBtn" class="btn btn-outline-warning">💼 Corrupt Trade</button>
-          <button id="stealBtn" class="btn btn-outline-danger">📂 Steal Data</button>
-        </div>
-        <div id="hackerStatus" class="fw-bold text-info"></div>
       </div>
     </div>
   </div>
@@ -1916,49 +1871,58 @@ document.getElementById("confirmStartCompanyBtn").addEventListener("click", asyn
 });
 
 
-
 async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
   try {
     const tileInfo = mapData[y]?.[x] || "empty";
     const info = zoneInfo[tileInfo] || zoneInfo.empty;
-
     const type = overrideType || info.type;
+
     const uid = auth.currentUser?.uid;
     if (!uid) throw new Error("User not logged in");
 
-    const tileRef = doc(db, "tiles", `${x}_${y}`);
+    const tileId = `${x}_${y}`;
+    const tileRef = doc(db, "tiles", tileId);
     const tileSnap = await getDoc(tileRef);
-    const tileData = tileSnap.exists() ? tileSnap.data() : info;
 
+    let tileData;
+    if (tileSnap.exists()) {
+      console.log(`📄 Loaded existing tile from Firestore at ${tileId}`);
+      tileData = tileSnap.data();
+    } else {
+      console.log(`🆕 Creating new tile at ${tileId}`);
+      tileData = info;
+    }
+
+    // Tile already owned by another player
     if (tileData.ownerID && tileData.ownerID !== playerData.userID) {
       return showMessageModal("Oops!", "Tile already owned by someone else.");
     }
 
+    // Check if player can afford it
     const cost = tileData?.price ?? info.price;
     if (playerData.bank < cost) {
       return showMessageModal("Insufficient Funds", "You don't have enough funds.");
     }
 
-    // New tile level and value
-  const newLevel = tileData.level || 1;
-  const newValue = info.price + playerData.level * 500;
-    // Deduct money and write tile data
+    // Prepare new tile data
+    const newValue = info.price + playerData.level * 500;
     const updatedBank = playerData.bank - cost;
+
     const newTile = {
       ownerID: playerData.userID,
+      ownerName: playerData.playerName || 'Player',
       status: "owned",
       note: 'new',
-      ownerName: playerData.playerName || 'Player',
       tileImage: '',
       color: info.color,
       label: info.label,
-      type: "blocked", // prevent re-buying
-      icon:  info.icon,
-      price:  shouldMove ? newValue : info.price,
+      type: type,
+      icon: info.icon,
+      price: shouldMove ? newValue : info.price,
       originalCost: shouldMove ? newValue : info.price,
-      income:  info.income,
-      taxRate:  info.taxRate,
-      value:  info.value,
+      income: info.income,
+      taxRate: info.taxRate,
+      value: info.value,
       forSale: false,
       unlocked: true,
       level: 1,
@@ -1967,33 +1931,32 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
       tileHistory: info,
     };
 
-const tileId = `${x}_${y}`;
+    // Firestore updates
+    const updates = [
+      updateDoc(doc(db, "players", playerData.userID), {
+        bank: updatedBank,
+        ...(shouldMove ? { location: [x, y] } : {}),
+        landOwned: arrayUnion(tileId)
+      }),
+      setDoc(tileRef, newTile, { merge: true })
+    ];
 
-// Update Firestore
-const updates = [
-  updateDoc(doc(db, "players", playerData.userID), {
-    bank: updatedBank,
-    ...(shouldMove ? { location: [x, y] } : {}),
-    landOwned: arrayUnion(tileId)
-  }),
-  setDoc(tileRef, newTile, { merge: true })
-];
+    await Promise.all(updates);
 
-await Promise.all(updates);
+    // Update local memory/player state
+    if (!playerData.landOwned) playerData.landOwned = [];
+    if (!playerData.companiesOwned) playerData.companiesOwned = [];
 
-// Update local playerData
-if (!playerData.landOwned) playerData.landOwned = [];
-if (!playerData.companiesOwned) playerData.companiesOwned = [];
+    if (type === 'zone' && !playerData.landOwned.includes(tileId)) {
+      playerData.landOwned.push(tileId);
+    }
 
-if (type === 'zone' && !playerData.landOwned.includes(tileId)) {
-  playerData.landOwned.push(tileId);
-}
-
-if (type === 'company' && !playerData.companiesOwned.includes(tileId)) {
-  playerData.companiesOwned.push(tileId);
-}
+    if (type === 'company' && !playerData.companiesOwned.includes(tileId)) {
+      playerData.companiesOwned.push(tileId);
+    }
 
     playerData.bank = updatedBank;
+
     if (shouldMove) {
       playerData.location = [x, y];
       playerX = x;
@@ -2003,8 +1966,9 @@ if (type === 'company' && !playerData.companiesOwned.includes(tileId)) {
 
     updateStatsUI();
     showMessageModal("Success", `You purchased a ${type} tile!`);
+
   } catch (err) {
-    console.error("Purchase failed:", err.message);
+    console.error("❌ Purchase failed:", err.message);
     showMessageModal("Error", err.message);
   }
 }
