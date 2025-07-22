@@ -1261,19 +1261,38 @@ scene.input.on("pointerup", pointer => {
     if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
 
 let otherPlayerId = null;
+
 const entries = playerState instanceof Map
-  ? playerState.entries()
+  ? Array.from(playerState.entries())
   : Object.entries(playerState);
 
-console.log("Entries to check:", Array.from(entries));  // Log all entries as an array
+console.log("Entries to check:", entries);
+console.log("Clicked position:", clickedX, clickedY);
+console.log("Current user:", playerData.playerUid);
 
 for (const [pid, pos] of entries) {
-  console.log(`Checking player id: ${pid}, position:`, pos);
-  if (pid !== playerData.playerUid && pos.x === clickedX && pos.y === clickedY) {
+  // Defensive checks
+  if (!pos || typeof pos.x !== "number" || typeof pos.y !== "number") {
+    console.warn(`Skipping invalid player data for ${pid}:`, pos);
+    continue;
+  }
+
+  console.log(`Checking player id: ${pid}, position: x=${pos.x}, y=${pos.y}`);
+
+  // Compare position and exclude current user
+  if (
+    pid !== playerData.playerUid &&
+    Number(pos.x) === Number(clickedX) &&
+    Number(pos.y) === Number(clickedY)
+  ) {
     otherPlayerId = pid;
-    console.log(`Found otherPlayerId at clicked position: ${otherPlayerId}`);
+    console.log(`✅ Found other player at this tile: ${otherPlayerId}`);
     break;
   }
+}
+
+if (!otherPlayerId) {
+  console.log("No other player found on this tile.");
 }
 
     console.log(`clicked position: ${otherPlayerId}`);
