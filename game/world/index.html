@@ -1563,7 +1563,7 @@ if (
 if (
   //info.ownerName &&
   isUnlocked &&
-  info.ownerName !== playerData.username &&
+   info.ownerName != playerData.username &&
   trueType === "company"
 ) {
   createWorkForCompanyButton(info, playerData, modalFooter, x, y);
@@ -1577,6 +1577,9 @@ if (
 
 
 async function showEmployeesModal(tileId) {
+
+  console.log("??????????????????? ");
+
   const modalEl = document.getElementById("employeesModal");
   const modalBody = modalEl.querySelector(".modal-body");
   modalBody.innerHTML = "Loading...";
