@@ -3657,12 +3657,12 @@ document.getElementById("level").addEventListener("click", renderPowerUpStore);
 
 // Purchase logic (stub, you can add your logic here)
 function buyBoost(type, price) {
-  if (state.bank >= price) {
-    state.bank -= price;
+  if (playerData.bank >= price) {
+    stplayerDataate.bank -= price;
 
-    if (type === 'health') state.health += 50;
-    if (type === 'security') state.securityStrength += 1;
-    if (type === 'tech') state.techStrength += 1;
+    if (type === 'health') playerData.health += 50;
+    if (type === 'security') playerData.securityStrength += 1;
+    if (type === 'tech') playerData.techStrength += 1;
 
     showMessageModal("Success",`${type} boost purchased!`);
     updatePlayerStats(); // your existing update function
@@ -3673,9 +3673,9 @@ function buyBoost(type, price) {
 
 function renderBankLedger() {
   const ledgerHTML = `
-    <p><strong>Balance:</strong> $${(state.bank ?? 0).toLocaleString()}</p>
-    <p><strong>Loans:</strong> $${(state.loans ?? 0).toLocaleString()}</p>
-    <p><strong>Vault Items:</strong> ${state.inventory?.join(", ") || "None"}</p>
+    <p><strong>Balance:</strong> $${(playerData.bank ?? 0).toLocaleString()}</p>
+    <p><strong>Loans:</strong> $${(playerData.loans ?? 0).toLocaleString()}</p>
+    <p><strong>Vault Items:</strong> ${playerData.inventory?.join(", ") || "None"}</p>
   `;
   document.getElementById("bankLedgerContent").innerHTML = ledgerHTML;
 }
