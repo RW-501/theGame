@@ -2151,7 +2151,7 @@ if (trueType === "company" ) {
     text: "View Company Details",
     className: "btn btn-primary",
     onClick: async () => {
-      await viewCompanyDetailsModal(`${x}, ${y}`);
+      await viewCompanyDetailsModal(`${x},${y}`);
       bootstrap.Modal.getInstance(modalEl)?.hide();
     },
     parent: modalFooter
@@ -2223,7 +2223,7 @@ async function viewCompanyDetailsModal(x, y) {
   const tileSnap = await getDoc(tileRef);
 
   if (!tileSnap.exists()) {
-    showMessageModal("❌ Company not found at this location.", "danger");
+    showMessageModal(`${tileId}  `+"❌ Company not found at this location.", "danger");
     return;
   }
 
