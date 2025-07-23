@@ -3529,7 +3529,7 @@ function selectAvatar(url, image, wrapperEl) {
 
   bootstrap.Modal.getInstance(document.getElementById("avatarModal")).hide();
 }
-
+window.selectAvatar = selectAvatar; 
 
 // Open avatar modal and load avatars
 document.getElementById("playerAvatar").addEventListener("click", () => {
