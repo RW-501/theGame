@@ -3330,31 +3330,76 @@ function movePlayerSmoothly(scene, x, y) {
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+// Add this CSS for clean progress bar styling
+const progressStyles = `
+<style>
+  .custom-progress {
+    background-color: #eee;
+    border-radius: 10px;
+    overflow: hidden;
+    height: 16px;
+    width: 100%;
+  }
+  .custom-progress-bar {
+    height: 100%;
+    line-height: 16px;
+    text-align: center;
+    font-size: 0.75rem;
+    color: white;
+    transition: width 0.5s ease;
+  }
+</style>`;
+document.head.insertAdjacentHTML("beforeend", progressStyles);
+
+
+// Generate a custom progress bar (reusable)
+function createProgressBar(id, value, max, label = "") {
+  const percent = Math.min(100, (value / max) * 100).toFixed(1);
+  return `
+    <div class="mb-1">
+      <small>${label}</small>
+      <div class="custom-progress">
+        <div class="custom-progress-bar bg-info" style="width: ${percent}%">
+          ${percent}%
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 let state;
 
 // === Stats UI ===
-function updateStatsUI(state) {
-  console.log("uid ", uid);
-  console.log("state ", state);
 
+function updateStatsUI(state) {
   if (!state) {
     state = playerData;
   }
-  const now = Date.now();
-  
+  const level = state.level?.toString() || "1";
+  const levelRules = rules.levels[level];
+
   document.getElementById("playerAvatar").src = state.avatarUrl || "https://via.placeholder.com/48";
   document.getElementById("playerName").textContent = state.playerName || "Unknown";
-
   document.getElementById("level").textContent = `${state.level ?? 0}`;
   animateStat("xp", state.xp ?? 0);
   animateStat("bank", state.bank ?? 0, formatCurrency);
-
   document.getElementById("crypto").textContent = `${state.crypto ?? 5}`;
   document.getElementById("trades").textContent = `${state.trades ?? 0}`;
   document.getElementById("securityStrength").textContent = `${state.securityStrength ?? 1}`;
   document.getElementById("techStrength").textContent = `${state.techStrength ?? 1}`;
 
-  // Health bar update
   const health = Math.max(0, Math.min(100, state.health ?? 100));
   const healthBar = document.getElementById("healthBar");
   healthBar.style.width = `${health}%`;
@@ -3363,14 +3408,18 @@ function updateStatsUI(state) {
   healthBar.classList.toggle("bg-warning", health >= 40 && health < 70);
   healthBar.classList.toggle("bg-success", health >= 70);
 
-  const zoneType = mapData[playerY]?.[playerX] || "empty";
-  const label = zoneInfo[zoneType]?.label || "Unknown";
-  document.getElementById("zoneName").innerHTML = `📍 Zone: <span>${label}</span>`;
+  document.getElementById("zoneName").innerHTML = `📍 Zone: <span>${mapData[playerY]?.[playerX] || "Unknown"}</span>`;
 
-      scene.load.on('complete', () => {
-    loadingText.setText('Loading Complete!');
+  // Inject dynamic progress bars
+  const dynamicStats = document.getElementById("heathStats");
+  dynamicStats.innerHTML =
+    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP") +
+    createProgressBar("securityXPBar", state.securityStrengthXP ?? 0, levelRules.securityStrengthXPToNext, "Security XP") +
+    createProgressBar("techXPBar", state.techStrengthXP ?? 0, levelRules.techStrengthXPToNext, "Tech XP") +
+    createProgressBar("tradeBar", state.trades ?? 0, levelRules.tradeLimit, "Trades");
 
-
+  scene.load.on("complete", () => {
+    loadingText.setText("Loading Complete!");
   });
 }
 
