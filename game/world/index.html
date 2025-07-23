@@ -18,6 +18,11 @@
       overflow: hidden;
     }
 
+    .animated-number {
+  transition: all 0.3s ease;
+  font-variant-numeric: tabular-nums;
+}
+
 #game-container {
   position: relative;
   margin: auto;
@@ -362,6 +367,24 @@
   pointer-events: none;
 }
 
+.avatar-wrapper {
+  padding: 6px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  display: inline-block;
+  transition: border 0.3s ease;
+}
+
+.avatar-wrapper img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+
+.selected-avatar {
+  border: 3px solid #4caf50;
+  background-color: #4caf50;
+}
 
 
 .modal {
@@ -376,23 +399,33 @@
   <div id="game-container"></div>
 </div>
 
-<div class="info-box" id="statsBox">
-  <div class="stats-row">
-    🎖️ Level: <span id="level">0</span> |
-    💰 xp: <span id="xp">$0</span> |
-    🏦 Bank: <span id="bank">$0</span> |
-    🪙 Crypto: <span id="crypto">0</span> |
-    🔁 Trades Left: <span id="trades">2</span>
+<div class="card shadow-sm rounded info-box p-3 mb-3" id="statsBox">
+  <div class="d-flex align-items-center mb-3">
+    <img id="playerAvatar" src="" alt="Avatar" class="rounded-circle me-2" width="48" height="48" style="cursor:pointer;" onclick="viewPlayerDetails()">
+    <div>
+      <h5 class="mb-0" id="playerName">Player Name</h5>
+      <small class="text-muted" id="zoneName">📍 Zone: <span>Wilderness</span></small>
+    </div>
   </div>
-  <div class="stats-row">
-    ❤️ Health: <span id="health">100%</span> |
-    🛡️ Security Strength: <span id="securityStrength">0</span> |
-    🧠 Tech Strength: <span id="techStrength">0</span>
+
+  <div class="stats-row mb-2">
+    🎖️ <strong>Level:</strong> <span id="level">1</span> |
+    💰 <strong>XP:</strong> <span id="xp" class="animated-number">12675</span> |
+    🏦 <strong>Bank:</strong> <span id="bank" class="animated-number">$74,340</span> |
+    🪙 <strong>Crypto:</strong> <span id="crypto">5</span> |
+    🔁 <strong>Trades Left:</strong> <span id="trades">0</span>
   </div>
-  <div class="stats-row" id="zoneName">
-    📍 Zone: <span>Loading...</span>
+
+  <div class="stats-row">
+    ❤️ <strong>Health:</strong>
+    <div class="progress w-25 d-inline-block align-middle" style="height: 18px; vertical-align: middle;">
+      <div id="healthBar" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuemin="0" aria-valuemax="100">100%</div>
+    </div> |
+    🛡️ <strong>Security:</strong> <span id="securityStrength">1</span> |
+    🧠 <strong>Tech:</strong> <span id="techStrength">1</span>
   </div>
 </div>
+
 
 <div id="tileTooltip"></div>
 
@@ -421,18 +454,7 @@
 </main>
 
 
-<!-- Market Modal -->
-<div class="modal fade" id="marketModal" tabindex="-1" aria-labelledby="marketLabel" aria-hidden="true">
-  <div class="modal-dialog"><div class="modal-content">
-    <div class="modal-header"><h5 class="modal-title">Market</h5></div>
-    <div class="modal-body">
-      <p>Buy stocks, check prices, and trade.</p>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-    </div>
-  </div></div>
-</div>
+
 
 <!-- Tile Actions Modal -->
 <div class="modal fade" id="tileActionModal" tabindex="-1" aria-labelledby="tileActionLabel" aria-hidden="true">
@@ -453,18 +475,6 @@
 </div>
 
 
-<div class="modal fade" id="tileActionModal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Tile Action</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body" id="tileActionBody"></div>
-      <div class="modal-footer" id="tileActionFooter"></div>
-    </div>
-  </div>
-</div>
 
 
 <!-- Message Modal -->
@@ -487,7 +497,6 @@
 
 
 <!-- Asset Viewer Modal -->
-<!-- Owned Assets Modal -->
 <div class="modal fade gameMode" id="ownedModal" tabindex="-1" aria-labelledby="ownedModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-scrollable modal-lg modal-dialog-centered">
     <div class="modal-content">
@@ -610,6 +619,138 @@
     </div>
   </div>
 </div>
+
+
+<!-- Player Info Modal -->
+<div class="modal fade gameMode" id="playerInfoModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">👤 Player Info</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="playerInfoContent">
+        <!-- Filled by JS -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Power-Up Store Modal -->
+<div class="modal fade gameMode" id="levelStoreModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">🛍️ Power-Up Store</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Select a boost to purchase with 💰 bank money:</p>
+        <ul class="list-group" id="boostList">
+          <!-- Boosts will be injected here -->
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+<!-- Avatar Modal -->
+<div class="modal fade gameMode" id="avatarModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Choose Your Avatar</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+ <hr>
+      <div class="modal-body">
+        <div id="avatarGallery" class="d-flex flex-wrap gap-3 justify-content-center">
+          <!-- Dynamically loaded avatar options -->
+        </div>
+
+       
+
+              </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Bank Ledger Modal -->
+<div class="modal fade gameMode" id="bankModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Bank Ledger</h5></div>
+      <div class="modal-body" id="bankLedgerContent">
+        <!-- Dynamic Ledger Info Here -->
+      </div>
+    </div>
+          <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+  </div>
+</div>
+
+<!-- Trades / Stock Market Modal -->
+<div class="modal fade gameMode" id="tradeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">In-Game Stock Market</h5></div>
+      <div class="modal-body" id="stockMarketContent">
+        <!-- Stocks Table, Charts, Buy/Sell Actions -->
+      </div>
+            <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Strength/Stats Modal -->
+<div class="modal fade gameMode" id="statModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="statModalTitle">Stat Detail</h5></div>
+      <div class="modal-body" id="statModalContent">
+        <!-- Dynamic Stat Info -->
+      </div>
+            <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
 
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
@@ -2929,7 +3070,7 @@ function movePlayerSmoothly(scene, x, y) {
 }
 
 
-
+let state;
 
 // === Stats UI ===
 function updateStatsUI(state) {
@@ -2951,22 +3092,30 @@ function updateStatsUI(state) {
   }
   const now = Date.now();
   
+  document.getElementById("playerAvatar").src = state.avatarUrl || "https://via.placeholder.com/48";
+  document.getElementById("playerName").textContent = state.playerName || "Unknown";
+
   document.getElementById("level").textContent = `${state.level ?? 0}`;
-  document.getElementById("xp").textContent = `${state.xp ?? 0}`;
+  animateStat("xp", state.xp ?? 0);
+  animateStat("bank", state.bank ?? 0, formatCurrency);
 
-  document.getElementById("bank").textContent = `$${state.bank ?? 0}`;
-  document.getElementById("trades").textContent = state.trades ?? 0;
   document.getElementById("crypto").textContent = `${state.crypto ?? 5}`;
-
-  document.getElementById("health").textContent = `${state.health ?? 100}%`;
+  document.getElementById("trades").textContent = `${state.trades ?? 0}`;
   document.getElementById("securityStrength").textContent = `${state.securityStrength ?? 1}`;
   document.getElementById("techStrength").textContent = `${state.techStrength ?? 1}`;
 
+  // Health bar update
+  const health = Math.max(0, Math.min(100, state.health ?? 100));
+  const healthBar = document.getElementById("healthBar");
+  healthBar.style.width = `${health}%`;
+  healthBar.textContent = `${health}%`;
+  healthBar.classList.toggle("bg-danger", health < 40);
+  healthBar.classList.toggle("bg-warning", health >= 40 && health < 70);
+  healthBar.classList.toggle("bg-success", health >= 70);
 
   const zoneType = mapData[playerY]?.[playerX] || "empty";
   const label = zoneInfo[zoneType]?.label || "Unknown";
   document.getElementById("zoneName").innerHTML = `📍 Zone: <span>${label}</span>`;
-
 
       scene.load.on('complete', () => {
     loadingText.setText('Loading Complete!');
@@ -2976,8 +3125,220 @@ function updateStatsUI(state) {
 }
 
 
+function formatCurrency(amount) {
+  return amount.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    maximumFractionDigits: 0,
+  });
+}
+
+function animateStat(id, newValue, formatter = val => val) {
+  const el = document.getElementById(id);
+  const current = parseInt(el.dataset.value || el.textContent.replace(/[^\d]/g, ''), 10);
+  const target = parseInt(newValue, 10);
+  if (current === target) return;
+
+  const duration = 500;
+  const stepTime = 30;
+  let frame = 0;
+  const frames = Math.ceil(duration / stepTime);
+  const step = (target - current) / frames;
+
+  const interval = setInterval(() => {
+    frame++;
+    const val = Math.round(current + step * frame);
+    el.textContent = formatter(val);
+    el.dataset.value = val;
+    if (frame >= frames) {
+      clearInterval(interval);
+    }
+  }, stepTime);
+}
 
 
+
+
+document.getElementById("bank").addEventListener("click", () => {
+  renderBankLedger();
+  new bootstrap.Modal(document.getElementById("bankModal")).show();
+});
+
+document.getElementById("trades").addEventListener("click", () => {
+  renderStockMarket();
+  new bootstrap.Modal(document.getElementById("tradeModal")).show();
+});
+
+document.getElementById("health").addEventListener("click", () => {
+  openStatModal("Health", `You have ${state.health ?? 100}% health.`);
+});
+document.getElementById("securityStrength").addEventListener("click", () => {
+  openStatModal("Security Strength", `Security level: ${state.securityStrength ?? 1}`);
+});
+document.getElementById("techStrength").addEventListener("click", () => {
+  openStatModal("Tech Strength", `Tech power: ${state.techStrength ?? 1}`);
+});
+
+
+const predefinedAvatars = [
+  { avatarImage: "avatar1", avatarUrl: "https://rw-501.github.io/theGame/game/images/avatars/avatar1.png" },
+  { avatarImage: "avatar2", avatarUrl: "https://rw-501.github.io/theGame/game/images/avatars/avatar2.png" },
+  { avatarImage: "avatar3", avatarUrl: "https://rw-501.github.io/theGame/game/images/avatars/avatar3.png" },
+  { avatarImage: "avatar4", avatarUrl: "https://rw-501.github.io/theGame/game/images/avatars/avatar4.png" },
+  { avatarImage: "avatar5", avatarUrl: "https://rw-501.github.io/theGame/game/images/avatars/avatar5.png" },
+  { avatarImage: "avatar6", avatarUrl: "https://rw-501.github.io/theGame/game/images/avatars/avatar6.png" },
+  { avatarImage: "avatar7", avatarUrl: "https://rw-501.github.io/theGame/game/images/avatars/avatar7.png" },
+];
+
+
+function loadAvatars() {
+  const gallery = document.getElementById("avatarGallery");
+  gallery.innerHTML = "";
+
+  predefinedAvatars.forEach((avatar, i) => {
+    const isSelected = state.avatarUrl === avatar.avatarUrl;
+
+    const div = document.createElement("div");
+    div.className = "avatar-option text-center";
+    div.innerHTML = `
+      <div class="avatar-wrapper ${isSelected ? 'selected-avatar' : ''}" onclick="selectAvatar('${avatar.avatarUrl}', '${avatar.avatarImage}', this)">
+        <img src="${avatar.avatarUrl}" alt="Avatar ${i}">
+        <div class="mt-1 small text-muted">${avatar.avatarImage}</div>
+      </div>
+    `;
+    gallery.appendChild(div);
+  });
+}
+
+function selectAvatar(url, image, wrapperEl) {
+  state.avatarUrl = url;
+  state.avatarImage = image;
+  document.getElementById("playerAvatar").src = url;
+
+  // Remove highlight from all
+  document.querySelectorAll(".avatar-wrapper").forEach(wrap => {
+    wrap.classList.remove("selected-avatar");
+  });
+
+  // Highlight selected
+  wrapperEl.classList.add("selected-avatar");
+
+  if (auth.currentUser) {
+    const playerRef = doc(db, "players", playerData.playerUid);
+    updateDoc(playerRef, { avatarUrl: url, avatarImage: image });
+  }
+
+  bootstrap.Modal.getInstance(document.getElementById("avatarModal")).hide();
+}
+
+
+// Open avatar modal and load avatars
+document.getElementById("playerAvatar").addEventListener("click", () => {
+  loadAvatars();
+  new bootstrap.Modal(document.getElementById("avatarModal")).show();
+});
+
+
+
+function showPlayerInfo() {
+  const content = `
+    <p><strong>Name:</strong> ${state.playerName}</p>
+    <p><strong>XP:</strong> ${state.xp}</p>
+    <p><strong>Bank:</strong> $${state.bank.toLocaleString()}</p>
+    <p><strong>Level:</strong> ${state.level}</p>
+    <p><strong>Trades Left:</strong> ${state.trades}</p>
+    <p><strong>Crypto:</strong> ${state.crypto}</p>
+    <p><strong>Zone:</strong> ${zoneInfo[mapData[playerY]?.[playerX]]?.label || 'Unknown'}</p>
+    <p><strong>Location:</strong> [${playerX}, ${playerY}]</p>
+    <hr>
+    <p><strong>Companies Owned:</strong> ${state.companiesOwned?.length || 0}</p>
+    <p><strong>Land Owned:</strong> ${state.landOwned?.length || 0}</p>
+    <p><strong>Attacks Made:</strong> ${state.attacks || 0}</p>
+    <p><strong>Times Attacked:</strong> ${state.attacked || 0}</p>
+    <p><strong>Loans:</strong> ${state.loans || 0}</p>
+    <p><strong>Total Trades:</strong> ${state.tradesTotal || 0}</p>
+  `;
+
+  document.getElementById("playerInfoContent").innerHTML = content;
+
+  const modal = new bootstrap.Modal(document.getElementById('playerInfoModal'));
+  modal.show();
+}
+
+
+document.getElementById("playerName").addEventListener("click", showPlayerInfo);
+
+
+const boosts = [
+  { id: 'health', label: '❤️ Health Boost', price: 500 },
+  { id: 'security', label: '🛡️ Security Boost', price: 750 },
+  { id: 'tech', label: '🧠 Tech Boost', price: 1000 },
+  // Add more boosts here easily
+];
+
+// Render boost options dynamically
+function renderPowerUpStore() {
+  const boostList = document.getElementById('boostList');
+  boostList.innerHTML = ''; // Clear previous list
+
+  boosts.forEach(boost => {
+    const li = document.createElement('li');
+    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+    li.innerHTML = `
+      ${boost.label}
+      <button class="btn btn-sm btn-outline-primary" onclick="buyBoost('${boost.id}', ${boost.price})">
+        $${boost.price}
+      </button>
+    `;
+
+    boostList.appendChild(li);
+  });
+   const modal = new bootstrap.Modal(document.getElementById('levelStoreModal'));
+  modal.show();
+}
+
+// Called when modal opens
+document.getElementById("level").addEventListener("click", renderPowerUpStore);
+
+
+// Purchase logic (stub, you can add your logic here)
+function buyBoost(type, price) {
+  if (state.bank >= price) {
+    state.bank -= price;
+
+    if (type === 'health') state.health += 50;
+    if (type === 'security') state.securityStrength += 1;
+    if (type === 'tech') state.techStrength += 1;
+
+    alert(`${type} boost purchased!`);
+    updatePlayerStats(); // your existing update function
+  } else {
+    alert("Not enough bank money!");
+  }
+}
+
+function renderBankLedger() {
+  const ledgerHTML = `
+    <p><strong>Balance:</strong> $${(state.bank ?? 0).toLocaleString()}</p>
+    <p><strong>Loans:</strong> $${(state.loans ?? 0).toLocaleString()}</p>
+    <p><strong>Vault Items:</strong> ${state.inventory?.join(", ") || "None"}</p>
+  `;
+  document.getElementById("bankLedgerContent").innerHTML = ledgerHTML;
+}
+
+function renderStockMarket() {
+  document.getElementById("stockMarketContent").innerHTML = `
+    <p>📈 Stocks coming soon...</p>
+    <!-- Add chart, buy/sell buttons here -->
+  `;
+}
+
+function openStatModal(title, content) {
+  document.getElementById("statModalTitle").textContent = title;
+  document.getElementById("statModalContent").innerHTML = `<p>${content}</p>`;
+  new bootstrap.Modal(document.getElementById("statModal")).show();
+}
 
 
 async function create() {
