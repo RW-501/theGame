@@ -3886,25 +3886,19 @@ function renderAllPlayers(scene) {
 
 
     console.log("playerX ", playerX, " playerY ", playerY, " playerData.location ",playerData.location ," X ",pos.x, " Y ",pos.y)
- 
-// Skip rendering if player is on the current tile
-const isOnTile =
-  playerData?.playerX === pos.x && playerData?.playerY === pos.y;
-
-if (isOnTile) {
-  console.log(`🚫 Skipping render for ${playerId} (already on this tile)`);
-  continue;
-}
 
 
 
-    if (!sprite && isOnTile) {
-      sprite = scene.add.container(
-        pos.x * TILE_SIZE + TILE_SIZE / 2,
-        pos.y * TILE_SIZE + TILE_SIZE / 2
-      );
 
-        // Optional: Add a white border using graphics
+
+// Create sprite if it doesn't exist
+if (!sprite) {
+  sprite = scene.add.container(
+    pos.x * TILE_SIZE + TILE_SIZE / 2,
+    pos.y * TILE_SIZE + TILE_SIZE / 2
+  );
+
+          // Optional: Add a white border using graphics
   const border = scene.add.circle(
     pos.x,
     pos.y,
@@ -3913,28 +3907,39 @@ if (isOnTile) {
     0.2
   ).setStrokeStyle(2, 0xffffff).setDepth(0);
 
-      // Avatar Image
-      const avatarKey = playerData?.avatarImage || "avatar1"; // default
-      const avatarImage = scene.add.image(0, -10, avatarKey )
-        .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
-        .setOrigin(0.5);
+  const avatarKey = playerData?.avatarImage || "avatar1"; // default
+  const avatarImage = scene.add.image(0, -10, avatarKey )
+    .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
+    .setOrigin(0.5);
 
-      // Player name below avatar
-      const nameText = scene.add.text(0, TILE_SIZE * 0.4, displayName, {
-        fontSize: '12px',
-        color: '#ffffff',
-        align: 'center',
-        fontStyle: 'bold'
-      }).setOrigin(0.5);
+  const nameText = scene.add.text(0, TILE_SIZE * 0.4, displayName, {
+    fontSize: '12px',
+    color: '#ffffff',
+    align: 'center',
+    fontStyle: 'bold'
+  }).setOrigin(0.5);
 
-      sprite.add([avatarImage, nameText]);
-      otherPlayerSprites.set(playerId, sprite);
-    } else {
-      sprite.setPosition(
-        pos.x * TILE_SIZE + TILE_SIZE / 2,
-        pos.y * TILE_SIZE + TILE_SIZE / 2
-      );
-    }
+  sprite.add([avatarImage, nameText]);
+  otherPlayerSprites.set(playerId, sprite);
+  scene.add.existing(sprite); // important to add to scene
+}
+
+// Then, check if player is already on that tile
+const isOnTile =
+  playerData?.playerX === pos.x && playerData?.playerY === pos.y;
+
+if (isOnTile) {
+  console.log(`🚫 Skipping render for ${playerId} (already on this tile)`);
+  continue;
+}
+
+// Update sprite position
+sprite.setPosition(
+  pos.x * TILE_SIZE + TILE_SIZE / 2,
+  pos.y * TILE_SIZE + TILE_SIZE / 2
+);
+
+
   }
 
 loadTileDataAndRender(scene);
