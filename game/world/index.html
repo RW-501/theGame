@@ -388,17 +388,30 @@
   font-variant-numeric: tabular-nums;
 }
 
+.stats-row strong {
+    margin-bottom: 0;
+    font-weight: bold;
+    color:  #4caf50;
+}
+
 .custom-progress {
   background-color: #e9ecef;
   height: 20px;
   border-radius: 8px;
   overflow: hidden;
+    border: 3px solid #4caf50;
+
 }
 
 .custom-progress-bar {
   height: 100%;
   transition: width 0.5s ease-in-out;
   font-size: 0.8rem;
+
+  .bg-info {
+    --bs-bg-opacity: 1;
+  background-color: #4caf50;
+}
 }
 
 .modal {
