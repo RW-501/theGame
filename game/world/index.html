@@ -3898,7 +3898,7 @@ if (isOnTile) {
 
 
 
-    if (!sprite && alreadyHere) {
+    if (!sprite && isOnTile) {
       sprite = scene.add.container(
         pos.x * TILE_SIZE + TILE_SIZE / 2,
         pos.y * TILE_SIZE + TILE_SIZE / 2
