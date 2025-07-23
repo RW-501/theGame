@@ -1707,14 +1707,25 @@ confirmBtn.dataset.selectedTileY = y;
   });
 }
 
+
 if (
   //info.ownerName &&
   isUnlocked &&
    info.ownerName != playerData.playerName &&
   trueType === "company"
 ) {
-  createWorkForCompanyButton(info, playerData, modalFooter, x, y);
-  bootstrap.Modal.getInstance(modalEl)?.hide();
+        const payPerDay = Math.floor(info.value / 20);
+
+  createButton({
+     text: `Work for company for $${payPerDay} /day`,
+       className: "btn btn-success",
+    onClick: () => {
+ workForCompany(info, playerData, modalFooter, x, y);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+      new bootstrap.Modal(document.getElementById("startCompanyModal")).show();
+    },
+    parent: modalFooter
+  });
 }
 
 
@@ -2143,20 +2154,16 @@ if (tileEl) {
 
 
 
-async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
+async function workForCompany(info, playerData, modalFooter, x, y) {
   const trueType = info.type;
   const jobLimit = 3;
 
-  if (info.ownerName !== playerData.playerName && trueType === "company") {
     const currentJobs = Array.isArray(playerData.jobs) ? playerData.jobs.length : 0;
 
     if (currentJobs < jobLimit) {
       const payPerDay = Math.floor(info.value / 20);
 
-      const workBtn = createButton(
-        `Work for company for $${payPerDay} /day`,
-        "btn btn-success",
-        async () => {
+
           // Prepare job object
           const job = {
             companyName: info.label || "Unknown Company",
@@ -2190,19 +2197,14 @@ async function createWorkForCompanyButton(info, playerData, modalFooter, x, y) {
           }
 
           showMessageModal(`🎉 You’re now working at ${job.companyName}!`, "success");
-         // closeModal();
-        }
-      );
+   
+      
 
-      modalFooter.appendChild(workBtn);
     } else {
-      const msg = createButton(
-        "💼 Job limit reached (3)", 
-        "btn btn-secondary disabled"
-      );
-      modalFooter.appendChild(msg);
+          showMessageModal(`💼 Job limit reached`, "success");
+
     }
-  }
+  
 }
 
 
