@@ -3360,7 +3360,7 @@ async function upgradeTile(tileId) {
 
 async function refreshOwnedTiles() {
   // Pull owned tiles again
-  const snap = await getDocs(query(collection(db, "tiles"), where("ownerId", "==", playerData.playerUid)));
+  const snap = await getDocs(query(collection(db, "tiles"), where("ownerID", "==", playerData.playerUid)));
   ownedTiles = snap.docs.map(doc => ({ ...doc.data(), id: doc.id }));
   renderOwnedList();
 }
@@ -3370,7 +3370,7 @@ async function sellTile(x, y, playerData) {
   const tile = await getTileDataAt(x, y);
   const tileId = tile.tileId;
   const ref = doc(db, "tiles", tileId);
-  const playerRef = doc(db, "players", playerData.userID);
+  const playerRef = doc(db, "players", playerData.playerUid);
 
    // Build update payload (merge style)
     const updatePayload = {
