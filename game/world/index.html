@@ -829,7 +829,7 @@ import {   getFirestore,  query,
   where, limit, addDoc ,
   arrayRemove, increment, serverTimestamp, 
   arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { initLiveNotifications } from 'https://rw-501.github.io/theGame/game/includes/notifications.js'; // Adjust path as needed
+import { initLiveNotifications, sendNotification  } from 'https://rw-501.github.io/theGame/game/includes/notifications.js'; // Adjust path as needed
 import {  } from 'https://rw-501.github.io/theGame/game/includes/chat.js'; // Adjust path as needed
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -844,7 +844,6 @@ notifBtn.addEventListener("click", () => {
 });
 
 document.getElementById("toggleToolsBtn").addEventListener("click", (e) => {
-  e.stopPropagation(); // Prevent body click from firing right away
   const clickedInsideTools = userTool.contains(e.target);
 
   const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
