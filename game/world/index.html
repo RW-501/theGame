@@ -3518,13 +3518,13 @@ document.getElementById("tradeStats").addEventListener("click", () => {
 });
 
 document.getElementById("heathStats").addEventListener("click", () => {
-  openStatModal("Health", `You have ${state.health ?? 100}% health.`);
+  openStatModal("Health", `You have ${playerData.health ?? 100}% health.`);
 });
 document.getElementById("securityStats").addEventListener("click", () => {
-  openStatModal("Security Strength", `Security level: ${state.securityStrength ?? 1}`);
+  openStatModal("Security Strength", `Security level: ${playerData.securityStrength ?? 1}`);
 });
 document.getElementById("techStats").addEventListener("click", () => {
-  openStatModal("Tech Strength", `Tech power: ${state.techStrength ?? 1}`);
+  openStatModal("Tech Strength", `Tech power: ${playerData.techStrength ?? 1}`);
 });
 
 
