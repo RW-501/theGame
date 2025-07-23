@@ -402,12 +402,18 @@
     color:  #4caf50;
 }
 
+ 
+
+ 
+
 .custom-progress {
   background-color: #e9ecef;
   height: 20px;
   border-radius: 8px;
   overflow: hidden;
     border: 3px solid #4caf50;
+    width: 100%;
+    height: 16px;
 
 }
 
@@ -415,6 +421,9 @@
   height: 100%;
   transition: width 0.5s ease-in-out;
   font-size: 0.8rem;
+    color: white;
+    line-height: 16px;
+    text-align: center;
 
   .bg-info {
     --bs-bg-opacity: 1;
@@ -3389,30 +3398,10 @@ function movePlayerSmoothly(scene, x, y) {
 
 
 
-// Add this CSS for clean progress bar styling
-const progressStyles = `
-<style>
-  .custom-progress {
-    background-color: #eee;
-    border-radius: 10px;
-    overflow: hidden;
-    height: 16px;
-    width: 100%;
-  }
-  .custom-progress-bar {
-    height: 100%;
-    line-height: 16px;
-    text-align: center;
-    font-size: 0.75rem;
-    color: white;
-    transition: width 0.5s ease;
-  }
-</style>`;
-document.head.insertAdjacentHTML("beforeend", progressStyles);
 
 
 // Generate a custom progress bar (reusable)
-function createProgressBar(id, value, max, label = "", level = 1, symbol) {
+function createProgressBar(id, value, max, label = "", level = 1, symbol = "") {
   const percent = Math.min(100, (value / max) * 100).toFixed(1);
   return `
     <div class="mb-2">
@@ -3428,11 +3417,7 @@ function createProgressBar(id, value, max, label = "", level = 1, symbol) {
     </div>
   `;
 }
-
-
 let state;
-
-// === Stats UI ===
 
 function updateStatsUI(state) {
   if (!state) {
@@ -3448,41 +3433,40 @@ function updateStatsUI(state) {
   animateStat("bank", state.bank ?? 0, formatCurrency);
   document.getElementById("crypto").textContent = `${state.crypto ?? 5}`;
 
-
   const health = Math.max(0, Math.min(100, state.health ?? 100));
   const healthBar = document.getElementById("healthBar");
-  healthBar.style.width = `${health}%`;
-  healthBar.textContent = `${health}%`;
-  healthBar.classList.toggle("bg-danger", health < 40);
-  healthBar.classList.toggle("bg-warning", health >= 40 && health < 70);
-  healthBar.classList.toggle("bg-success", health >= 70);
+  if (healthBar) {
+    healthBar.style.width = `${health}%`;
+    healthBar.textContent = `${health}%`;
+    healthBar.classList.toggle("bg-danger", health < 40);
+    healthBar.classList.toggle("bg-warning", health >= 40 && health < 70);
+    healthBar.classList.toggle("bg-success", health >= 70);
+  }
 
   document.getElementById("zoneName").innerHTML = `📍 Zone: <span>${mapData[playerY]?.[playerX] || "Unknown"}</span>`;
 
-  // Inject dynamic progress bars
   const xpStats = document.getElementById("xpStats");
   xpStats.innerHTML =
-    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP", state.level, "💰") ;
+    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP", state.level, "💰");
 
-     const securityStats = document.getElementById("securityStats");
+  const securityStats = document.getElementById("securityStats");
   securityStats.innerHTML =
     createProgressBar("securityXPBar", state.securityStrengthXP ?? 0, levelRules.securityStrengthXPToNext, "Security XP", state.securityStrength ?? 1, "🛡️");
-   
-    const techStats = document.getElementById("techStats");
+
+  const techStats = document.getElementById("techStats");
   techStats.innerHTML =
     createProgressBar("techXPBar", state.techStrengthXP ?? 0, levelRules.techStrengthXPToNext, "Tech XP", state.techStrength ?? 1, "🧠");
-   
-    const tradeStats = document.getElementById("tradeStats");
+
+  const tradeStats = document.getElementById("tradeStats");
   tradeStats.innerHTML =
     createProgressBar("tradeBar", state.trades ?? 0, levelRules.tradeLimit, "Trades", state.level ?? 1, "🔁");
 
-     tryLevelUp();
+  tryLevelUp();
 
   scene.load.on("complete", () => {
     loadingText.setText("Loading Complete!");
   });
 }
-
 
 function formatCurrency(amount) {
   return amount.toLocaleString('en-US', {
@@ -3494,7 +3478,8 @@ function formatCurrency(amount) {
 
 function animateStat(id, newValue, formatter = val => val) {
   const el = document.getElementById(id);
-  const current = parseInt(el.dataset.value || el.textContent.replace(/[^\d]/g, ''), 10);
+  if (!el) return;
+  const current = parseInt(el.dataset?.value || el.textContent.replace(/[^\d]/g, ''), 10);
   const target = parseInt(newValue, 10);
   if (current === target) return;
 
@@ -3516,8 +3501,6 @@ function animateStat(id, newValue, formatter = val => val) {
 }
 
 
-
-
 document.getElementById("bank").addEventListener("click", () => {
   renderBankLedger();
   new bootstrap.Modal(document.getElementById("bankModal")).show();
@@ -3531,10 +3514,10 @@ document.getElementById("trades").addEventListener("click", () => {
 document.getElementById("heathStats").addEventListener("click", () => {
   openStatModal("Health", `You have ${state.health ?? 100}% health.`);
 });
-document.getElementById("securityStrength").addEventListener("click", () => {
+document.getElementById("securityStats").addEventListener("click", () => {
   openStatModal("Security Strength", `Security level: ${state.securityStrength ?? 1}`);
 });
-document.getElementById("techStrength").addEventListener("click", () => {
+document.getElementById("techStats").addEventListener("click", () => {
   openStatModal("Tech Strength", `Tech power: ${state.techStrength ?? 1}`);
 });
 
