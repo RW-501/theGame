@@ -401,7 +401,7 @@
 
 <div class="card shadow-sm rounded info-box p-3 mb-3" id="statsBox">
   <div class="d-flex align-items-center mb-3">
-    <img id="playerAvatar" src="" alt="Avatar" class="rounded-circle me-2" width="48" height="48" style="cursor:pointer;" onclick="viewPlayerDetails()">
+    <img id="playerAvatar" src="" alt="Avatar" class="rounded-circle me-2" width="48" height="48" >
     <div>
       <h5 class="mb-0" id="playerName">Player Name</h5>
       <small class="text-muted" id="zoneName">📍 Zone: <span>Wilderness</span></small>
@@ -1028,6 +1028,189 @@ let initialPointer = null;
 const allUsersMap = new Map();
 
 
+
+
+const rules = {
+  levels: {
+    "1": {
+      title: "Intern",
+      xpToNext: 1000,
+      securityStrengthXPToNext: 1000,
+      techStrengthXPToNext: 1000,
+      startingMoney: 1500,
+      maxJobs: 2,
+      payPercent: 0.01,
+      internetUpdateInterval: 20,
+          tradeLimit: 5,
+    tradeCooldownMins: 20,
+      canAttack: false,
+      healthAboveToAttack: 0.3,
+      canBeAttacked: true,
+      educationRequiredForTierUpgrade: true,
+      requires: {
+        healthcare: true,
+        transportation: true,
+        crypto: false
+      }
+    },
+    "2": {
+      title: "Junior Analyst",
+      xpToNext: 3000,
+      securityStrengthXPToNext: 1000,
+      techStrengthXPToNext: 1000,
+      maxJobs: 3,
+      payPercent: 0.03,
+      internetUpdateInterval: 15,
+      canAttack: true,
+      healthAboveToAttack: 0.3,
+          tradeLimit: 7,
+    tradeCooldownMins: 20,
+      canBeAttacked: true,
+      requires: {
+        healthcare: true,
+        transportation: true,
+        crypto: false
+      }
+    },
+    "3": {
+      title: "Senior Engineer",
+      xpToNext: 6000,
+      securityStrengthXPToNext: 1000,
+      techStrengthXPToNext: 1000,
+      maxJobs: 4,
+      payPercent: 0.05,
+      internetUpdateInterval: 10,
+          tradeLimit: 9,
+    tradeCooldownMins: 20,
+      canAttack: true,
+      healthAboveToAttack: 0.35,
+      canBeAttacked: true,
+      requires: {
+        healthcare: true,
+        transportation: true,
+        crypto: false
+      }
+    },
+    "4": {
+      title: "Tech Lead",
+      xpToNext: 12000,
+      securityStrengthXPToNext: 1000,
+      techStrengthXPToNext: 1000,
+      maxJobs: 5,
+      payPercent: 0.07,
+      internetUpdateInterval: 5,
+      canAttack: true,
+      healthAboveToAttack: 0.4,
+          tradeLimit: 12,
+    tradeCooldownMins: 20,
+      canBeAttacked: true,
+      requires: {
+        healthcare: true,
+        transportation: true,
+        crypto: true
+      }
+    }
+  }
+};
+
+function checkRuleLimit(player, actionType, value) {
+  const level = player.level?.toString() || "1";
+  const levelRules = rules.levels[level];
+
+  switch (actionType) {
+    case "xpToLevelUp":
+      return player.xp >= levelRules.xpToNext &&
+             player.securityStrengthXP >= levelRules.securityStrengthXPToNext &&
+             player.techStrengthXP >= levelRules.techStrengthXPToNext;
+
+    case "jobCount":
+      return value <= levelRules.maxJobs;
+
+    case "payPercent":
+      return value <= levelRules.payPercent;
+
+    case "internetSpeed":
+      return value >= levelRules.internetUpdateInterval;
+
+    case "requiresHealthcare":
+      return !levelRules.requires.healthcare || player.hasHealthcare;
+
+    case "requiresTransportation":
+      return !levelRules.requires.transportation || player.hasTransportation;
+
+    case "requiresCrypto":
+      return !levelRules.requires.crypto || player.hasCrypto;
+
+    case "canUpgradeTier":
+      return !levelRules.educationRequiredForTierUpgrade || player.educationLevel >= "mid";
+
+    case "canAttack":
+      return levelRules.canAttack && player.health >= levelRules.healthAboveToAttack;
+
+    case "canBeAttacked":
+      return levelRules.canBeAttacked && player.health >= levelRules.healthAboveToAttack;
+
+    default:
+      console.warn("Unknown rule:", actionType);
+      return false;
+  }
+}
+
+
+function refillTradesIfNeeded(player) {
+  const levelRules = rules.levels[player.level.toString()];
+  const maxTrades = levelRules.tradeLimit;
+  const cooldown = levelRules.tradeCooldownMins * 60 * 1000;
+
+  const now = Date.now();
+  const elapsed = now - (player.lastTradeRefill || 0);
+
+  const tradesToAdd = Math.floor(elapsed / cooldown);
+  if (tradesToAdd > 0) {
+    player.tradesAvailable = Math.min(maxTrades, player.tradesAvailable + tradesToAdd);
+    player.lastTradeRefill = now;
+    savePlayerData();
+  }
+}
+
+function tryTrade(player) {
+  refillTradesIfNeeded(player);
+
+  if (player.tradesAvailable <= 0) {
+    showMessageModal("Alert","Trade limit reached. Wait for cooldown.");
+    return;
+  }
+
+  player.tradesAvailable--;
+  savePlayerData();
+  executeTrade(); // your custom trade logic
+}
+
+function getPlayerTitle(level) {
+  return rules.levels[level?.toString()]?.title || "Unknown";
+}
+
+
+function updatePlayerName(newName) {
+  if (newName.length > 20) {
+    showMessageModal("Alert","Name too long! Max 20 characters.");
+    return;
+  }
+  player.name = newName;
+  savePlayerData();
+}
+
+
+
+
+
+
+
+
+
+
+
+
 function getRandomEmptyTile(mapData) {
   const emptyTiles = [];
 
@@ -1170,12 +1353,20 @@ cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZ
       techStrength: 1,
       securityStrength: 1,
 
+      securityStrengthXP: 0,
+      techStrengthXP: 0,
+
+      trades: 0,
+      tradesTotal: 0,
+
+      tradesAvailable: 5,
+      lastTradeRefill: Date.now(), // timestamp in ms
+
       landOwned: [],
       jobs: [],
       companiesOwned: [],
       stocks: [],
-      trades: 0,
-      tradesTotal: 0,
+
       portfolio: [],
       inCombat: false,
       attacks: 0,
@@ -1212,6 +1403,7 @@ if (!tileSnap.exists()) {
     label: "Home Base",
     type: "home",
     level: 1,
+    tileLevelXP,
     icon: "🏠",
     tileImage: "https://rw-501.github.io/theGame/game/images/tile_images/suburban/building-type-0.png",
     price: 0,
@@ -3314,10 +3506,10 @@ function buyBoost(type, price) {
     if (type === 'security') state.securityStrength += 1;
     if (type === 'tech') state.techStrength += 1;
 
-    alert(`${type} boost purchased!`);
+    showMessageModal("Success",`${type} boost purchased!`);
     updatePlayerStats(); // your existing update function
   } else {
-    alert("Not enough bank money!");
+    showMessageModal("alert","Not enough bank money!");
   }
 }
 
