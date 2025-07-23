@@ -849,7 +849,6 @@ document.getElementById("toggleToolsBtn").addEventListener("click", (e) => {
   const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
   const isHidden = toolButtons[0]?.style.display === "none";
 
-  if (!clickedInsideTools) {
 toolButtons.forEach(btn => {
   if (isHidden) {
     btn.classList.remove("hide");
@@ -860,7 +859,7 @@ toolButtons.forEach(btn => {
       btn.style.display = "none";
     }, 300); // match transition time
   }
-});  }
+});  
 
 });
 document.body.addEventListener("click", (e) => {
