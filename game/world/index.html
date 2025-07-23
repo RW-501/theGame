@@ -3824,15 +3824,7 @@ async function loadTileData() {
 }
 
 
-
 function renderAllOwnedTiles(scene) {
-  /*
-  console.log("🎨 Rendering All Owned Tiles...");
-  console.log("📦 Tile Map Size:", tileDataMap?.size || 0); // Ensure tileDataMap exists
-*/
-
-  
-  // Remove tiles that no longer exist in the DB
   for (const [tileId, sprite] of tileSpriteMap.entries()) {
     if (!tileDataMap.has(tileId)) {
       console.log(`❌ Removing old tile sprite: ${tileId}`);
@@ -3844,48 +3836,52 @@ function renderAllOwnedTiles(scene) {
   for (const [tileId, tile] of tileDataMap.entries()) {
     const { x, y, icon, level, ownerName, color, label, ownerID, forSale } = tile;
 
-    if (x == null || y == null || !ownerID) continue; // Skip tiles without owner
+    if (x == null || y == null || !ownerID) continue;
 
     const spriteKey = `${x}_${y}`;
 
-    // Skip if already rendered
     if (tileSpriteMap.has(spriteKey)) {
       const existing = tileSpriteMap.get(spriteKey);
       existing.setPosition(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
       continue;
     }
 
-    // console.log(`🧱 Drawing tile ${label} at (${x}, ${y})`);
-
     const container = scene.add.container(
       x * TILE_SIZE + TILE_SIZE / 2,
       y * TILE_SIZE + TILE_SIZE / 2
     );
 
-    // Background / border circle
     const border = scene.add.circle(0, 0, TILE_SIZE * 0.4, color || 0x00ff00, 0.2)
       .setStrokeStyle(2, color || 0x00ff00)
       .setDepth(0);
 
-    // Icon (text emoji)
     const iconText = scene.add.text(0, -5, icon || "🏠", {
       fontSize: '16px',
       fontStyle: 'bold',
       color: '#ffffff'
     }).setOrigin(0.5);
 
-    // Label or owner name
     const nameText = scene.add.text(0, TILE_SIZE * 0.25, ownerName || "Owner", {
       fontSize: '10px',
       color: '#cccccc'
     }).setOrigin(0.5);
 
     container.add([border, iconText, nameText]);
+
+    // 🟨 For Sale sign
+    if (forSale === true) {
+      const forSaleText = scene.add.text(TILE_SIZE * 0.25, -TILE_SIZE * 0.25, "💲", {
+        fontSize: '12px',
+        fontStyle: 'bold',
+        color: '#ffcc00'
+      }).setOrigin(0.5);
+      container.add(forSaleText);
+    }
+
     tileSpriteMap.set(spriteKey, container);
   }
 
   console.log("✅ Tile Render Complete. Tiles drawn:", tileSpriteMap.size);
-  // updateStatsUI();
 }
 
 function showMessageModal(title, message) {
