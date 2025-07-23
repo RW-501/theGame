@@ -1771,13 +1771,13 @@ if (info.x === "home" ) continue;
       scene.add.image(
         x * TILE_SIZE + TILE_SIZE / 2,
           y * TILE_SIZE + TILE_SIZE / 2,
-           "company_company").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
+           "commercial").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
     }
                 if (zoneType == "zone3" || zoneType == "zone5") {
       scene.add.image(
         x * TILE_SIZE + TILE_SIZE / 2,
           y * TILE_SIZE + TILE_SIZE / 2,
-           "zone1_company").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
+           "industrial").setDisplaySize(TILE_SIZE, TILE_SIZE).setOrigin(0.5);
     }
 
       // Draw image if available
@@ -1837,6 +1837,10 @@ function preload() {
 
 this.load.image("concrete", "https://rw-501.github.io/theGame/game/images/tile_images/sk.png"); // or wherever the file is
 this.load.image("dirt", "https://rw-501.github.io/theGame/game/images/tile_images/dk.png"); // or wherever the file is
+
+
+this.load.image("commercial", "https://rw-501.github.io/theGame/game/images/tile_images/commercial/building-3.png"); // or wherever the file is
+this.load.image("industrial", "https://rw-501.github.io/theGame/game/images/tile_images/industrial/building-5.png"); // or wherever the file is
 
 
   for (const zoneKey in zoneInfo) {
