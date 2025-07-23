@@ -386,7 +386,7 @@
   </div>
   <div class="stats-row">
     ❤️ Health: <span id="health">100%</span> |
-    🛡️ Security: <span id="security">0</span> |
+    🛡️ Security Strength: <span id="securityStrength">0</span> |
     🧠 Tech Strength: <span id="techStrength">0</span>
   </div>
   <div class="stats-row" id="zoneName">
@@ -1025,7 +1025,7 @@ cam.centerOn(playerX * TILE_SIZE + TILE_SIZE / 2, playerY * TILE_SIZE + TILE_SIZ
       loans: [],
       health: 100,
       techStrength: 1,
-      security: 1,
+      securityStrength: 1,
 
       landOwned: [],
       jobs: [],
@@ -1558,7 +1558,7 @@ const info = {
   health: data.health ?? "??",
   level: data.level ?? "?",
   techStrength: data.techStrength ?? "?",
-  security: data.security ?? "?",
+  securityStrength: data.securityStrength ?? "?",
   bank: data.bank ?? "?",
 };
 
@@ -1570,7 +1570,7 @@ const info = {
 
       <p>Health: ${info.health}</p>
       <p>Tech Strength: ${info.techStrength}</p>
-      <p>Security: ${info.security}</p>
+      <p>Security Strength: ${info.securityStrength}</p>
     `;
 
  const hackBtn = createButton({
@@ -1783,14 +1783,14 @@ async function upgradeHomeStat(x, y, stat) {
   const tileData = tileSnap.data();
   const player = playerSnap.data();
 
-  const currentLevel = tileData[`${stat}Level`] || 0;
+  const currentLevel = tileData[`${stat}`] || 0;
 
   // 🧮 Use the new logic
   const { cost, xpGain } = calculateUpgradeStats(currentLevel, stat);
 
 const statLabels = {
   tech: "Tech Strength",
-  security: "Security",
+  security: "Security Strength",
   health: "Health"
 };
 
@@ -1802,7 +1802,7 @@ const statLabels = {
   }
 
   const updates = {};
-  updates[`${stat}Level`] = currentLevel + 1;
+  updates[`${stat}`] = currentLevel + 1;
 
   await Promise.all([
     updateDoc(tileRef, updates),
@@ -1872,7 +1872,7 @@ function showManageHomeModal(x, y) {
     <p>Upgrade different aspects of your home tile.</p>
     <ul>
       <li><strong>Tech Strength</strong>: Improves hacking defense.</li>
-      <li><strong>Security</strong>: Adds guard presence & alert systems.</li>
+      <li><strong>Security Strength</strong>: Adds guard presence & alert systems.</li>
       <li><strong>Health Repair</strong>: Restores structural integrity.</li>
     </ul>
   `;
@@ -1883,14 +1883,14 @@ const options = [
   {
     text: "Upgrade Tech Strength",
     onClick: async () => {
-      await upgradeHomeStat(x, y, "tech");
+      await upgradeHomeStat(x, y, "techStrength");
       bootstrap.Modal.getInstance(modalEl)?.hide();
     },
   },
   {
     text: "Upgrade Security",
     onClick: async () => {
-      await upgradeHomeStat(x, y, "security");
+      await upgradeHomeStat(x, y, "securityStrength");
       bootstrap.Modal.getInstance(modalEl)?.hide();
     },
   },
@@ -2098,7 +2098,7 @@ async function handleHackPlayer(attacker, defender) {
     setTimeout(() => overlay.remove(), 700);
   }
   const attackerStrength = attacker.techStrength || 1;
-  const defenderSecurity = defender.security || 1;
+  const defenderSecurity = defender.securityStrength || 1;
 
   const attackerLevel = attacker.level || 1;
   const defenderLevel = defender.level || 1;
@@ -2818,7 +2818,7 @@ playerState.set(id, {
   xp: data.xp ?? 0,
   health: data.health ?? 100,
   techStrength: data.techStrength ?? 0,
-  security: data.security ?? 0,
+  securityStrength: data.securityStrength ?? 0,
   ...data // optionally spread everything else
 });
 if (playerData.playerUid == data.playerUid) {
@@ -2887,7 +2887,7 @@ function updateStatsUI(state) {
   document.getElementById("crypto").textContent = `${state.crypto ?? 5}`;
 
   document.getElementById("health").textContent = `${state.health ?? 100}%`;
-  document.getElementById("security").textContent = `${state.security ?? 1}`;
+  document.getElementById("securityStrength").textContent = `${state.securityStrength ?? 1}`;
   document.getElementById("techStrength").textContent = `${state.techStrength ?? 1}`;
 
 
@@ -2962,7 +2962,7 @@ function renderAllPlayers(scene) {
     const displayName = playerData?.playerName || "Player";
     const online = playerData?.online || true;
 
-    const security = playerData?.security || 1;
+    const securityStrength = playerData?.securityStrength || 1;
     const techStrength = playerData?.techStrength || 1;
     const health = playerData?.health || 100;
     const inCombat = playerData?.inCombat || false;
