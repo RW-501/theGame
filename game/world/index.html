@@ -3274,7 +3274,7 @@ function renderOwnedList() {
     const li = document.createElement("li");
     li.innerHTML = `
 <div class="d-flex align-items-center mb-3">
-    <img id="propertyAvatar" src="${tileImage}" alt="propertyAvatar" class="rounded-circle me-2" width="48" height="48">
+    <img id="propertyAvatar" src="${tile.tileImage}" alt="propertyAvatar" class="rounded-circle me-2" width="48" height="48">
     <div>
       <strong>${tile.label}</strong> (${tile.x}, ${tile.y})<br>
       💰 Value: $${tile.value} | 📊 Tax: ${tile.taxRate}% | 🔓 ${tile.unlocked ? "Unlocked" : "Locked"}
@@ -3363,7 +3363,7 @@ function openTileDetails(x, y) {
 async function upgradeTile(tileId) {
   // Firebase logic to apply upgrades
   const ref = doc(db, "tiles", tileId);
-  await updateDoc(ref, { level: increment(1),  });
+  await updateDoc(ref, { tileLevelXP: increment(100),  });
 }
 
 async function refreshOwnedTiles() {
