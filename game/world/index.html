@@ -1308,6 +1308,10 @@ async function updateAndPersist(updates = {}) {
   updateStatsUI();
 }
 
+
+
+
+
 // Example usage for leveling up:
 async function tryLevelUp() {
   if (checkRuleLimit(playerData, "xpToLevelUp")) {
@@ -1598,7 +1602,11 @@ await updateDoc(playerRef, {
   // Store in playerState map
   playerState.set(uid, playerData);
 
- 
+// On login or dashboard load
+await processHourlyIncomeAndTax(playerData);
+
+// OR run every X minutes in your app loop
+setInterval(() => processHourlyIncomeAndTax(playerData), 15 * 60 * 1000); // every 15 min
 
   console.log("✅ Player loaded:", playerData);
   updateStatsUI(playerData);
@@ -1610,6 +1618,60 @@ await updateDoc(playerRef, {
   }
 
 });
+
+
+export async function processHourlyIncomeAndTax(playerData) {
+  if (!playerData?.playerUid) return;
+
+  const now = Date.now();
+  const lastPayout = playerData.lastPayoutTimestamp || 0;
+
+  const oneHour = 60 * 60 * 1000;
+  if (now - lastPayout < oneHour) {
+    console.log("Not enough time passed. Skipping income/tax update.");
+    return;
+  }
+
+  const q = query(collection(db, "tiles"), where("owner", "==", playerData.playerUid));
+  const tilesSnap = await getDocs(q);
+
+  let totalIncome = 0;
+  let totalTax = 0;
+
+  tilesSnap.forEach(docSnap => {
+    const tile = docSnap.data();
+    totalIncome += tile.income || 0;
+    totalTax += tile.taxRate || 0;
+  });
+
+  const netChange = totalIncome - totalTax;
+  const newBank = (playerData.bank || 0) + netChange;
+
+  // Update player
+  const playerRef = doc(db, "players", playerData.playerUid);
+  await updateDoc(playerRef, {
+    bank: newBank,
+    lastPayoutTimestamp: now
+  });
+
+  // Notification
+  const message = `
+💰 Hourly Payout Summary:
++ Income: $${totalIncome.toLocaleString()}
+- Taxes: $${totalTax.toLocaleString()}
+= Net: $${netChange.toLocaleString()}
+`;
+
+  await sendNotification({
+    toUid: playerData.playerUid,
+    message,
+    type: "earnings",
+    fromDisplayName: "System",
+    fromuserAvatar: "https://rw-501.github.io/theGame/game/images/adminAvatar.png"
+  });
+
+  console.log("✅ Income and tax processed for", playerData.displayName || playerData.playerUid);
+}
 
 
 
