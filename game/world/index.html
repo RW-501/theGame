@@ -1675,7 +1675,26 @@ if (!otherPlayerId && isUnlocked && trueType === "company") {
   });
 }
 
-if (trueType === "company") {
+const currentJobs = Array.isArray(playerData.jobs) ? playerData.jobs.length : 0;
+
+  const alreadyWorkingHere = Array.isArray(playerData.jobs)
+    ? playerData.jobs.some(job => job.companyCoords[0] === x && job.companyCoords[1] === y)
+    : false;
+
+
+if (trueType === "company" ) {
+  createButton({
+    text: "View Company Details",
+    className: "btn btn-primary",
+    onClick: async () => {
+      await viewCompanyDetailsModal(`${x}, ${y}`);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    },
+    parent: modalFooter
+  });
+}
+
+if (trueType === "company" && !alreadyWorkingHere ) {
   createButton({
     text: "View Employees",
     className: "btn btn-primary",
@@ -1711,7 +1730,7 @@ if (
   //info.ownerName &&
   isUnlocked &&
    info.ownerName != playerData.playerName &&
-  trueType === "company"
+  trueType === "company"  && !alreadyWorkingHere
 ) {
         const payPerDay = Math.floor(info.value / 20);
 
@@ -1734,6 +1753,54 @@ if (
 }
 
 
+async function viewCompanyDetailsModal(x, y) {
+  const tileId = `${x}_${y}`;
+  const tileRef = doc(db, "tiles", tileId);
+  const tileSnap = await getDoc(tileRef);
+
+  if (!tileSnap.exists()) {
+    showMessageModal("❌ Company not found at this location.", "danger");
+    return;
+  }
+
+  const company = tileSnap.data();
+
+  // Optional: fallback if some properties are missing
+  const companyName = company.name || "Unknown Company";
+  const sector = company.sector || "Unknown Sector";
+  const ownerID = company.ownerID || "N/A";
+  const employees = Array.isArray(company.employsIDs) ? company.employsIDs.length : 0;
+  const price = company.price || company.value || 0;
+  const stockPrice = company.stockPrice || 0;
+  const startedAt = company.companyStartedAt
+    ? new Date(company.companyStartedAt).toLocaleString()
+    : "N/A";
+
+  // Create modal content
+  const modalBody = `
+    <h5>${companyName}</h5>
+    <p><strong>Sector:</strong> ${sector}</p>
+    <p><strong>Owner:</strong> ${ownerID}</p>
+    <p><strong>Location:</strong> (${x}, ${y})</p>
+    <p><strong>Company Value:</strong> $${price.toLocaleString()}</p>
+    <p><strong>Stock Price:</strong> $${stockPrice.toFixed(2)}</p>
+    <p><strong>Employees:</strong> ${employees}</p>
+    <p><strong>Founded:</strong> ${startedAt}</p>
+  `;
+
+  // Show it in your existing modal system
+  showCustomModal({
+    title: "📊 Company Details",
+    body: modalBody,
+    footerButtons: [
+      {
+        text: "Close",
+        className: "btn btn-secondary",
+        onClick: closeModal,
+      },
+    ],
+  });
+}
 
 
 
@@ -1920,6 +1987,7 @@ const options = [
 async function showEmployeesModal(tileId) {
   const modalEl = document.getElementById("employeesModal");
   const modalBody = modalEl.querySelector(".modal-body");
+  const modalFooter = modalEl.querySelector(".modal-footer");
   modalBody.innerHTML = "Loading...";
 
   // Always try to show the modal
@@ -1969,6 +2037,10 @@ async function showEmployeesModal(tileId) {
 
     html += `</ul>`;
     modalBody.innerHTML = html;
+const viewBtn = createButton("📄 View Company Details", "btn btn-info", () => {
+  viewCompanyDetailsModal(x, y);
+});
+modalFooter.appendChild(viewBtn);
 
   } catch (error) {
     modalBody.innerHTML = "An error occurred loading employees.";
