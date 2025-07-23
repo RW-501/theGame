@@ -3594,6 +3594,7 @@ document.getElementById("playerAvatar").addEventListener("click", () => {
 
 
 function showPlayerInfo() {
+  state = playerData;
   const content = `
     <p><strong>Name:</strong> ${state.playerName}</p>
     <p><strong>XP:</strong> ${state.xp}</p>
