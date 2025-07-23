@@ -18,10 +18,7 @@
       overflow: hidden;
     }
 
-    .animated-number {
-  transition: all 0.3s ease;
-  font-variant-numeric: tabular-nums;
-}
+
 
 #game-container {
   position: relative;
@@ -386,6 +383,23 @@
   background-color: #4caf50;
 }
 
+    .animated-number {
+  transition: all 0.3s ease;
+  font-variant-numeric: tabular-nums;
+}
+
+.custom-progress {
+  background-color: #e9ecef;
+  height: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.custom-progress-bar {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+  font-size: 0.8rem;
+}
 
 .modal {
   z-index: 10000;
@@ -410,21 +424,31 @@
 
   <div class="stats-row mb-2">
     🎖️ <strong>Level:</strong> <span id="level">1</span> |
+
+    <div id="xpStats">
     💰 <strong>XP:</strong> <span id="xp" class="animated-number">12675</span> |
+</div>
+
     🏦 <strong>Bank:</strong> <span id="bank" class="animated-number">$74,340</span> |
     🪙 <strong>Crypto:</strong> <span id="crypto">5</span> |
     🔁 <strong>Trades Left:</strong> <span id="trades">0</span>
-  </div>
 
   <div class="stats-row">
-    <div id="heathStats"></div>
+    <div id="heathStats">
     ❤️ <strong>Health:</strong>
     <div class="progress w-25 d-inline-block align-middle" style="height: 18px; vertical-align: middle;">
       <div id="healthBar" class="progress-bar bg-danger" role="progressbar" style="width: 100%;" aria-valuemin="0" aria-valuemax="100">100%</div>
     </div>
-    </div> |
+</div>
+
+    <div id="securityStats">
     🛡️ <strong>Security:</strong> <span id="securityStrength">1</span> |
+</div>
+
+        <div id="techStats">
     🧠 <strong>Tech:</strong> <span id="techStrength">1</span>
+</div>
+
   </div>
 </div>
 
@@ -3415,12 +3439,20 @@ function updateStatsUI(state) {
   document.getElementById("zoneName").innerHTML = `📍 Zone: <span>${mapData[playerY]?.[playerX] || "Unknown"}</span>`;
 
   // Inject dynamic progress bars
-  // Inject dynamic progress bars
-  const dynamicStats = document.getElementById("heathStats");
-  dynamicStats.innerHTML =
-    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP", state.level) +
-    createProgressBar("securityXPBar", state.securityStrengthXP ?? 0, levelRules.securityStrengthXPToNext, "Security XP", state.securityStrength ?? 1) +
-    createProgressBar("techXPBar", state.techStrengthXP ?? 0, levelRules.techStrengthXPToNext, "Tech XP", state.techStrength ?? 1) +
+  const xpStats = document.getElementById("xpStats");
+  xpStats.innerHTML =
+    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP", state.level) ;
+
+     const securityStats = document.getElementById("securityStats");
+  securityStats.innerHTML =
+    createProgressBar("securityXPBar", state.securityStrengthXP ?? 0, levelRules.securityStrengthXPToNext, "Security XP", state.securityStrength ?? 1);
+   
+    const techStats = document.getElementById("techStats");
+  techStats.innerHTML =
+    createProgressBar("techXPBar", state.techStrengthXP ?? 0, levelRules.techStrengthXPToNext, "Tech XP", state.techStrength ?? 1);
+   
+    const tradeStats = document.getElementById("tradeStats");
+  tradeStats.innerHTML =
     createProgressBar("tradeBar", state.trades ?? 0, levelRules.tradeLimit, "Trades", state.level ?? 1);
 
   scene.load.on("complete", () => {
