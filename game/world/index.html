@@ -3510,8 +3510,8 @@ function loadAvatars() {
 }
 
 function selectAvatar(url, image, wrapperEl) {
-  state.avatarUrl = url;
-  state.avatarImage = image;
+  avatarUrl = url;
+  avatarImage = image;
   document.getElementById("playerAvatar").src = url;
 
   // Remove highlight from all
