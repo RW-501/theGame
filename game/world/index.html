@@ -3406,11 +3406,13 @@ function movePlayerSmoothly(scene, x, y) {
 // Generate a custom progress bar (reusable)
 function createProgressBar(id, value, max, label = "", level = 1, symbol = "") {
   const percent = Math.min(100, (value / max) * 100).toFixed(1);
+    animateStat(label+'xp', value);
+
   return `
     <div class="mb-2">
       <div class="d-flex justify-content-between mb-1">
         <small><strong>${symbol} ${label} Lv. ${level}</strong></small>
-        <small>${value} / ${max}</small>
+        <small id='${label}xp'>${value} / ${max}</small>
       </div>
       <div class="custom-progress" >
         <div class="custom-progress-bar bg-info text-white" style="width: ${percent}%;">
