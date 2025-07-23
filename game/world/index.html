@@ -3885,6 +3885,7 @@ function renderAllPlayers(scene) {
     const trainingMode = playerData?.trainingMode || true;
 
 
+    console.log("playerX ", playerX, " playerY ", playerY, " playerData.location ",playerData.location ," X ",pos.x, " Y ",pos.y)
  
 // Skip rendering if player is on the current tile
 const isOnTile = Array.isArray(playerData.location)
