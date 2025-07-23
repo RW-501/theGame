@@ -3273,9 +3273,15 @@ function renderOwnedList() {
   sorted.forEach(tile => {
     const li = document.createElement("li");
     li.innerHTML = `
-      <strong>${tile.name}</strong> (${tile.x}, ${tile.y})<br>
+<div class="d-flex align-items-center mb-3">
+    <img id="propertyAvatar" src="${tileImage}" alt="propertyAvatar" class="rounded-circle me-2" width="48" height="48">
+    <div>
+      <strong>${tile.label}</strong> (${tile.x}, ${tile.y})<br>
       💰 Value: $${tile.value} | 📊 Tax: ${tile.taxRate}% | 🔓 ${tile.unlocked ? "Unlocked" : "Locked"}
       <br>
+      </div>
+      </div>
+
       <button class="view-btn" data-x="${tile.x}" data-y="${tile.y}">View</button>
       <button class="sell-btn" data-id="${tile.id}">Sell</button>
       <button class="upgrade-btn" data-id="${tile.id}">Upgrade</button>
@@ -3288,6 +3294,8 @@ function renderOwnedList() {
           <li><strong>For Sale:</strong> ${tile.forSale ? "Yes" : "No"}</li>
           <li><strong>Income:</strong> $${tile.income || 0}</li>
           <li><strong>Level:</strong> ${tile.level || 1}</li>
+          <li><strong>Note:</strong> ${tile.note || ''}</li>
+
           <li><strong>History:</strong>
             <ul>
               ${(tile.tileHistory || []).map(h => `<li>${h}</li>`).join("") || "<li>No history</li>"}
