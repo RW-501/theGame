@@ -2672,7 +2672,8 @@ if (tileEl) {
       inCombat: true,
       xp: increment(xpGain),
       bank: increment(attackerWins ? stealAmount : -stealAmount / 2),
-      attacks: increment(1)
+      attacks: increment(1),
+      techStrengthXP: increment(attackerWins / 2)
     }),
     updateDoc(defenderRef, {
       inCombat: true,
