@@ -3365,19 +3365,23 @@ document.head.insertAdjacentHTML("beforeend", progressStyles);
 
 
 // Generate a custom progress bar (reusable)
-function createProgressBar(id, value, max, label = "") {
+function createProgressBar(id, value, max, label = "", level = 1) {
   const percent = Math.min(100, (value / max) * 100).toFixed(1);
   return `
-    <div class="mb-1">
-      <small>${label}</small>
-      <div class="custom-progress">
-        <div class="custom-progress-bar bg-info" style="width: ${percent}%">
+    <div class="mb-2">
+      <div class="d-flex justify-content-between mb-1">
+        <small><strong>${label} Lv. ${level}</strong></small>
+        <small>${value} / ${max}</small>
+      </div>
+      <div class="custom-progress" style="height: 20px; border-radius: 8px; overflow: hidden; background-color: #e9ecef;">
+        <div class="custom-progress-bar bg-info text-white d-flex align-items-center ps-2" style="width: ${percent}%;">
           ${percent}%
         </div>
       </div>
     </div>
   `;
 }
+
 
 let state;
 
@@ -3411,12 +3415,13 @@ function updateStatsUI(state) {
   document.getElementById("zoneName").innerHTML = `📍 Zone: <span>${mapData[playerY]?.[playerX] || "Unknown"}</span>`;
 
   // Inject dynamic progress bars
+  // Inject dynamic progress bars
   const dynamicStats = document.getElementById("heathStats");
   dynamicStats.innerHTML =
-    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP") +
-    createProgressBar("securityXPBar", state.securityStrengthXP ?? 0, levelRules.securityStrengthXPToNext, "Security XP") +
-    createProgressBar("techXPBar", state.techStrengthXP ?? 0, levelRules.techStrengthXPToNext, "Tech XP") +
-    createProgressBar("tradeBar", state.trades ?? 0, levelRules.tradeLimit, "Trades");
+    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP", state.level) +
+    createProgressBar("securityXPBar", state.securityStrengthXP ?? 0, levelRules.securityStrengthXPToNext, "Security XP", state.securityStrength ?? 1) +
+    createProgressBar("techXPBar", state.techStrengthXP ?? 0, levelRules.techStrengthXPToNext, "Tech XP", state.techStrength ?? 1) +
+    createProgressBar("tradeBar", state.trades ?? 0, levelRules.tradeLimit, "Trades", state.level ?? 1);
 
   scene.load.on("complete", () => {
     loadingText.setText("Loading Complete!");
