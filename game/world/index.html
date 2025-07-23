@@ -2776,11 +2776,12 @@ async function handleHackPlayer(attacker, defender) {
   ]);
 
 const title = attackerWins ? "💥 Success!" : "❌ Hack failed!";
-const body = attackerWins
+const message = attackerWins
   ? `You hacked ${defender.playerName} and stole $${stealAmount}.`
   : `${defender.playerName} defended successfully.`;
 
-showMessageModal({ title, body });
+showMessageModal(title, message);
+
 
 }
 
