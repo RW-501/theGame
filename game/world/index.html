@@ -3412,8 +3412,8 @@ function createProgressBar(id, value, max, label = "", level = 1, symbol = "") {
         <small><strong>${symbol} ${label} Lv. ${level}</strong></small>
         <small>${value} / ${max}</small>
       </div>
-      <div class="custom-progress" style="height: 20px; border-radius: 8px; overflow: hidden; background-color: #e9ecef;">
-        <div class="custom-progress-bar bg-info text-white d-flex align-items-center ps-2" style="width: ${percent}%;">
+      <div class="custom-progress" >
+        <div class="custom-progress-bar bg-info text-white" style="width: ${percent}%;">
           ${percent}%
         </div>
       </div>
