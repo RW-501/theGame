@@ -3439,9 +3439,7 @@ function updateStatsUI(state) {
   animateStat("xp", state.xp ?? 0);
   animateStat("bank", state.bank ?? 0, formatCurrency);
   document.getElementById("crypto").textContent = `${state.crypto ?? 5}`;
-  document.getElementById("trades").textContent = `${state.trades ?? 0}`;
-  document.getElementById("securityStrength").textContent = `${state.securityStrength ?? 1}`;
-  document.getElementById("techStrength").textContent = `${state.techStrength ?? 1}`;
+
 
   const health = Math.max(0, Math.min(100, state.health ?? 100));
   const healthBar = document.getElementById("healthBar");
