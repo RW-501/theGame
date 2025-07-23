@@ -3898,6 +3898,15 @@ if (!sprite) {
     pos.y * TILE_SIZE + TILE_SIZE / 2
   );
 
+  // Then, check if player is already on that tile
+const isOnTile =
+  playerData?.playerX === pos.x && playerData?.playerY === pos.y;
+
+if (isOnTile) {
+  console.log(`🚫 Skipping render for ${playerId} (already on this tile)`);
+  continue;
+}
+
           // Optional: Add a white border using graphics
   const border = scene.add.circle(
     pos.x,
@@ -3924,14 +3933,6 @@ if (!sprite) {
   scene.add.existing(sprite); // important to add to scene
 }
 
-// Then, check if player is already on that tile
-const isOnTile =
-  playerData?.playerX === pos.x && playerData?.playerY === pos.y;
-
-if (isOnTile) {
-  console.log(`🚫 Skipping render for ${playerId} (already on this tile)`);
-  continue;
-}
 
 // Update sprite position
 sprite.setPosition(
