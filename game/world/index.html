@@ -3882,9 +3882,12 @@ function renderAllPlayers(scene) {
 
 
  
+const alreadyHere = Array.isArray(playerData.location)
+  ? playerData.location.some(([lx, ly]) => lx === x && ly === y)
+  : false;
 
 
-    if (!sprite) {
+    if (!sprite && alreadyHere) {
       sprite = scene.add.container(
         pos.x * TILE_SIZE + TILE_SIZE / 2,
         pos.y * TILE_SIZE + TILE_SIZE / 2
