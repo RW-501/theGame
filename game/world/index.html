@@ -2660,6 +2660,7 @@ async function upgradeLand(x, y, options = {}) {
     }),
     updateDoc(playerRef, {
       bank: player.bank - upgradeCost,
+      securityStrengthXP: increment(upgradeCost / 4),
       xp: increment(upgradeCost)
     })
   ]);
@@ -2705,7 +2706,9 @@ async function upgradeHomeBase(x, y) {
     }),
     updateDoc(playerRef, {
       bank: player.bank - upgradeCost,
-      xp: increment(upgradeCost)
+      xp: increment(upgradeCost),
+      securityStrengthXP: increment(upgradeCost / 4),
+
 
     })
   ]);
@@ -2772,11 +2775,13 @@ async function handleHackPlayer(attacker, defender) {
     })
   ]);
 
-  const msg = attackerWins
-    ? `💥 Success! You hacked ${defender.playerName} and stole $${stealAmount}.`
-    : `❌ Hack failed! ${defender.playerName} defended successfully.`;
+const title = attackerWins ? "💥 Success!" : "❌ Hack failed!";
+const body = attackerWins
+  ? `You hacked ${defender.playerName} and stole $${stealAmount}.`
+  : `${defender.playerName} defended successfully.`;
 
-  showMessageModal(msg);
+showMessageModal({ title, body });
+
 }
 
 
@@ -2804,7 +2809,10 @@ async function workForCompany(info, playerData, modalFooter, x, y) {
 
           // Update player document
           const playerRef = doc(db, "players", playerData.playerUid);
-          await updateDoc(playerRef, { jobs: playerData.jobs });
+          await updateDoc(playerRef, { jobs: playerData.jobs,
+            securityStrengthXP: increment(payPerDay * 2),
+            techStrengthXP: increment(payPerDay * 2),
+ });
 
           // Update tile's employsIDs array
           const tileId = `${x}_${y}`;
@@ -2818,7 +2826,7 @@ async function workForCompany(info, playerData, modalFooter, x, y) {
             // Avoid duplicate entry
             if (!employsIDs.includes(playerData.playerUid)) {
               employsIDs.push(playerData.playerUid);
-              await updateDoc(tileRef, { employsIDs });
+              await updateDoc(tileRef, { employsIDs, tileLevelXP: increment(payPerDay * 2), });
             }
           }
 
@@ -2886,6 +2894,7 @@ async function startCompany(x, y, tileData, uid, sector, name, symbol) {
     stockMaxChangePercent: 0.05,
     stockPriceHistory: [companyPrice],
     companyStartedAt: now,
+    tileLevelXP: increment(tileData.value),
   };
 
   const newBankValue = playerData.bank - tileData.value;
@@ -2895,8 +2904,9 @@ await Promise.all([
   updateDoc(playerRef, {
     bank: newBankValue,
     companiesOwned: arrayUnion(tileId),
-    xp: increment(tileData.value)
-
+    xp: increment(tileData.value),
+            securityStrengthXP: increment(tileData.value),
+            techStrengthXP: increment(tileData.value),
   })
 ]);
 
@@ -2974,7 +2984,7 @@ async function fireEmployee(companyName, uid) {
 
   const tileData = tileSnap.data();
   const updatedEmployees = tileData.employsIDs.filter(id => id !== uid);
-  await updateDoc(tileRef, { employsIDs: updatedEmployees });
+  await updateDoc(tileRef, { employsIDs: updatedEmployees,  tileLevelXP: increment(100), });
 
   showMessageModal("Employee Removed", `Employee (${uid.slice(0, 6)}...) has been fired from ${companyName}.`);
 
@@ -3026,11 +3036,14 @@ async function upgradeCompany(x, y) {
     updateDoc(tileRef, {
       level: newLevel,
       value: newValue,
-      label: `${companyType} (Lv ${newLevel})`
+      label: `${companyType} (Lv ${newLevel})`,
+       tileLevelXP: increment(upgradeCost * 1.25),
     }),
     updateDoc(playerRef, {
       bank: player.bank - upgradeCost,
-      xp: increment(upgradeCost * 1.25) // Slight XP bonus for company upgrades
+      xp: increment(upgradeCost * 1.25), // Slight XP bonus for company upgrades
+      securityStrengthXP: increment(upgradeCost * 1.25),
+      techStrengthXP: increment(upgradeCost * 1.25),
     })
   ]);
 
@@ -3124,6 +3137,8 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
       x,
       y,
       tileHistory: info,
+      tileLevelXP: increment(info.value * 1.25),
+
     };
 
 const updates = [
@@ -3132,7 +3147,9 @@ const updates = [
     ...(shouldMove ? { location: [x, y] } : {}),
     ...(type === 'land' ? { landOwned: arrayUnion(tileId) } : {}),
     ...(type === 'company' ? { companiesOwned: arrayUnion(tileId) } : {}),
-    xp: increment(info.value)
+    xp: increment(info.value * 1.25),
+   securityStrengthXP: increment(info.value * 1.25),
+    techStrengthXP: increment(info.value * 1.25),
   }),
   setDoc(tileRef, newTile, { merge: true })
 ];
@@ -3367,7 +3384,7 @@ async function sellTile(x, y, playerData) {
     await updateDoc(playerRef, {
       [fieldToRemove]: arrayRemove(tileId),
       bank: increment(tile.value || 100), // Default fallback value
-      xp: increment(tile.value)
+      xp: increment(tile.value * 1.2)
 
     });
 
