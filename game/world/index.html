@@ -426,7 +426,6 @@
     🎖️ <strong>Level:</strong> <span id="level">1</span> |
 
     <div id="xpStats">
-    💰 <strong>XP:</strong> <span id="xp" class="animated-number">12675</span> |
 </div>
 
     🏦 <strong>Bank:</strong> <span id="bank" class="animated-number">$74,340</span> |
@@ -442,11 +441,9 @@
 </div>
 
     <div id="securityStats">
-    🛡️ <strong>Security:</strong> <span id="securityStrength">1</span> |
 </div>
 
         <div id="techStats">
-    🧠 <strong>Tech:</strong> <span id="techStrength">1</span>
 </div>
 
   </div>
@@ -3393,12 +3390,12 @@ document.head.insertAdjacentHTML("beforeend", progressStyles);
 
 
 // Generate a custom progress bar (reusable)
-function createProgressBar(id, value, max, label = "", level = 1) {
+function createProgressBar(id, value, max, label = "", level = 1, symbol) {
   const percent = Math.min(100, (value / max) * 100).toFixed(1);
   return `
     <div class="mb-2">
       <div class="d-flex justify-content-between mb-1">
-        <small><strong>${label} Lv. ${level}</strong></small>
+        <small><strong>${symbol} ${label} Lv. ${level}</strong></small>
         <small>${value} / ${max}</small>
       </div>
       <div class="custom-progress" style="height: 20px; border-radius: 8px; overflow: hidden; background-color: #e9ecef;">
@@ -3445,19 +3442,19 @@ function updateStatsUI(state) {
   // Inject dynamic progress bars
   const xpStats = document.getElementById("xpStats");
   xpStats.innerHTML =
-    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP", state.level) ;
+    createProgressBar("xpBar", state.xp, levelRules.xpToNext, "XP", state.level, "💰") ;
 
      const securityStats = document.getElementById("securityStats");
   securityStats.innerHTML =
-    createProgressBar("securityXPBar", state.securityStrengthXP ?? 0, levelRules.securityStrengthXPToNext, "Security XP", state.securityStrength ?? 1);
+    createProgressBar("securityXPBar", state.securityStrengthXP ?? 0, levelRules.securityStrengthXPToNext, "Security XP", state.securityStrength ?? 1, "🛡️");
    
     const techStats = document.getElementById("techStats");
   techStats.innerHTML =
-    createProgressBar("techXPBar", state.techStrengthXP ?? 0, levelRules.techStrengthXPToNext, "Tech XP", state.techStrength ?? 1);
+    createProgressBar("techXPBar", state.techStrengthXP ?? 0, levelRules.techStrengthXPToNext, "Tech XP", state.techStrength ?? 1, "🧠");
    
     const tradeStats = document.getElementById("tradeStats");
   tradeStats.innerHTML =
-    createProgressBar("tradeBar", state.trades ?? 0, levelRules.tradeLimit, "Trades", state.level ?? 1);
+    createProgressBar("tradeBar", state.trades ?? 0, levelRules.tradeLimit, "Trades", state.level ?? 1, "🔁");
 
   scene.load.on("complete", () => {
     loadingText.setText("Loading Complete!");
