@@ -2490,6 +2490,7 @@ async function repairHomeHealth(x, y) {
     updateDoc(playerRef, {
       bank: player.bank - repairCost,
       xp: (player.xp || 0) + Math.floor(healthToRepair / 10), // XP proportional to health repaired
+     securityStrengthXP: increment(Math.floor(healthToRepair / 10))
     }),
   ]);
 
