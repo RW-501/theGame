@@ -2656,16 +2656,9 @@ async function upgradeHomeBase(x, y) {
   showMessageModal(`Home upgraded to ${homeType} level ${newLevel}.`);
 }
 
-
 async function handleHackPlayer(attacker, defender) {
   console.log("🛠️ Hacking...", attacker.playerName, "vs", defender.playerName);
 
-    const attackerLocation = attacker.location || [];
-  const defenderLocation = defender.location || [];
-
-
-  
-  // 🔍 Find tile DOM element
   const [dx, dy] = defender.location || [];
   const tile = document.querySelector(`[data-x="${dx}"][data-y="${dy}"]`);
   if (tile) {
@@ -2674,62 +2667,51 @@ async function handleHackPlayer(attacker, defender) {
     overlay.style.left = `${tile.offsetLeft}px`;
     overlay.style.top = `${tile.offsetTop}px`;
     overlay.style.position = "absolute";
-
     tile.parentNode.appendChild(overlay);
-
-    // 🧹 Remove after animation ends
     setTimeout(() => overlay.remove(), 700);
   }
-  const attackerStrength = attacker.techStrength || 1;
-  const defenderSecurity = defender.securityStrength || 1;
 
-    const attackerTechStrengthXP = attacker.techStrengthXP || 1;
-  const defenderSecurityStrengthXP = defender.securityStrengthXP || 1;
+  const attackerStrength = (attacker.techStrength || 1) + (attacker.techStrengthXP || 0) / 100;
+  const defenderSecurity = (defender.securityStrength || 1) + (defender.securityStrengthXP || 0) / 100;
 
   const attackerLevel = attacker.level || 1;
   const defenderLevel = defender.level || 1;
-
   const attackerBank = attacker.bank || 0;
   const defenderBank = defender.bank || 0;
 
-  const damage = 10 + attackerLevel * 2; // Basic formula
+  const damage = 10 + attackerLevel * 2;
   const xpGain = 5 + Math.abs(attackerLevel - defenderLevel);
-  const stealAmount = Math.min(defenderBank, 100 + attackerLevel * 20); // max cap
+  const stealAmount = Math.min(defenderBank, 100 + attackerLevel * 20);
 
   const attackerRef = doc(db, "players", attacker.playerUid);
   const defenderRef = doc(db, "players", defender.playerUid);
 
   const attackerWins = attackerStrength >= defenderSecurity;
 
-  // Get the tile DOM element based on defender's location
-const tileSelector = `[data-x="${defenderLocation[0]}"][data-y="${defenderLocation[1]}"]`;
-const tileEl = document.querySelector(tileSelector);
+  const tileSelector = `[data-x="${dx}"][data-y="${dy}"]`;
+  const tileEl = document.querySelector(tileSelector);
+  if (tileEl) {
+    tileEl.classList.add("tile-zoom", "electric-shock");
+    setTimeout(() => tileEl.classList.remove("tile-zoom", "electric-shock"), 1200);
+  }
 
-if (tileEl) {
-  tileEl.classList.add("tile-zoom", "electric-shock");
+  const xpStealBonus = Math.floor((attacker.techStrengthXP || 0) / 50);
+  const xpDefendBonus = Math.floor((defender.securityStrengthXP || 0) / 50);
 
-  // Remove classes after animation (1.2s total)
-  setTimeout(() => {
-    tileEl.classList.remove("tile-zoom", "electric-shock");
-  }, 1200);
-}
-
-  // Begin updates
   await Promise.all([
     updateDoc(attackerRef, {
       inCombat: true,
-      xp: increment(xpGain),
+      xp: increment(xpGain + (attackerWins ? xpStealBonus : 0)),
       bank: increment(attackerWins ? stealAmount : -stealAmount / 2),
       attacks: increment(1),
-      techStrengthXP: increment(attackerWins ? stealAmount : -stealAmount / 4),
+      techStrengthXP: increment(attackerWins ? stealAmount : stealAmount / 4),
     }),
     updateDoc(defenderRef, {
       inCombat: true,
       health: increment(attackerWins ? -damage : -damage / 2),
       bank: increment(attackerWins ? -stealAmount : -stealAmount / 2),
       attacked: increment(1),
-      techStrengthXP: increment(attackerWins ? -stealAmount : -stealAmount / 4),
-
+      securityStrengthXP: increment(attackerWins ? -stealAmount / 2 : stealAmount / 3),
     })
   ]);
 
@@ -2739,7 +2721,6 @@ if (tileEl) {
 
   showMessageModal(msg);
 }
-
 
 
 async function workForCompany(info, playerData, modalFooter, x, y) {
