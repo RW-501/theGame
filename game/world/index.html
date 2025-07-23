@@ -832,10 +832,12 @@ notifBtn.addEventListener("click", () => {
 
 document.getElementById("toggleToolsBtn").addEventListener("click", (e) => {
   e.stopPropagation(); // Prevent body click from firing right away
+  const clickedInsideTools = userTool.contains(e.target);
 
   const toolButtons = document.querySelectorAll("#userTool button:not(#toggleToolsBtn)");
   const isHidden = toolButtons[0]?.style.display === "none";
 
+  if (!clickedInsideTools) {
 toolButtons.forEach(btn => {
   if (isHidden) {
     btn.classList.remove("hide");
@@ -846,10 +848,12 @@ toolButtons.forEach(btn => {
       btn.style.display = "none";
     }, 300); // match transition time
   }
-});
+});  }
 
 });
 document.body.addEventListener("click", (e) => {
+    e.stopPropagation(); // Prevent body click from firing right away
+
   const userTool = document.getElementById("userTool");
   const clickedInsideTools = userTool.contains(e.target);
     const toolButtons = userTool.querySelectorAll("button:not(#toggleToolsBtn)");
