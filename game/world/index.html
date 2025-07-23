@@ -1956,10 +1956,10 @@ async function showEmployeesModal(tileId) {
 
         html += `
           <li class="list-group-item d-flex align-items-center">
-            <img src="${empData.avatarURL || 'default-avatar.png'}" alt="Avatar"
+            <img src="${empData.avatarUrl || empData.avatarImage}" alt="Avatar"
                  class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
             <div>
-              <strong>${empData.username || 'Unnamed'}</strong><br>
+              <strong>${empData.playerName || 'Unnamed'}</strong><br>
               <small class="text-muted">Started: ${startDate}</small>
             </div>
           </li>
