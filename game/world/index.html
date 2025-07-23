@@ -3509,7 +3509,7 @@ document.getElementById("bank").addEventListener("click", () => {
   new bootstrap.Modal(document.getElementById("bankModal")).show();
 });
 
-document.getElementById("tradesStats").addEventListener("click", () => {
+document.getElementById("tradeStats").addEventListener("click", () => {
   renderStockMarket();
   new bootstrap.Modal(document.getElementById("tradeModal")).show();
 });
@@ -3835,7 +3835,7 @@ function renderAllOwnedTiles(scene) {
   }
 
   for (const [tileId, tile] of tileDataMap.entries()) {
-    const { x, y, icon, level, ownerName, color, label, ownerID } = tile;
+    const { x, y, icon, level, ownerName, color, label, ownerID, forSale } = tile;
 
     if (x == null || y == null || !ownerID) continue; // Skip tiles without owner
 
