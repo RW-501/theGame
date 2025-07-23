@@ -753,6 +753,7 @@
 
 
 
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script type="module">
 import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
@@ -1203,9 +1204,98 @@ function updatePlayerName(newName) {
 
 
 
+/**
+ * Persist key fields of playerData to Firestore
+ */
+async function savePlayerData() {
+  if (!playerData?.playerUid) {
+    console.warn("No player UID available – cannot save data");
+    return;
+  }
+  const docRef = doc(db, "players", playerData.playerUid);
+  const payload = {
+    xp: playerData.xp,
+    level: playerData.level,
+    tradesAvailable: playerData.tradesAvailable,
+    lastTradeRefill: playerData.lastTradeRefill,
+    techStrengthXP: playerData.techStrengthXP,
+    securityStrengthXP: playerData.securityStrengthXP,
+    bank: playerData.bank,
+    health: playerData.health,
+    securityStrength: playerData.securityStrength,
+    techStrength: playerData.techStrength,
+    playerName: playerData.playerName,
+    avatarUrl: playerData.avatarUrl,
+    avatarImage: playerData.avatarImage
+    // Add other fields as needed
+  };
+  await updateDoc(docRef, payload);
+}
+
+/**
+ * Call savePlayerData() and optionally refresh UI
+ */
+async function updateAndPersist(updates = {}) {
+  Object.assign(playerData, updates);
+  await savePlayerData();
+  updateStatsUI();
+}
+
+// Example usage for leveling up:
+async function tryLevelUp() {
+  if (checkRuleLimit(playerData, "xpToLevelUp")) {
+    playerData.level++;
+    playerData.xp = 0;
+    playerData.techStrengthXP = 0;
+    playerData.securityStrengthXP = 0;
+    playerData.tradesAvailable = rules.levels[playerData.level.toString()].tradeLimit;
+    playerData.lastTradeRefill = Date.now();
+
+    await updateAndPersist({
+      level: playerData.level,
+      xp: 0,
+      techStrengthXP: 0,
+      securityStrengthXP: 0,
+      tradesAvailable: playerData.tradesAvailable,
+      lastTradeRefill: playerData.lastTradeRefill
+    });
+
+
+setTimeout(() => {
+  launchConfetti();
+  showMessageModal("🎉 Level Up!", `You’re now a ${rules.levels[playerData.level].title}`);
+}, 100);
+
+}
+}
 
 
 
+function launchConfetti() {
+  if (!document.getElementById("confettiCanvas")) {
+    const confettiCanvas = document.createElement("createConfettiCanvas");
+    confettiCanvas.id = "confettiCanvas";
+    confettiCanvas.style.position = "fixed";
+    confettiCanvas.style.top = "0";
+    confettiCanvas.style.left = "0";
+    confettiCanvas.style.width = "100%";
+    confettiCanvas.style.height = "100%";
+    confettiCanvas.style.pointerEvents = "none";
+    confettiCanvas.style.zIndex = "9999999";
+    document.body.appendChild(confettiCanvas);
+  }
+
+  const myConfetti = confetti.create(document.getElementById("confettiCanvas"), {
+    resize: true,
+    useWorker: true
+  });
+
+  myConfetti({
+    particleCount: 320,
+    spread: 90,
+    origin: { y: 0.6 }
+  });
+}
 
 
 
@@ -1862,31 +1952,7 @@ modalBody.innerHTML = `
   
   // === Player tile interaction ===
   if (otherPlayerId) {
-/*
-let data = allUsersMap.get(otherPlayerId);
 
-if (!data) {
-  const playersRef = collection(db, "players");
-  const q = query(playersRef, where("playerUid", "==", otherPlayerId));
-  const otherSnap = await getDocs(q);
-  
-  if (!otherSnap.empty) {
-    data = otherSnap.docs[0].data();
-  } else {
-    data = {};
-  }
-}
-
-const info = {
-  playerName: data.playerName ?? otherPlayerId.substring(0, 6),
-  health: data.health ?? "??",
-  level: data.level ?? "?",
-  techStrength: data.techStrength ?? "?",
-  security: data.security ?? "?",
-  bank: data.bank ?? "?",
-};
-
-*/
 const data = allUsersMap.get(otherPlayerId) || {};
 const info = {
   playerName: data.playerName ?? otherPlayerId.substring(0, 6),
@@ -3271,16 +3337,6 @@ function updateStatsUI(state) {
   console.log("uid ", uid);
   console.log("state ", state);
 
-  /*
-  let state = playerState.get(uid);
-  if (!state) {
-    console.warn("Missing player state playerData:", playerData);
-    console.warn("Missing player state UID:", uid);
-    return;
-  }else{
-    state = playerData;
-  }
-*/
   if (!state) {
     state = playerData;
   }
@@ -3390,7 +3446,7 @@ function loadAvatars() {
   gallery.innerHTML = "";
 
   predefinedAvatars.forEach((avatar, i) => {
-    const isSelected = state.avatarUrl === avatar.avatarUrl;
+    const isSelected = playerData.avatarUrl === avatar.avatarUrl;
 
     const div = document.createElement("div");
     div.className = "avatar-option text-center";
