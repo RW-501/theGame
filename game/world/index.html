@@ -370,6 +370,14 @@
   border-radius: 50%;
   display: inline-block;
   transition: border 0.3s ease;
+      width: 100px;
+    height: 100px;
+
+    .text-muted {
+    margin-top: 20px !important;
+    color: #4caf50;
+
+    }
 }
 
 .avatar-wrapper img {
@@ -3467,6 +3475,8 @@ function updateStatsUI(state) {
     const tradeStats = document.getElementById("tradeStats");
   tradeStats.innerHTML =
     createProgressBar("tradeBar", state.trades ?? 0, levelRules.tradeLimit, "Trades", state.level ?? 1, "🔁");
+
+     tryLevelUp();
 
   scene.load.on("complete", () => {
     loadingText.setText("Loading Complete!");
