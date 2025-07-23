@@ -802,6 +802,18 @@ text-indent: 5px;
 
 
 
+<div id="customModal" class="modal fade gameMode" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="customModalTitle" class="modal-title"></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div id="customModalBody" class="modal-body"></div>
+      <div id="customModalFooter" class="modal-footer"></div>
+    </div>
+  </div>
+</div>
 
 
 
@@ -2267,6 +2279,39 @@ async function viewCompanyDetailsModal(x, y) {
   });
 }
 
+function showCustomModal({ title = "", body = "", footerButtons = [] }) {
+  const modalEl = document.getElementById("customModal");
+  const titleEl = document.getElementById("customModalTitle");
+  const bodyEl = document.getElementById("customModalBody");
+  const footerEl = document.getElementById("customModalFooter");
+
+  titleEl.innerHTML = title;
+  bodyEl.innerHTML = typeof body === "string" ? body : "";
+  footerEl.innerHTML = "";
+
+  // If body is a DOM node or element
+  if (typeof body !== "string" && body instanceof HTMLElement) {
+    bodyEl.innerHTML = "";
+    bodyEl.appendChild(body);
+  }
+
+  // Build buttons
+  footerButtons.forEach(({ text, className, onClick }) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = className || "btn btn-primary";
+    btn.textContent = text;
+
+    if (typeof onClick === "function") {
+      btn.addEventListener("click", onClick);
+    }
+
+    footerEl.appendChild(btn);
+  });
+
+  const modal = new bootstrap.Modal(modalEl);
+  modal.show();
+}
 
 
 const BASE_COST = 1000;
@@ -2638,6 +2683,9 @@ async function handleHackPlayer(attacker, defender) {
   const attackerStrength = attacker.techStrength || 1;
   const defenderSecurity = defender.securityStrength || 1;
 
+    const attackerTechStrengthXP = attacker.techStrengthXP || 1;
+  const defenderSecurityStrengthXP = defender.securityStrengthXP || 1;
+
   const attackerLevel = attacker.level || 1;
   const defenderLevel = defender.level || 1;
 
@@ -2673,13 +2721,15 @@ if (tileEl) {
       xp: increment(xpGain),
       bank: increment(attackerWins ? stealAmount : -stealAmount / 2),
       attacks: increment(1),
-      techStrengthXP: increment(attackerWins / 2)
+      techStrengthXP: increment(attackerWins ? stealAmount : -stealAmount / 4),
     }),
     updateDoc(defenderRef, {
       inCombat: true,
       health: increment(attackerWins ? -damage : -damage / 2),
       bank: increment(attackerWins ? -stealAmount : -stealAmount / 2),
-      attacked: increment(1)
+      attacked: increment(1),
+      techStrengthXP: increment(attackerWins ? -stealAmount : -stealAmount / 4),
+
     })
   ]);
 
