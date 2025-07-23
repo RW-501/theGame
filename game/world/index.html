@@ -3888,13 +3888,12 @@ function renderAllPlayers(scene) {
     console.log("playerX ", playerX, " playerY ", playerY, " playerData.location ",playerData.location ," X ",pos.x, " Y ",pos.y)
  
 // Skip rendering if player is on the current tile
-const isOnTile = Array.isArray(playerData.location)
-  ? playerData.location.some(([lx, ly]) => lx === pos.x && ly === pos.y)
-  : false;
+const isOnTile =
+  playerData?.playerX === pos.x && playerData?.playerY === pos.y;
 
 if (isOnTile) {
   console.log(`🚫 Skipping render for ${playerId} (already on this tile)`);
-  continue; // Skip to next player
+  continue;
 }
 
 
