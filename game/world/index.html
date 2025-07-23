@@ -2150,7 +2150,7 @@ if (trueType === "company" ) {
     text: "View Company Details",
     className: "btn btn-primary",
     onClick: async () => {
-      await viewCompanyDetailsModal(`${x},${y}`);
+await viewCompanyDetailsModal(x, y);
       bootstrap.Modal.getInstance(modalEl)?.hide();
     },
     parent: modalFooter
