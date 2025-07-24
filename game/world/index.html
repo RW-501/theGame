@@ -3994,12 +3994,14 @@ function renderAllPlayers(scene) {
 
     console.log("health ", health, " bank ", bank, " playerData.location ",otherPlayerData.location ," X ",pos.x, " Y ",pos.y)
 
-    console.log(`${level}, ${displayName} Drawing ${playersUid} at (${pos.x}, ${pos.y})`);
+    console.log(`${level}, ${displayName} Drawing ${playersUid} || ${playerData.playerUid} at (${pos.x}, ${pos.y})`);
 
 
-if(playersUid == playerData.playerUid){
+if(playersUid === playerData.playerUid){
 
-    console.log(`this is you!! ${level}, ${displayName} Drawing ${playerData} at (${pos.x}, ${pos.y})`);
+    console.log(`My home! ${level}, ${displayName} at (${pos.x}, ${pos.y})`);
+
+}else{
 
 }
 
