@@ -4176,7 +4176,7 @@ const labelFontStyle = {
 };
 
 // 🎖️ Level Tag
-const levelText = scene.add.text(0, 0, `Lv: ${level}`, labelFontStyle).setOrigin(0.5);
+const levelText = scene.add.text(0, 0, `Lv${level}`, labelFontStyle).setOrigin(0.5);
 levelText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 const levelWidth = levelText.width + labelPadding * 2;
@@ -4190,9 +4190,8 @@ const top = -levelHeight / 2;
 const right = levelWidth / 2;
 const bottom = levelHeight / 2;
 
-levelBg.fillStyle(0xff0000, 1); // Bright red
 
-//levelBg.fillStyle(0x4444aa, 1);
+levelBg.fillStyle(0x4444aa, 1);
 levelBg.lineStyle(1, 0xffffff, 1);
 levelBg.beginPath();
 
