@@ -3878,8 +3878,8 @@ const taxes = calculateTotalTaxes(playerData.playerUid);
 
 
   const ledgerHTML = `
-    <p><strong>Balance:</strong> $${(playerData.bank ?? 0).toLocaleString()}</p>
-    <p><strong>Loans:</strong> $${(playerData.loans ?? 0).toLocaleString()}</p>
+    <p><strong>Balance:</strong> $${(playerData.bank || 0).toLocaleString()}</p>
+    <p><strong>Loans:</strong> $${(playerData.loans || 0).toLocaleString()}</p>
 
     <p><strong>Income /hr:</strong> ${income}</p>
     <p><strong>Taxs Owed /hr:</strong> ${taxes}</p>
