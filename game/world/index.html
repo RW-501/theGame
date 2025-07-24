@@ -2012,10 +2012,10 @@ const targetX = clickedX * TILE_SIZE + TILE_SIZE / 2;
 const targetY = clickedY * TILE_SIZE + TILE_SIZE / 2;
 
 // Zoom to 2x
-scene.cameras.main.zoomTo(2, 300, 'Sine.easeInOut');
+scene.cameras.main.zoomTo(2, 500, 'Sine.easeInOut');
 
 // Pan to the center of the tile
-scene.cameras.main.pan(targetX, targetY, 300, 'Sine.easeInOut');
+scene.cameras.main.pan(targetX, targetY, 500, 'Sine.easeInOut');
 
 
 // ✅ 2. Draw lime green tile highlight
