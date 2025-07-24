@@ -1997,8 +1997,13 @@ scene.input.on("pointerup", pointer => {
   if (!isPointerDown) return;
   isPointerDown = false;
 
-let clickedX = pointer.x;
-let clickedY = pointer.y;
+    const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+    const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
+    const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
+
+
+    console.log(`clicked clickedX: ${clickedX}`);
+    console.log(`clicked clickedY: ${clickedY}`);
 
   // Clear any existing highlight
 if (tileHighlightRect) {
@@ -2072,9 +2077,6 @@ scene.time.addEvent({
   const maxMoveDistance = 10;   // max movement in px before cancel
 
   if (timeHeld <= maxTapTime && movedDistance <= maxMoveDistance) {
-    const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-    const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
-    const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
 
     if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
 
