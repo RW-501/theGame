@@ -1955,14 +1955,6 @@ function clearTileSelection() {
     tileHighlightRect = null;
   }
 
-  scene.tweens.add({
-    targets: scene.cameras.main,
-    zoom: 1,
-    scrollX: 0,
-    scrollY: 0,
-    duration: 300,
-    ease: "Sine.easeInOut"
-  });
 
   document.getElementById("statsBox").style.display = "block";
 }
