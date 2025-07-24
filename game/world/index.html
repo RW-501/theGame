@@ -3968,7 +3968,7 @@ function renderAllPlayers(scene) {
 
   for (const [playerId, pos] of playerState.entries()) {
 
-        console.log(`playerId  ${playerId}, uid ${uid}  at (${pos.x}, ${pos.y})`);
+        console.log(`continue: playerId  ${playerId}, uid ${uid}  at (${pos.x}, ${pos.y})`);
 
     if (playerId === uid) continue;
     if (!pos || pos.x === undefined || pos.y === undefined) {
