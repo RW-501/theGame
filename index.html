@@ -132,26 +132,24 @@ selectedAvatar = avatar.dataset.avatar;
 
   // Prepare new player object (playerUid is empty for now)
   const newPlayer = {
-      playerUid: "", // will be updated below
-      userID: uid,
-      playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
-      avatarUrl: 'https://robohash.org/1?size=50x50',
-      status: "active",
-      lastUpdate: serverTimestamp(),
-      online: true,
-      server: "main",
+    playerUid: '',               // <-- will be filled after addDoc
+    userID: uid,
+    playerName: username,
+    avatarImage: selectedAvatar,
+    avatarUrl: selectedAvatarImageUrl,
+    status: "active",
+    lastUpdate: serverTimestamp(),
+    online: true,
+    server: "main",
+    location: "start",
+    isNew: true,
+    trainingMode: true,
 
-      location: randomLocation, // ✅ Assigned here
-      playerX: x,
-      playerY: y,
-
-      isNew: true,
-      trainingMode: true,
-
-      crypto: 5,
-      xp: 0,
-      level: 1,
-      bank: 1000,
+    // Stats
+    crypto: 5,
+    xp: 0,
+    level: 1,
+    bank: 1000,
       vault: [],
       loans: [],
       health: 100,
