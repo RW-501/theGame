@@ -3438,7 +3438,7 @@ window.sellTile = sellTile;
 
 
   // Realtime sync for player movement and all players
-const playerRef = doc(db, "players", uid);
+const playerRef = doc(db, "players", playerData.playerUid);
 onSnapshot(playerRef, (docSnap) => {
   if (docSnap.exists()) {
     const data = docSnap.data();
@@ -3464,13 +3464,13 @@ onSnapshot(playerRef, (docSnap) => {
   }
 });
 
-const playersRef = collection(db, "players"); // not doc()
+const playersRef = collection(db, "players"); 
 
 onSnapshot(playersRef, (querySnapshot) => {
   console.log("🔥 Received Firestore snapshot");
 
   playerState.clear();
-  allUsersMap.clear(); // Clear old data to keep it fresh
+  allUsersMap.clear(); 
 
   querySnapshot.forEach(doc => {
     const data = doc.data();
@@ -3484,6 +3484,7 @@ console.log("player data   ",data);
 
     if (Array.isArray(data.location) && data.location.length === 2) {
 playerState.set(id, {
+  playerUid: data.playerUid,
   x: data.location[0],
   y: data.location[1],
   bank: data.bank ?? 0,
@@ -3958,6 +3959,7 @@ function renderAllPlayers(scene) {
   console.log("🎨 Rendering All Players...");
   console.log("🧍 All Player States:", Array.from(playerState.entries()));
 
+  /*
   for (const [key, sprite] of otherPlayerSprites) {
     if (!playerState.has(key) || key === playerData.playerUid) {
       console.log(`❌ Removing sprite for: ${key}`);
@@ -3965,12 +3967,13 @@ function renderAllPlayers(scene) {
       otherPlayerSprites.delete(key);
     }
   }
+*/
 
   for (const [playerId, pos] of playerState.entries()) {
 
-        console.log(`continue: playerId  ${playerId}, uid ${uid}  at (${pos.x}, ${pos.y})`);
+        console.log(`continue: playerId  ${playerId}, || ${playerState} at (${pos.x}, ${pos.y})`);
 
-    if (playerId === uid) continue;
+    if (playerId === playerData.playerUid) continue;
     if (!pos || pos.x === undefined || pos.y === undefined) {
       console.warn(`⚠️ Invalid pos for ${playerId}:`, pos);
       continue;
@@ -3980,41 +3983,9 @@ function renderAllPlayers(scene) {
 
     let sprite = otherPlayerSprites.get(playerId);
 
-    // Get player data (e.g., from allUsersMap or Firestore cache)
-    const otherPlayerData = allUsersMap.get(playerId); // Ensure this map exists
-    const displayName = otherPlayerData?.playerName || "Player";
-    const online = otherPlayerData?.online || true;
-    const level = otherPlayerData?.level || 1;
-    const bank = otherPlayerData?.bank || 1;
-    const playersUid = otherPlayerData?.playerUid || 1;
-
-    const securityStrength = otherPlayerData?.securityStrength || 1;
-    const techStrength = otherPlayerData?.techStrength || 1;
-    const health = otherPlayerData?.health || 100;
-    const inCombat = otherPlayerData?.inCombat || false;
-    const trainingMode = otherPlayerData?.trainingMode || true;
 
 
-    console.log("health ", health, " bank ", bank, " playerData.location ",otherPlayerData.location ," X ",pos.x, " Y ",pos.y)
-
-    console.log(`${level}, ${displayName} Drawing ${playersUid} || ${playerData.playerUid} at (${pos.x}, ${pos.y})`);
-
-
-if(playersUid === playerData.playerUid){
-
-    console.log(`My home! ${level}, ${displayName} at (${pos.x}, ${pos.y})`);
-
-}else{
-
-}
-
-// Create sprite if it doesn't exist
-if (!sprite) {
-  sprite = scene.add.container(
-    pos.x * TILE_SIZE + TILE_SIZE / 2,
-    pos.y * TILE_SIZE + TILE_SIZE / 2
-  );
-/*
+    /*
   // Then, check if player is already on that tile
 const isOnTile =
   playerData?.playerX === pos.x && playerData?.playerY === pos.y;
@@ -4030,22 +4001,112 @@ if (isOnTile) {
  // const avatarImage = scene.add.image(0, -10, avatarKey )
 
 
-  const userHomeImage = scene.add.image(0, -10, "apartment_Lv_1" )
+    // Get player data (e.g., from allUsersMap or Firestore cache)
+    const otherPlayerData = allUsersMap.get(playerId); 
+    const displayName = otherPlayerData?.playerName || "Player";
+    const online = otherPlayerData?.online || true;
+    const level = otherPlayerData?.level || 1;
+    const bank = otherPlayerData?.bank || 1;
+    const playersUid = otherPlayerData?.playerUid || 1;
+
+    const securityStrength = otherPlayerData?.securityStrength || 1;
+    const techStrength = otherPlayerData?.techStrength || 1;
+    const health = otherPlayerData?.health || 100;
+    const inCombat = otherPlayerData?.inCombat || false;
+    const trainingMode = otherPlayerData?.trainingMode || true;
+
+
+    console.log("health ", health, " bank ", bank, " playerData.location ",otherPlayerData.location ," X ",pos.x, " Y ",pos.y)
+
+    console.log(`${level}, ${displayName} Drawing: ${playerId} || ${playersUid} || ${playerData.playerUid} at (${pos.x}, ${pos.y})`);
+
+
+
+
+
+// Create sprite if it doesn't exist
+if (!sprite) {
+  sprite = scene.add.container(
+    pos.x * TILE_SIZE + TILE_SIZE / 2,
+    pos.y * TILE_SIZE + TILE_SIZE / 2
+  );
+
+let userHomeImage;
+
+const levelToImageKey = {
+  1: "apartment_Lv_1",
+  2: "apartment_Lv_2",
+  3: "apartment_Lv_3",
+  4: "apartment_Lv_4",
+  5: "house_Lv_1",
+  6: "house_Lv_2",
+  7: "house_Lv_3",
+  8: "house_Lv_4"
+};
+
+if (levelToImageKey[level]) {
+  userHomeImage = scene.add.image(0, -10, levelToImageKey[level])
     .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
     .setOrigin(0.5);
-
-  const nameText = scene.add.text(0, TILE_SIZE * 0.4, displayName, {
-    fontSize: '12px',
-    color: '#ffffff',
-    align: 'center',
-    fontStyle: 'bold'
-  }).setOrigin(0.5);
-
-  sprite.add([userHomeImage, nameText]);
-  otherPlayerSprites.set(playerId, sprite);
-  scene.add.existing(sprite); // important to add to scene
 }
 
+
+const isLocalPlayer = playersUid === playerData.playerUid;
+const nameLabel = isLocalPlayer ? "My Home" : displayName;
+
+// Create container sprite to hold everything
+const sprite = scene.add.container(0, 0);
+
+// 🏷️ Label Styling
+const labelPadding = 4;
+const labelFontSize = 12;
+const labelFontStyle = {
+  fontSize: `${labelFontSize}px`,
+  color: '#ffffff',
+  fontStyle: 'bold',
+  align: 'center'
+};
+
+// 🎖️ Level Tag
+const levelText = scene.add.text(0, TILE_SIZE * 0.2, `Lv ${level}`, labelFontStyle).setOrigin(0.5);
+const levelBg = scene.add.graphics();
+const levelWidth = levelText.width + labelPadding * 2;
+const levelHeight = levelText.height + labelPadding * 2;
+
+levelBg.fillStyle(0x4444aa, 1); // dark blue background
+levelBg.fillRoundedRect(-levelWidth / 2, -levelHeight / 2, levelWidth, levelHeight, 4);
+levelBg.lineStyle(1, 0xffffff, 1);
+levelBg.strokeRoundedRect(-levelWidth / 2, -levelHeight / 2, levelWidth, levelHeight, 4);
+
+// 🏠 Name/Home Tag
+const nameText = scene.add.text(0, TILE_SIZE * 0.4, nameLabel, labelFontStyle).setOrigin(0.5);
+const nameBg = scene.add.graphics();
+const nameWidth = nameText.width + labelPadding * 2;
+const nameHeight = nameText.height + labelPadding * 2;
+
+nameBg.fillStyle(0x222222, 1); // dark gray background
+nameBg.fillRoundedRect(-nameWidth / 2, -nameHeight / 2, nameWidth, nameHeight, 4);
+nameBg.lineStyle(1, 0xffffff, 1);
+nameBg.strokeRoundedRect(-nameWidth / 2, -nameHeight / 2, nameWidth, nameHeight, 4);
+
+// 📦 Add to container
+sprite.add([
+  userHomeImage,
+  levelBg, levelText,
+  nameBg, nameText
+]);
+
+// Store or render accordingly
+if (!isLocalPlayer) {
+  otherPlayerSprites.set(playerId, sprite);
+  scene.add.existing(sprite);
+} else {
+  // Optional: add to `scene` or track in a separate reference
+  scene.add.existing(sprite);
+}
+
+
+}
 
 // Update sprite position
 sprite.setPosition(
