@@ -3730,9 +3730,9 @@ function calculateTotalTaxes(ownerId) {
       const tile = mapData[y][x];
 
       if (tile?.ownerID === ownerId) {
-        const price = tile.price || 0;
-        const taxRate = tile.taxRate || 0; // Assume 0.05 for 5% if not set
-        totalTax += price * taxRate;
+        const price = tile.value || 0;
+        const value = tile.taxRate || 0; // Assume 0.05 for 5% if not set
+        totalTax += value * taxRate;
       }
     }
   }
