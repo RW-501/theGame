@@ -4070,8 +4070,7 @@ if (levelToImageKey[level]) {
 const isLocalPlayer = playersUid === playerData.playerUid;
 const nameLabel = isLocalPlayer ? "My Home" : displayName;
 
-
-// 🏷️ Label Styling
+// 🏷️ Common Style
 const labelPadding = 4;
 const labelFontSize = 12;
 const labelFontStyle = {
@@ -4083,32 +4082,35 @@ const labelFontStyle = {
 
 // 🎖️ Level Tag
 const levelText = scene.add.text(0, TILE_SIZE * 0.2, `Lv ${level}`, labelFontStyle).setOrigin(0.5);
-const levelBg = scene.add.graphics();
 const levelWidth = levelText.width + labelPadding * 2;
 const levelHeight = levelText.height + labelPadding * 2;
 
-levelBg.fillStyle(0x4444aa, 1); // dark blue background
+const levelBg = scene.add.graphics();
+levelBg.fillStyle(0x4444aa, 1);
 levelBg.fillRoundedRect(-levelWidth / 2, -levelHeight / 2, levelWidth, levelHeight, 4);
 levelBg.lineStyle(1, 0xffffff, 1);
 levelBg.strokeRoundedRect(-levelWidth / 2, -levelHeight / 2, levelWidth, levelHeight, 4);
 
 // 🏠 Name/Home Tag
 const nameText = scene.add.text(0, TILE_SIZE * 0.4, nameLabel, labelFontStyle).setOrigin(0.5);
-const nameBg = scene.add.graphics();
 const nameWidth = nameText.width + labelPadding * 2;
 const nameHeight = nameText.height + labelPadding * 2;
 
-nameBg.fillStyle(0x222222, 1); // dark gray background
+const nameBg = scene.add.graphics();
+nameBg.fillStyle(0x222222, 1);
 nameBg.fillRoundedRect(-nameWidth / 2, -nameHeight / 2, nameWidth, nameHeight, 4);
 nameBg.lineStyle(1, 0xffffff, 1);
 nameBg.strokeRoundedRect(-nameWidth / 2, -nameHeight / 2, nameWidth, nameHeight, 4);
 
-// 📦 Add to container
-sprite.add([
-  userHomeImage,
+// 👇 Create a container and add in correct order: background first, then text
+const labelContainer = scene.add.container(0, 0, [
   levelBg, levelText,
   nameBg, nameText
 ]);
+
+// Add to sprite
+sprite.add([userHomeImage, labelContainer]);
+
 
 // Store or render accordingly
   otherPlayerSprites.set(playerId, sprite);
