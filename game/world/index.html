@@ -2487,9 +2487,9 @@ async function repairHomeHealth(x, y) {
   await Promise.all([
     updateDoc(tileRef, { health: maxHealth }),
     updateDoc(playerRef, {
-      bank: player.bank - repairCost,
-      xp: (player.xp || 0) + Math.floor(healthToRepair / 10), // XP proportional to health repaired
-     securityStrengthXP: increment(Math.floor(healthToRepair / 10))
+      bank:   increment(player.bank - repairCost),
+      xp:  increment((player.xp || 0) + healthToRepair / 10),
+      securityStrengthXP: increment(healthToRepair / 10)
     }),
   ]);
 
