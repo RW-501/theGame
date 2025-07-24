@@ -1926,6 +1926,8 @@ scene.input.on("pointermove", pointer => {
   if (pointer.isDown && isPointerDown) {
     cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
     cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
+         clearTileSelection();
+
   }
 
 });
