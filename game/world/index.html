@@ -4086,6 +4086,7 @@ const levelWidth = levelText.width + labelPadding * 2;
 const levelHeight = levelText.height + labelPadding * 2;
 
 const levelBg = scene.add.graphics();
+
 const radius = 4;
 const left = -levelWidth / 2;
 const top = -levelHeight / 2;
@@ -4097,26 +4098,25 @@ levelBg.lineStyle(1, 0xffffff, 1);
 levelBg.beginPath();
 
 
-// Top-left corner (straight)
-levelBg.moveTo(left, top);
+// 🔹 Top-left corner (rounded)
+levelBg.moveTo(left + radius, top);
+levelBg.arc(left + radius, top + radius, radius, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(180), true);
 
-// Top side (straight to top-right - radius)
-levelBg.lineTo(right - radius, top);
+// 🔹 Left side
+levelBg.lineTo(left, bottom - radius);
 
-// Top-right corner (rounded)
-levelBg.arc(right - radius, top + radius, radius, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(360));
+// 🔹 Bottom-left corner (rounded)
+levelBg.arc(left + radius, bottom - radius, radius, Phaser.Math.DegToRad(180), Phaser.Math.DegToRad(90), true);
 
-// Right side (down to bottom-right - radius)
-levelBg.lineTo(right, bottom - radius);
+// 🔹 Bottom side (straight)
+levelBg.lineTo(right, bottom);
 
-// Bottom-right corner (rounded)
-levelBg.arc(right - radius, bottom - radius, radius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(90));
+// 🔹 Right side up (straight)
+levelBg.lineTo(right, top);
 
-// Bottom side (straight to bottom-left)
-levelBg.lineTo(left, bottom);
+// 🔹 Top side back to start
+levelBg.lineTo(left + radius, top);
 
-// Left side (straight up to top-left)
-levelBg.lineTo(left, top);
 levelBg.closePath();
 levelBg.fillPath();
 levelBg.strokePath();
