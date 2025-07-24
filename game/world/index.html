@@ -2015,23 +2015,36 @@ scene.tweens.add({
 });
 
 // ✅ 2. Draw lime green tile highlight
+// Add the green highlight rectangle
 tileHighlightRect = scene.add.rectangle(
   clickedX * TILE_SIZE + TILE_SIZE / 2,
   clickedY * TILE_SIZE + TILE_SIZE / 2,
   TILE_SIZE, TILE_SIZE,
-  0x00ff00, 0.2 // semi-transparent fill
-).setStrokeStyle(3, 0x00ff00);
+  0x00ff00, 0.25 // Light green fill
+).setStrokeStyle(3, 0x00ff00).setDepth(999); // Make sure it's on top
 
-/*
-// ✅ 3. Show and update info box
-const statsBox = document.getElementById("statsBox");
-statsBox.style.display = "block";
-statsBox.style.left = `${pointer.x + 20}px`;
-statsBox.style.top = `${pointer.y}px`;
-statsBox.innerHTML = `Tile: ${clickedX}, ${clickedY}<br>Type: ${mapData[clickedY][clickedX]}`;
+// Pulse animation (tweening the fill alpha)
+scene.tweens.add({
+  targets: tileHighlightRect,
+  alpha: { from: 0.25, to: 0.5 },
+  strokeAlpha: { from: 0.5, to: 1 }, // not directly supported, but we can trick it with tint if needed
+  duration: 600,
+  ease: 'Sine.easeInOut',
+  yoyo: true,
+  repeat: -1
+});
 
+// Optional: pulse the stroke width using scale trick (visual effect only)
+scene.tweens.add({
+  targets: tileHighlightRect,
+  scaleX: { from: 1, to: 1.05 },
+  scaleY: { from: 1, to: 1.05 },
+  duration: 600,
+  ease: 'Sine.easeInOut',
+  yoyo: true,
+  repeat: -1
+});
 
-*/
 
   // Hide statsBox while moving
   document.getElementById("statsBox").style.display = "none";
