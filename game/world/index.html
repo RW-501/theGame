@@ -4126,19 +4126,17 @@ levelBg.strokePath();
 const nameText = scene.add.text(0, 0, nameLabel, labelFontStyle).setOrigin(0.5);
 nameText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
-const nameWidth = nameText.width + labelPadding * 2;
+// Optional: increase name container width to feel more balanced
+const nameExtraWidth = 10;
+const nameWidth = nameText.width + labelPadding * 2 + nameExtraWidth;
 const nameHeight = nameText.height + labelPadding * 2;
+
 
 const nameBg = scene.add.graphics();
 nameBg.fillStyle(0x222222, 1);
 nameBg.lineStyle(1, 0xffffff, 1);
 
-/*
-const left = -nameWidth / 2;
-const top = -nameHeight / 2;
-const right = nameWidth / 2;
-const bottom = nameHeight / 2;
-*/
+
 nameBg.beginPath();
 
 // Top-left corner (straight)
@@ -4165,34 +4163,28 @@ nameBg.fillPath();
 nameBg.strokePath();
 
 
-
-// Adjust Y positions manually inside the container
-const spacing = 0; // optional spacing between tags
-const levelOffsetY = -(nameHeight / 2 + spacing + levelHeight / 2);
-const nameOffsetY = levelHeight / 2 + spacing + nameHeight / 2;
-
-levelText.y = levelOffsetY;
-levelBg.y = levelOffsetY;
-
-nameText.y = nameOffsetY;
-nameBg.y = nameOffsetY;
-
 // 📦 Combine in container and position at bottom of tile
 const labelContainer = scene.add.container(0, TILE_SIZE * 0);
 
 
-// Set X offsets for side-by-side layout
-const levelOffsetX = -(levelWidth + spacing) / 2;
-const nameOffsetX = (nameWidth + spacing) / 2;
+// 🔁 Recalculate left/right for nameBg with new width
+const nameLeft = -nameWidth / 2;
+const nameRight = nameWidth / 2;
+const nameTop = -nameHeight / 2;
+const nameBottom = nameHeight / 2;
 
-// Vertically center everything
-const centerY = 0;
+// 🧠 Side-by-side X offset
+const levelOffsetX = -(levelWidth + nameWidth) / 2 + levelWidth / 2;
+const nameOffsetX = levelOffsetX + levelWidth / 2 + nameWidth / 2;
 
-levelBg.setPosition(levelOffsetX, centerY);
-levelText.setPosition(levelOffsetX, centerY);
+// Both on same horizontal line (Y = 0)
+const labelY = 0;
 
-nameBg.setPosition(nameOffsetX, centerY);
-nameText.setPosition(nameOffsetX, centerY);
+levelBg.setPosition(levelOffsetX, labelY);
+levelText.setPosition(levelOffsetX, labelY);
+nameBg.setPosition(nameOffsetX, labelY);
+nameText.setPosition(nameOffsetX, labelY);
+
 
 
 // Add children in order
