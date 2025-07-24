@@ -1986,6 +1986,8 @@ scene.input.on("pointerdown", pointer => {
   initialPointer = { x: pointer.x, y: pointer.y };
 });
 
+    let clickedX;
+    let clickedY;
 
 scene.input.on("pointerup", pointer => {
   if (!isPointerDown) return;
@@ -1993,10 +1995,165 @@ scene.input.on("pointerup", pointer => {
  
 
     const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
-    const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
-    const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
+     clickedX = Math.floor(worldPoint.x / TILE_SIZE);
+     clickedY = Math.floor(worldPoint.y / TILE_SIZE);
 
 
+
+/*
+
+// ✅ Modal Pop-up Container (centered in camera view)
+const modalWidth = 100;
+const modalHeight = 100;
+const modalX = scene.cameras.main.centerX;
+const modalY = scene.cameras.main.centerY;
+
+// Background rectangle for modal
+const modalBg = scene.add.rectangle(0, 0, modalWidth, modalHeight, 0x000000, 0.8)
+  .setStrokeStyle(3, 0x00ff00)
+  .setOrigin(0.5);
+
+  const graphics = scene.add.graphics();
+graphics.fillStyle(0x000000, 0.8);
+graphics.lineStyle(3, 0x00ff00);
+graphics.fillRoundedRect(0, 0, modalWidth, modalHeight, 12);
+graphics.strokeRoundedRect(0, 0, modalWidth, modalHeight, 12);
+
+
+// Text inside modal
+const modalText = scene.add.text(0, -40, "Tile Options", {
+  fontSize: '20px',
+  color: '#ffffff',
+  fontStyle: 'bold',
+  align: 'center'
+}).setOrigin(0.5);
+
+// Example Button
+const buttonBg = scene.add.rectangle(0, 30, 100, 40, 0x00aa00, 1)
+  .setStrokeStyle(2, 0xffffff)
+  .setInteractive({ useHandCursor: true })
+  .on('pointerdown', () => {
+    console.log('Button clicked for tile', selectedTile);
+    modalContainer.destroy(); // Close modal
+  });
+
+const buttonText = scene.add.text(0, 30, 'OK', {
+  fontSize: '9px',
+  color: '#ffffff',
+}).setOrigin(0.5);
+
+// Group all into a container
+const modalContainer = scene.add.container(modalX, modalY, [
+  modalBg,
+  modalText,
+  buttonBg,
+  buttonText
+])
+  .setDepth(1000) // Ensure it's on top
+  .setAlpha(0) // Start hidden
+  .setScale(0.8)
+  .setScrollFactor(0) // Stick to screen
+
+// Animate modal in
+scene.tweens.add({
+  targets: modalContainer,
+  alpha: 1,
+  scale: 1,
+  ease: 'Back.Out',
+  duration: 300
+});
+
+*/
+
+
+
+
+
+
+
+
+  // Hide statsBox while moving
+  document.getElementById("statsBox").style.display = "none";
+
+  const timeHeld = Date.now() - pointerDownTime;
+  const movedDistance = Phaser.Math.Distance.Between(pointer.x, pointer.y, initialPointer.x, initialPointer.y);
+
+  const maxTapTime = 300;       // max press time in ms
+  const maxMoveDistance = 10;   // max movement in px before cancel
+
+  if (timeHeld <= maxTapTime && movedDistance <= maxMoveDistance) {
+
+    if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
+
+let otherPlayerId = null;
+
+const entries = playerState instanceof Map
+  ? Array.from(playerState.entries())
+  : Object.entries(playerState);
+/*
+console.log("Entries to check:", entries);
+console.log("Clicked position:", clickedX, clickedY);
+*/
+console.log("Current user:", playerData.playerUid);
+
+for (const [pid, pos] of entries) {
+  // Defensive checks
+  if (!pos || typeof pos.x !== "number" || typeof pos.y !== "number") {
+    console.warn(`Skipping invalid player data for ${pid}:`, pos);
+    continue;
+  }
+
+
+  // Compare position and exclude current user
+  if (
+    pid !== playerData.playerUid &&
+    Number(pos.x) === Number(clickedX) &&
+    Number(pos.y) === Number(clickedY)
+  ) {
+    otherPlayerId = pid;
+    console.log(`✅ Found other player at this tile: ${otherPlayerId}`);
+    break;
+  }
+}
+
+    console.log(`clicked position: ${otherPlayerId}`);
+
+    if (!isPointerDown) {
+      const tileType = mapData[clickedY]?.[clickedX] || "empty";
+      showTileActionModal(clickedX, clickedY, tileType, otherPlayerId);
+    }
+  }
+});
+
+scene.input.on("pointermove", pointer => {
+
+  cam = scene.cameras.main;
+
+  const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
+  const x = Math.floor(worldPoint.x / TILE_SIZE);
+  const y = Math.floor(worldPoint.y / TILE_SIZE);
+
+  if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
+    const zoneType = mapData[y]?.[x] || "empty";
+    const info = zoneInfo[zoneType] || zoneInfo.empty;
+
+    tileTooltip.style.left = pointer.event.clientX + 15 + "px";
+    tileTooltip.style.top = pointer.event.clientY + 15 + "px";
+    tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
+    tileTooltip.style.display = "block";
+  } else {
+    tileTooltip.style.display = "none";
+  }
+});
+
+
+  scene.input.on("pointerout", () => {
+    tileTooltip.style.display = "none";
+  });
+
+}
+
+async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
 
   // Clear any existing highlight
 if (tileHighlightRect) {
@@ -2062,161 +2219,6 @@ scene.time.addEvent({
 });
 
 
-
-
-
-// ✅ Modal Pop-up Container (centered in camera view)
-const modalWidth = 100;
-const modalHeight = 100;
-const modalX = scene.cameras.main.centerX;
-const modalY = scene.cameras.main.centerY;
-
-// Background rectangle for modal
-const modalBg = scene.add.rectangle(0, 0, modalWidth, modalHeight, 0x000000, 0.8)
-  .setStrokeStyle(3, 0x00ff00)
-  .setOrigin(0.5);
-
-  const graphics = scene.add.graphics();
-graphics.fillStyle(0x000000, 0.8);
-graphics.lineStyle(3, 0x00ff00);
-graphics.fillRoundedRect(0, 0, modalWidth, modalHeight, 12);
-graphics.strokeRoundedRect(0, 0, modalWidth, modalHeight, 12);
-
-
-// Text inside modal
-const modalText = scene.add.text(0, -40, "Tile Options", {
-  fontSize: '20px',
-  color: '#ffffff',
-  fontStyle: 'bold',
-  align: 'center'
-}).setOrigin(0.5);
-
-// Example Button
-const buttonBg = scene.add.rectangle(0, 30, 100, 40, 0x00aa00, 1)
-  .setStrokeStyle(2, 0xffffff)
-  .setInteractive({ useHandCursor: true })
-  .on('pointerdown', () => {
-    console.log('Button clicked for tile', selectedTile);
-    modalContainer.destroy(); // Close modal
-  });
-
-const buttonText = scene.add.text(0, 30, 'OK', {
-  fontSize: '9px',
-  color: '#ffffff',
-}).setOrigin(0.5);
-
-// Group all into a container
-const modalContainer = scene.add.container(modalX, modalY, [
-  modalBg,
-  modalText,
-  buttonBg,
-  buttonText
-])
-  .setDepth(1000) // Ensure it's on top
-  .setAlpha(0) // Start hidden
-  .setScale(0.8)
-  .setScrollFactor(0) // Stick to screen
-
-// Animate modal in
-scene.tweens.add({
-  targets: modalContainer,
-  alpha: 1,
-  scale: 1,
-  ease: 'Back.Out',
-  duration: 300
-});
-
-
-
-
-
-
-
-
-
-
-  // Hide statsBox while moving
-  document.getElementById("statsBox").style.display = "none";
-
-  const timeHeld = Date.now() - pointerDownTime;
-  const movedDistance = Phaser.Math.Distance.Between(pointer.x, pointer.y, initialPointer.x, initialPointer.y);
-
-  const maxTapTime = 300;       // max press time in ms
-  const maxMoveDistance = 10;   // max movement in px before cancel
-
-  if (timeHeld <= maxTapTime && movedDistance <= maxMoveDistance) {
-
-    if (clickedX < 0 || clickedX >= MAP_SIZE || clickedY < 0 || clickedY >= MAP_SIZE) return;
-
-let otherPlayerId = null;
-
-const entries = playerState instanceof Map
-  ? Array.from(playerState.entries())
-  : Object.entries(playerState);
-/*
-console.log("Entries to check:", entries);
-console.log("Clicked position:", clickedX, clickedY);
-*/
-console.log("Current user:", playerData.playerUid);
-
-for (const [pid, pos] of entries) {
-  // Defensive checks
-  if (!pos || typeof pos.x !== "number" || typeof pos.y !== "number") {
-    console.warn(`Skipping invalid player data for ${pid}:`, pos);
-    continue;
-  }
-
-
-  // Compare position and exclude current user
-  if (
-    pid !== playerData.playerUid &&
-    Number(pos.x) === Number(clickedX) &&
-    Number(pos.y) === Number(clickedY)
-  ) {
-    otherPlayerId = pid;
-    console.log(`✅ Found other player at this tile: ${otherPlayerId}`);
-    break;
-  }
-}
-
-    console.log(`clicked position: ${otherPlayerId}`);
-
-    if (!isPointerDown) {
-      const tileType = mapData[clickedY]?.[clickedX] || "empty";
-     // showTileActionModal(clickedX, clickedY, tileType, otherPlayerId);
-    }
-  }
-});
-
-scene.input.on("pointermove", pointer => {
-
-  cam = scene.cameras.main;
-
-  const worldPoint = cam.getWorldPoint(pointer.x, pointer.y);
-  const x = Math.floor(worldPoint.x / TILE_SIZE);
-  const y = Math.floor(worldPoint.y / TILE_SIZE);
-
-  if (x >= 0 && x < MAP_SIZE && y >= 0 && y < MAP_SIZE) {
-    const zoneType = mapData[y]?.[x] || "empty";
-    const info = zoneInfo[zoneType] || zoneInfo.empty;
-
-    tileTooltip.style.left = pointer.event.clientX + 15 + "px";
-    tileTooltip.style.top = pointer.event.clientY + 15 + "px";
-    tileTooltip.innerHTML = `${info.icon} <strong>${info.label}</strong> (${x},${y})`;
-    tileTooltip.style.display = "block";
-  } else {
-    tileTooltip.style.display = "none";
-  }
-});
-
-
-  scene.input.on("pointerout", () => {
-    tileTooltip.style.display = "none";
-  });
-
-}
-
-async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
 
 
   const modalEl = document.getElementById("tileActionModal");
