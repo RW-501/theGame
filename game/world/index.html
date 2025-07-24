@@ -1942,6 +1942,9 @@ scene.input.on("pointermove", pointer => {
   //  
 }
 
+ 
+let selectedTile = null;
+let tileHighlightRect = null;
 
 
 function clearTileSelection() {
@@ -1985,10 +1988,7 @@ scene.input.on("pointerdown", pointer => {
 scene.input.on("pointerup", pointer => {
   if (!isPointerDown) return;
   isPointerDown = false;
-  
-let selectedTile = null;
-let tileHighlightRect = null;
-
+ 
 
     const worldPoint = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
     const clickedX = Math.floor(worldPoint.x / TILE_SIZE);
