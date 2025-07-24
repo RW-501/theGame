@@ -2091,24 +2091,16 @@ modalBody.innerHTML = `
   if (otherPlayerId) {
 
 const data = allUsersMap.get(otherPlayerId) || {};
-const info = {
-  playerName: data.playerName ?? otherPlayerId.substring(0, 6),
-  health: data.health ?? "??",
-  level: data.level ?? "?",
-  techStrength: data.techStrength ?? "?",
-  securityStrength: data.securityStrength ?? "?",
-  bank: data.bank ?? "?",
-};
 
 
     modalBody.innerHTML += `
-      <p>Player <strong>${info.playerName}</strong> is here.</p>
-      <p>Level: ${info.level}</p>
-      <p>Bank: ${info.bank}</p>
+      <p>Player <strong>${data.playerName}</strong> is here.</p>
+      <p>Level: ${data.level}</p>
+      <p>Bank: ${data.bank}</p>
 
-      <p>Health: ${info.health}</p>
-      <p>Tech Strength: ${info.techStrength}</p>
-      <p>Security Strength: ${info.securityStrength}</p>
+      <p>Health: ${data.health}</p>
+      <p>Tech Strength: ${data.techStrength}</p>
+      <p>Security Strength: ${data.securityStrength}</p>
     `;
 
  const hackBtn = createButton({
@@ -2126,7 +2118,7 @@ const talkBtn = createButton({
   text: "Talk",
   className: "btn btn-primary",
   onClick: () => {
-    showMessageModal(`Talking to ${info.playerName}...`);
+    showMessageModal(`Talking to ${data.playerName}...`);
     bootstrap.Modal.getInstance(modalEl)?.hide();
   },
   parent: modalFooter
@@ -2152,7 +2144,7 @@ if (!otherPlayerId && trueType === "land" && info.ownerID == playerData.playerUi
 }
 
 
-if (!otherPlayerId && trueType === "home" && dbTileInfo.ownerID == playerData.playerUid) {
+if (!otherPlayerId && trueType === "home" && info.ownerID == playerData.playerUid) {
   let homeType = level > 5 ? "House" : "Appartment";
 
   createButton({
