@@ -1950,7 +1950,7 @@ let tileHighlightRect = null;
 function clearTileSelection() {
   selectedTile = null;
 
-  if (tileHighlightRect) {
+  if (tileHighlightRect && selectedTile) {
     tileHighlightRect.destroy();
     tileHighlightRect = null;
   }
