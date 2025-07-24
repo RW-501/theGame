@@ -3983,7 +3983,7 @@ function renderAllPlayers(scene) {
     const online = otherPlayerData?.online || true;
     const level = otherPlayerData?.level || 1;
     const bank = otherPlayerData?.bank || 1;
-    const playerUid = otherPlayerData?.playerUid || 1;
+    const playersUid = otherPlayerData?.playerUid || 1;
 
     const securityStrength = otherPlayerData?.securityStrength || 1;
     const techStrength = otherPlayerData?.techStrength || 1;
@@ -3994,10 +3994,10 @@ function renderAllPlayers(scene) {
 
     console.log("health ", health, " bank ", bank, " playerData.location ",otherPlayerData.location ," X ",pos.x, " Y ",pos.y)
 
-    console.log(`${level}, ${displayName} Drawing ${playerUid} at (${pos.x}, ${pos.y})`);
+    console.log(`${level}, ${displayName} Drawing ${playersUid} at (${pos.x}, ${pos.y})`);
 
 
-if(playerUid = playerData.playerUid){
+if(playersUid = playerData.playerUid){
 
     console.log(`this is you!! ${level}, ${displayName} Drawing ${playerData} at (${pos.x}, ${pos.y})`);
 
