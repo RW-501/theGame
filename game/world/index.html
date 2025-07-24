@@ -3897,7 +3897,7 @@ if (!sprite) {
     pos.x * TILE_SIZE + TILE_SIZE / 2,
     pos.y * TILE_SIZE + TILE_SIZE / 2
   );
-
+/*
   // Then, check if player is already on that tile
 const isOnTile =
   playerData?.playerX === pos.x && playerData?.playerY === pos.y;
@@ -3906,7 +3906,7 @@ if (isOnTile) {
   console.log(`🚫 Skipping render for ${playerId} (already on this tile)`);
   continue;
 }
-
+*/
           // Optional: Add a white border using graphics
   const border = scene.add.circle(
     pos.x,
@@ -3980,9 +3980,9 @@ function renderAllOwnedTiles(scene) {
   }
 
   for (const [tileId, tile] of tileDataMap.entries()) {
-    const { x, y, icon, level, ownerName, color, label, ownerID, forSale } = tile;
+    const { x, y, icon, level, ownerName, color, label, ownerID, forSale, type } = tile;
 
-    if (x == null || y == null || !ownerID) continue;
+    if (x == null || y == null || !ownerID || type == 'home') continue;
 
     const spriteKey = `${x}_${y}`;
 
