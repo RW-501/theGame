@@ -4118,12 +4118,20 @@ nameBg.y = nameOffsetY;
 // 📦 Combine in container and position at bottom of tile
 const labelContainer = scene.add.container(0, TILE_SIZE * 0.45);
 
-// Shift children so they're centered in the container
-levelBg.setPosition(0, 0);
-levelText.setPosition(0, 0);
 
-nameBg.setPosition(0, levelHeight); // stacked below level
-nameText.setPosition(0, levelHeight);
+// Set X offsets for side-by-side layout
+const levelOffsetX = -(levelWidth + spacing) / 2;
+const nameOffsetX = (nameWidth + spacing) / 2;
+
+// Vertically center everything
+const centerY = 0;
+
+levelBg.setPosition(levelOffsetX, centerY);
+levelText.setPosition(levelOffsetX, centerY);
+
+nameBg.setPosition(nameOffsetX, centerY);
+nameText.setPosition(nameOffsetX, centerY);
+
 
 // Add children in order
 labelContainer.add([levelBg, levelText, nameBg, nameText]);
