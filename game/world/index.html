@@ -2135,7 +2135,7 @@ talkBtn.disabled = data.isInCombat;
 
 
 
-if (!otherPlayerId && trueType === "land") {
+if (!otherPlayerId && trueType === "land" && info.ownerID == playerData.playerUid ) {
   let landType = level > 1 ? "Property" : "Land";
 
   createButton({
@@ -2150,7 +2150,7 @@ if (!otherPlayerId && trueType === "land") {
 }
 
 
-if (!otherPlayerId && trueType === "home") {
+if (!otherPlayerId && trueType === "home" && info.ownerID == playerData.playerUid) {
   let homeType = level > 5 ? "House" : "Appartment";
 
   createButton({
@@ -2243,9 +2243,9 @@ if (trueType === "company" && !alreadyWorkingHere ) {
 }
 
 if (
-  info.ownerName &&
+  info.ownerID &&
   isUnlocked &&
-  info.ownerName === playerData.playerName &&
+  info.ownerID === playerData.playerUid &&
   (trueType === "property" || trueType === "land")
 ) {
   createButton({
@@ -2263,9 +2263,9 @@ confirmBtn.dataset.selectedTileY = y;
 
 
 if (
-  //info.ownerName &&
+  //info.ownerID &&
   isUnlocked &&
-   info.ownerName != playerData.playerName &&
+   info.ownerID != playerData.playerUid &&
   trueType === "company"  && !alreadyWorkingHere
 ) {
         const payPerDay = Math.floor(info.value / 20);
