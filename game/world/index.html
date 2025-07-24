@@ -2061,6 +2061,74 @@ scene.time.addEvent({
   }
 });
 
+
+
+
+
+// ✅ Modal Pop-up Container (centered in camera view)
+const modalWidth = 300;
+const modalHeight = 200;
+const modalX = scene.cameras.main.centerX;
+const modalY = scene.cameras.main.centerY;
+
+// Background rectangle for modal
+const modalBg = scene.add.rectangle(0, 0, modalWidth, modalHeight, 0x000000, 0.8)
+  .setStrokeStyle(3, 0x00ff00)
+  .setOrigin(0.5)
+  .setRadius(12);
+
+// Text inside modal
+const modalText = scene.add.text(0, -40, "Tile Options", {
+  fontSize: '20px',
+  color: '#ffffff',
+  fontStyle: 'bold',
+  align: 'center'
+}).setOrigin(0.5);
+
+// Example Button
+const buttonBg = scene.add.rectangle(0, 30, 100, 40, 0x00aa00, 1)
+  .setStrokeStyle(2, 0xffffff)
+  .setInteractive({ useHandCursor: true })
+  .on('pointerdown', () => {
+    console.log('Button clicked for tile', selectedTile);
+    modalContainer.destroy(); // Close modal
+  });
+
+const buttonText = scene.add.text(0, 30, 'OK', {
+  fontSize: '18px',
+  color: '#ffffff',
+}).setOrigin(0.5);
+
+// Group all into a container
+const modalContainer = scene.add.container(modalX, modalY, [
+  modalBg,
+  modalText,
+  buttonBg,
+  buttonText
+])
+  .setDepth(1000) // Ensure it's on top
+  .setAlpha(0) // Start hidden
+  .setScale(0.8)
+  .setScrollFactor(0) // Stick to screen
+
+// Animate modal in
+scene.tweens.add({
+  targets: modalContainer,
+  alpha: 1,
+  scale: 1,
+  ease: 'Back.Out',
+  duration: 300
+});
+
+
+
+
+
+
+
+
+
+
   // Hide statsBox while moving
   document.getElementById("statsBox").style.display = "none";
 
