@@ -4079,7 +4079,7 @@ const labelFontStyle = {
 };
 
 // 🎖️ Level Tag
-const levelText = scene.add.text(0, 0, `Lv ${level}`, labelFontStyle).setOrigin(0.5);
+const levelText = scene.add.text(0, 0, `Lv ${level}`, labelFontStyle);
 levelText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 const levelWidth = levelText.width + labelPadding * 2;
@@ -4092,7 +4092,7 @@ levelBg.lineStyle(1, 0xffffff, 1);
 levelBg.strokeRoundedRect(-levelWidth / 2, -levelHeight / 2, levelWidth, levelHeight, 4);
 
 // 🏠 Name/Home Tag
-const nameText = scene.add.text(0, 0, nameLabel, labelFontStyle).setOrigin(0.5);
+const nameText = scene.add.text(0, 0, nameLabel, labelFontStyle);
 nameText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 const nameWidth = nameText.width + labelPadding * 2;
@@ -4105,7 +4105,7 @@ nameBg.lineStyle(1, 0xffffff, 1);
 nameBg.strokeRoundedRect(-nameWidth / 2, -nameHeight / 2, nameWidth, nameHeight, 4);
 
 // Adjust Y positions manually inside the container
-const spacing = 1; // optional spacing between tags
+const spacing = 0; // optional spacing between tags
 const levelOffsetY = -(nameHeight / 2 + spacing + levelHeight / 2);
 const nameOffsetY = levelHeight / 2 + spacing + nameHeight / 2;
 
@@ -4119,7 +4119,7 @@ nameBg.y = nameOffsetY;
 const labelContainer = scene.add.container(0, TILE_SIZE * 0.45, [
   levelBg, levelText,
   nameBg, nameText
-]);
+]).setOrigin(0.5);
 
 // 🔧 Add to sprite
 sprite.add([userHomeImage, labelContainer]);
