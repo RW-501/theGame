@@ -2473,9 +2473,9 @@ async function repairHomeHealth(x, y) {
   const player = playerSnap.data();
 
   const maxHealth = 100; // max health cap, adjust if you want
-  const currentHealth = tileData.health || maxHealth;
+  const currentHealth = tileData.health;
   if (currentHealth >= maxHealth) {
-    showMessageModal("Health is already full.");
+    showMessageModal('info', "Health is already full.");
     return;
   }
 
@@ -2485,7 +2485,7 @@ async function repairHomeHealth(x, y) {
   const repairCost = healthToRepair * costPerHealth;
 
   if (player.bank < repairCost) {
-    showMessageModal(`Not enough money to repair health. Cost: $${repairCost}`);
+    showMessageModal('info',`Not enough money to repair health. Cost: $${repairCost}`);
     return;
   }
 
@@ -2498,7 +2498,7 @@ async function repairHomeHealth(x, y) {
     }),
   ]);
 
-  showMessageModal(`Repaired health to full for $${repairCost}.`);
+  showMessageModal('info',`Repaired health to full for $${repairCost}.`);
 }
 
 
