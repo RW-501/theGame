@@ -3720,26 +3720,95 @@ document.getElementById("playerAvatar").addEventListener("click", () => {
 });
 
 
+function calculateTotalTaxes(ownerId) {
+  let totalTax = 0;
+
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const tile = mapData[y][x];
+
+      if (tile?.ownerId === ownerId) {
+        const price = tile.price || 0;
+        const taxRate = tile.taxRate || 0; // Assume 0.05 for 5% if not set
+        totalTax += price * taxRate;
+      }
+    }
+  }
+
+  return totalTax;
+}
+
+function calculateTotalIncome(ownerId) {
+  let totalIncome = 0;
+
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const tile = mapData[y][x];
+
+      if (tile?.ownerId === ownerId) {
+        const income = tile.income || 0;
+        totalIncome += income;
+      }
+    }
+  }
+
+  return totalIncome;
+}
+
+function calculateTotalPropertyValue(ownerId) {
+  let totalValue = 0;
+
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const tile = mapData[y][x];
+
+      if (tile?.ownerId === ownerId) {
+        const price = tile.price || 0;
+        totalValue += price;
+      }
+    }
+  }
+
+  return totalValue;
+}
+
 
 
 function showPlayerInfo() {
+const uid = playerData.playerUid;
+
+const income = calculateTotalIncome(uid);
+const value = calculateTotalPropertyValue(uid);
+const taxes = calculateTotalTaxes(uid);
+
+
+
   state = playerData;
   const content = `
     <p><strong>Name:</strong> ${state.playerName}</p>
     <p><strong>XP:</strong> ${state.xp}</p>
-    <p><strong>Bank:</strong> $${state.bank.toLocaleString()}</p>
     <p><strong>Level:</strong> ${state.level}</p>
+<hr>
+    <p><strong>Bank:</strong> $${state.bank.toLocaleString()}</p>
+    <p><strong>Income /hr:</strong> ${income}</p>
+    <p><strong>Taxs Owed /hr:</strong> ${taxes}</p>
+    <p><strong>Property Value:</strong> ${value}</p>
+
+    <p><strong>Loans:</strong> ${state.loans || 0}</p>
+    <hr>
     <p><strong>Trades Left:</strong> ${state.trades}</p>
+    <p><strong>Total Trades:</strong> ${state.tradesTotal || 0}</p>
+
+<hr>
     <p><strong>Crypto:</strong> ${state.crypto}</p>
     <p><strong>Zone:</strong> ${zoneInfo[mapData[playerY]?.[playerX]]?.label || 'Unknown'}</p>
     <p><strong>Location:</strong> [${playerX}, ${playerY}]</p>
     <hr>
     <p><strong>Companies Owned:</strong> ${state.companiesOwned?.length || 0}</p>
     <p><strong>Land Owned:</strong> ${state.landOwned?.length || 0}</p>
+    <hr>
     <p><strong>Attacks Made:</strong> ${state.attacks || 0}</p>
     <p><strong>Times Attacked:</strong> ${state.attacked || 0}</p>
-    <p><strong>Loans:</strong> ${state.loans || 0}</p>
-    <p><strong>Total Trades:</strong> ${state.tradesTotal || 0}</p>
   `;
 
   document.getElementById("playerInfoContent").innerHTML = content;
@@ -3788,7 +3857,7 @@ document.getElementById("level").addEventListener("click", renderPowerUpStore);
 // Purchase logic (stub, you can add your logic here)
 function buyBoost(type, price) {
   if (playerData.bank >= price) {
-    stplayerDataate.bank -= price;
+    playerData.bank -= price;
 
     if (type === 'health') playerData.health += 50;
     if (type === 'security') playerData.securityStrength += 1;
@@ -3802,10 +3871,22 @@ function buyBoost(type, price) {
 }
 
 function renderBankLedger() {
+
+const income = calculateTotalIncome(playerData.playerUid);
+const value = calculateTotalPropertyValue(playerData.playerUid);
+const taxes = calculateTotalTaxes(playerData.playerUid);
+
+
   const ledgerHTML = `
     <p><strong>Balance:</strong> $${(playerData.bank ?? 0).toLocaleString()}</p>
     <p><strong>Loans:</strong> $${(playerData.loans ?? 0).toLocaleString()}</p>
+
+    <p><strong>Income /hr:</strong> ${income}</p>
+    <p><strong>Taxs Owed /hr:</strong> ${taxes}</p>
+    <p><strong>Property Value:</strong> ${value}</p>
+    <hr>
     <p><strong>Vault Items:</strong> ${playerData.inventory?.join(", ") || "None"}</p>
+
   `;
   document.getElementById("bankLedgerContent").innerHTML = ledgerHTML;
 }
@@ -3843,6 +3924,20 @@ function isAdjacent(x1, y1, x2, y2) {
 
 
 
+function getOwnedTiles(ownerId) {
+  const owned = [];
+
+  for (let y = 0; y < MAP_SIZE; y++) {
+    for (let x = 0; x < MAP_SIZE; x++) {
+      const tile = mapData[y][x];
+      if (tile?.ownerId === ownerId) {
+        owned.push({ x, y, ...tile });
+      }
+    }
+  }
+
+  return owned;
+}
 
 const tileSpriteMap = new Map(); // Similar to otherPlayerSprites
 let tileDataMap; 
