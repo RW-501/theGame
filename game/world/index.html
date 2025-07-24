@@ -1926,15 +1926,19 @@ scene.input.on("pointermove", pointer => {
   if (pointer.isDown && isPointerDown) {
     cam.scrollX -= (pointer.x - pointer.prevPosition.x) / cam.zoom;
     cam.scrollY -= (pointer.y - pointer.prevPosition.y) / cam.zoom;
-
   }
+   clearTileSelection();
+
 });
 
   // Mouse wheel zoom
   scene.input.on("wheel", (pointer, gameObjects, deltaX, deltaY) => {
      newZoom = Phaser.Math.Clamp(cam.zoom - deltaY * 0.001, 0.5, 2);
     cam.setZoom(newZoom);
+     clearTileSelection();
+
   });
+
 
     cam.setZoom(newZoom);
 }
