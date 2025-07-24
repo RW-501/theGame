@@ -3729,7 +3729,7 @@ function calculateTotalTaxes(ownerId) {
     for (let x = 0; x < MAP_SIZE; x++) {
       const tile = mapData[y][x];
 
-      if (tile?.ownerId === ownerId) {
+      if (tile?.ownerID === ownerId) {
         const price = tile.price || 0;
         const taxRate = tile.taxRate || 0; // Assume 0.05 for 5% if not set
         totalTax += price * taxRate;
@@ -3747,7 +3747,7 @@ function calculateTotalIncome(ownerId) {
     for (let x = 0; x < MAP_SIZE; x++) {
       const tile = mapData[y][x];
 
-      if (tile?.ownerId === ownerId) {
+      if (tile?.ownerID === ownerId) {
         const income = tile.income || 0;
         totalIncome += income;
       }
@@ -3764,9 +3764,9 @@ function calculateTotalPropertyValue(ownerId) {
     for (let x = 0; x < MAP_SIZE; x++) {
       const tile = mapData[y][x];
 
-      if (tile?.ownerId === ownerId) {
-        const price = tile.price || 0;
-        totalValue += price;
+      if (tile?.ownerID === ownerId) {
+        const value = tile.value || 0;
+        totalValue += value;
       }
     }
   }
