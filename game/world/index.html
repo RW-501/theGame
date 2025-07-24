@@ -4127,7 +4127,7 @@ const nameText = scene.add.text(0, 0, nameLabel, labelFontStyle).setOrigin(0.5);
 nameText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 // Optional: increase name container width to feel more balanced
-const nameExtraWidth = 10;
+const nameExtraWidth = 0;
 const nameWidth = nameText.width + labelPadding * 2 + nameExtraWidth;
 const nameHeight = nameText.height + labelPadding * 2;
 
@@ -4170,7 +4170,7 @@ nameBg.strokePath();
 
 
 // 📦 Combine in container and position at bottom of tile
-const labelContainer = scene.add.container(0, TILE_SIZE * 2);
+const labelContainer = scene.add.container(0, TILE_SIZE * 0);
 
 
 
