@@ -3978,23 +3978,28 @@ function renderAllPlayers(scene) {
     let sprite = otherPlayerSprites.get(playerId);
 
     // Get player data (e.g., from allUsersMap or Firestore cache)
-    const playerData = allUsersMap.get(playerId); // Ensure this map exists
-    const displayName = playerData?.playerName || "Player";
-    const online = playerData?.online || true;
+    const otherPlayerData = allUsersMap.get(playerId); // Ensure this map exists
+    const displayName = otherPlayerData?.playerName || "Player";
+    const online = otherPlayerData?.online || true;
+    const level = otherPlayerData?.level || 1;
 
-    const securityStrength = playerData?.securityStrength || 1;
-    const techStrength = playerData?.techStrength || 1;
-    const health = playerData?.health || 100;
-    const inCombat = playerData?.inCombat || false;
-    const trainingMode = playerData?.trainingMode || true;
-
-
-    console.log("playerX ", playerX, " playerY ", playerY, " playerData.location ",playerData.location ," X ",pos.x, " Y ",pos.y)
-
-    console.log(`🧍 Drawing ${playerData} at (${pos.x}, ${pos.y})`);
+    const securityStrength = otherPlayerData?.securityStrength || 1;
+    const techStrength = otherPlayerData?.techStrength || 1;
+    const health = otherPlayerData?.health || 100;
+    const inCombat = otherPlayerData?.inCombat || false;
+    const trainingMode = otherPlayerData?.trainingMode || true;
 
 
+    console.log("playerX ", playerX, " playerY ", playerY, " playerData.location ",otherPlayerData.location ," X ",pos.x, " Y ",pos.y)
 
+    console.log(`${level}, ${displayName} Drawing ${otherPlayerData} at (${pos.x}, ${pos.y})`);
+
+
+if(otherPlayerData.playerUid = playerData.playerUid){
+
+    console.log(`xxxxxxxxx ${level}, ${displayName} Drawing ${playerData} at (${pos.x}, ${pos.y})`);
+
+}
 
 // Create sprite if it doesn't exist
 if (!sprite) {
