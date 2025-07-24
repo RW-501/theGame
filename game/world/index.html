@@ -2775,7 +2775,7 @@ async function handleHackPlayer(attacker, defender) {
       health: increment(attackerWins ? -damage : -damage / 2),
       bank: increment(attackerWins ? -stealAmount : -stealAmount / 2),
       attacked: increment(1),
-      securityStrengthXP: increment(attackerWins ? -stealAmount / 2 : stealAmount / 3),
+      techStrengthXP: increment(attackerWins ? -stealAmount / 2 : stealAmount / 2),
     })
   ]);
 
