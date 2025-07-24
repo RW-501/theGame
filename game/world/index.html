@@ -4111,13 +4111,9 @@ sprite.add([
 ]);
 
 // Store or render accordingly
-if (!isLocalPlayer) {
   otherPlayerSprites.set(playerId, sprite);
   scene.add.existing(sprite);
-} else {
-  // Optional: add to `scene` or track in a separate reference
-  scene.add.existing(sprite);
-}
+
 // Update sprite position
 sprite.setPosition(
   pos.x * TILE_SIZE + TILE_SIZE / 2,
