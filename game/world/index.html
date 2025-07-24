@@ -2074,8 +2074,14 @@ const modalY = scene.cameras.main.centerY;
 // Background rectangle for modal
 const modalBg = scene.add.rectangle(0, 0, modalWidth, modalHeight, 0x000000, 0.8)
   .setStrokeStyle(3, 0x00ff00)
-  .setOrigin(0.5)
-  .setRadius(12);
+  .setOrigin(0.5);
+
+  const graphics = scene.add.graphics();
+graphics.fillStyle(0x000000, 0.8);
+graphics.lineStyle(3, 0x00ff00);
+graphics.fillRoundedRect(0, 0, modalWidth, modalHeight, 12);
+graphics.strokeRoundedRect(0, 0, modalWidth, modalHeight, 12);
+
 
 // Text inside modal
 const modalText = scene.add.text(0, -40, "Tile Options", {
