@@ -2007,14 +2007,15 @@ if (tileHighlightRect) {
 selectedTile = { x: clickedX, y: clickedY };
 
 // ✅ 1. Zoom in slightly (animated)
-scene.tweens.add({
-  targets: scene.cameras.main,
-  zoom: 2,
-  scrollX: clickedX * TILE_SIZE - scene.cameras.main.width / 4,
-  scrollY: clickedY * TILE_SIZE - scene.cameras.main.height / 4,
-  duration: 300,
-  ease: "Sine.easeInOut"
-});
+const targetX = clickedX * TILE_SIZE + TILE_SIZE / 2;
+const targetY = clickedY * TILE_SIZE + TILE_SIZE / 2;
+
+// Zoom to 2x
+scene.cameras.main.zoomTo(2, 300, 'Sine.easeInOut');
+
+// Pan to the center of the tile
+scene.cameras.main.pan(targetX, targetY, 300, 'Sine.easeInOut');
+
 
 // ✅ 2. Draw lime green tile highlight
 // Add the green highlight rectangle
