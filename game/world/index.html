@@ -1992,7 +1992,8 @@ scene.input.on("pointerup", pointer => {
   if (!isPointerDown) return;
   isPointerDown = false;
 
-
+let clickedX = pointer.x;
+let clickedY = pointer.y;
 
   // Clear any existing highlight
 if (tileHighlightRect) {
