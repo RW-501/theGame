@@ -4096,22 +4096,27 @@ levelBg.fillStyle(0x4444aa, 1);
 levelBg.lineStyle(1, 0xffffff, 1);
 levelBg.beginPath();
 
-// Top-left corner (rounded)
-levelBg.moveTo(left + radius, top);
-levelBg.arc(left + radius, top + radius, radius, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(180), true);
 
-// Left side
-levelBg.lineTo(left, bottom);
+// Top-left corner (straight)
+levelBg.moveTo(left, top);
 
-// Bottom side (straight)
-levelBg.lineTo(right, bottom);
-
-// Right side
-levelBg.lineTo(right, top + radius);
+// Top side (straight to top-right - radius)
+levelBg.lineTo(right - radius, top);
 
 // Top-right corner (rounded)
-levelBg.arc(right - radius, top + radius, radius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(270), true);
+levelBg.arc(right - radius, top + radius, radius, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(360));
 
+// Right side (down to bottom-right - radius)
+levelBg.lineTo(right, bottom - radius);
+
+// Bottom-right corner (rounded)
+levelBg.arc(right - radius, bottom - radius, radius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(90));
+
+// Bottom side (straight to bottom-left)
+levelBg.lineTo(left, bottom);
+
+// Left side (straight up to top-left)
+levelBg.lineTo(left, top);
 levelBg.closePath();
 levelBg.fillPath();
 levelBg.strokePath();
@@ -4139,8 +4144,9 @@ nameBg.beginPath();
 // Top-left corner (straight)
 nameBg.moveTo(left, top);
 
-// Top-right corner (straight)
-nameBg.lineTo(right, top);
+// Top-right corner (rounded)
+nameBg.lineTo(right - radius, top);
+nameBg.arc(right - radius, top + radius, radius, Phaser.Math.DegToRad(270), Phaser.Math.DegToRad(360));
 
 // Right side down
 nameBg.lineTo(right, bottom - radius);
@@ -4148,13 +4154,10 @@ nameBg.lineTo(right, bottom - radius);
 // Bottom-right corner (rounded)
 nameBg.arc(right - radius, bottom - radius, radius, Phaser.Math.DegToRad(0), Phaser.Math.DegToRad(90));
 
-// Bottom side
-nameBg.lineTo(left + radius, bottom);
+// Bottom side (straight to bottom-left)
+nameBg.lineTo(left, bottom);
 
-// Bottom-left corner (rounded)
-nameBg.arc(left + radius, bottom - radius, radius, Phaser.Math.DegToRad(90), Phaser.Math.DegToRad(180));
-
-// Left side up
+// Left side up (straight)
 nameBg.lineTo(left, top);
 
 nameBg.closePath();
