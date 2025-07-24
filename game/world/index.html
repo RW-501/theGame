@@ -760,10 +760,11 @@ text-indent: 5px;
       <div class="modal-body" id="bankLedgerContent">
         <!-- Dynamic Ledger Info Here -->
       </div>
-    </div>
-          <div class="modal-footer">
+                <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
+    </div>
+
   </div>
 </div>
 
@@ -775,11 +776,12 @@ text-indent: 5px;
       <div class="modal-body" id="stockMarketContent">
         <!-- Stocks Table, Charts, Buy/Sell Actions -->
       </div>
-        </div>
-
-            <div class="modal-footer">
+              <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
+        </div>
+
+    
     </div>
   </div>
 </div>
@@ -3889,6 +3891,7 @@ const taxes = calculateTotalTaxes(playerData.playerUid);
 
   `;
   document.getElementById("bankLedgerContent").innerHTML = ledgerHTML;
+
 }
 
 function renderStockMarket() {
