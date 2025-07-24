@@ -4079,7 +4079,7 @@ const labelFontStyle = {
 };
 
 // 🎖️ Level Tag
-const levelText = scene.add.text(0, 0, `Lv ${level}`, labelFontStyle).setOrigin(0.5);
+const levelText = scene.add.text(0, 0, `${level}`, labelFontStyle).setOrigin(0.5);
 levelText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 const levelWidth = levelText.width + labelPadding * 2;
@@ -4170,7 +4170,7 @@ nameBg.strokePath();
 
 
 // 📦 Combine in container and position at bottom of tile
-const labelContainer = scene.add.container(0, TILE_SIZE * 0.3);
+const labelContainer = scene.add.container(0, TILE_SIZE * 0.35);
 
 
 
