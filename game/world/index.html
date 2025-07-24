@@ -1608,10 +1608,9 @@ await processHourlyIncomeAndTax(playerData);
 setInterval(() => processHourlyIncomeAndTax(playerData), 15 * 60 * 1000); // every 15 min
 
   console.log("✅ Player loaded:", playerData);
-  
+
   initPlayerRealtimeSync(scene);
 
-  updateStatsUI(playerData);
 }, 1000);
 
 
