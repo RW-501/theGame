@@ -1939,6 +1939,31 @@ scene.input.on("pointermove", pointer => {
     cam.setZoom(newZoom);
 }
 
+
+function clearTileSelection() {
+  selectedTile = null;
+
+  if (tileHighlightRect) {
+    tileHighlightRect.destroy();
+    tileHighlightRect = null;
+  }
+
+  scene.tweens.add({
+    targets: scene.cameras.main,
+    zoom: 1,
+    scrollX: 0,
+    scrollY: 0,
+    duration: 300,
+    ease: "Sine.easeInOut"
+  });
+
+  document.getElementById("statsBox").style.display = "block";
+}
+
+
+
+
+
 function setupMapInteraction(scene) {
   cursors = scene.input.keyboard.createCursorKeys();
 
@@ -1960,11 +1985,55 @@ scene.input.on("pointerdown", pointer => {
   initialPointer = { x: pointer.x, y: pointer.y };
 });
 
+let selectedTile = null;
+let tileHighlightRect = null;
+
 scene.input.on("pointerup", pointer => {
   if (!isPointerDown) return;
   isPointerDown = false;
+
+
+
+  // Clear any existing highlight
+if (tileHighlightRect) {
+  tileHighlightRect.destroy();
+  tileHighlightRect = null;
+}
+
+// Store selected tile
+selectedTile = { x: clickedX, y: clickedY };
+
+// ✅ 1. Zoom in slightly (animated)
+scene.tweens.add({
+  targets: scene.cameras.main,
+  zoom: 2,
+  scrollX: clickedX * TILE_SIZE - scene.cameras.main.width / 4,
+  scrollY: clickedY * TILE_SIZE - scene.cameras.main.height / 4,
+  duration: 300,
+  ease: "Sine.easeInOut"
+});
+
+// ✅ 2. Draw lime green tile highlight
+tileHighlightRect = scene.add.rectangle(
+  clickedX * TILE_SIZE + TILE_SIZE / 2,
+  clickedY * TILE_SIZE + TILE_SIZE / 2,
+  TILE_SIZE, TILE_SIZE,
+  0x00ff00, 0.2 // semi-transparent fill
+).setStrokeStyle(3, 0x00ff00);
+
+/*
+// ✅ 3. Show and update info box
+const statsBox = document.getElementById("statsBox");
+statsBox.style.display = "block";
+statsBox.style.left = `${pointer.x + 20}px`;
+statsBox.style.top = `${pointer.y}px`;
+statsBox.innerHTML = `Tile: ${clickedX}, ${clickedY}<br>Type: ${mapData[clickedY][clickedX]}`;
+
+
+*/
+
   // Hide statsBox while moving
-  document.getElementById("statsBox").style.display = "block";
+  document.getElementById("statsBox").style.display = "none";
 
   const timeHeld = Date.now() - pointerDownTime;
   const movedDistance = Phaser.Math.Distance.Between(pointer.x, pointer.y, initialPointer.x, initialPointer.y);
