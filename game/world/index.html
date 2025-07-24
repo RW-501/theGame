@@ -1939,6 +1939,9 @@ scene.input.on("pointermove", pointer => {
     cam.setZoom(newZoom);
 }
 
+let selectedTile = null;
+let tileHighlightRect = null;
+
 
 function clearTileSelection() {
   selectedTile = null;
@@ -1985,8 +1988,6 @@ scene.input.on("pointerdown", pointer => {
   initialPointer = { x: pointer.x, y: pointer.y };
 });
 
-let selectedTile = null;
-let tileHighlightRect = null;
 
 scene.input.on("pointerup", pointer => {
   if (!isPointerDown) return;
@@ -2045,6 +2046,17 @@ scene.tweens.add({
   repeat: -1
 });
 
+let greenShades = [0x00ff00, 0x66ff66, 0x99ff99];
+let current = 0;
+
+scene.time.addEvent({
+  delay: 500,
+  loop: true,
+  callback: () => {
+    tileHighlightRect.setFillStyle(greenShades[current], 0.3);
+    current = (current + 1) % greenShades.length;
+  }
+});
 
   // Hide statsBox while moving
   document.getElementById("statsBox").style.display = "none";
