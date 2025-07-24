@@ -4131,6 +4131,12 @@ const nameExtraWidth = 10;
 const nameWidth = nameText.width + labelPadding * 2 + nameExtraWidth;
 const nameHeight = nameText.height + labelPadding * 2;
 
+// Recalculate BEFORE drawing shape
+const nameLeft = -nameWidth / 2;
+const nameRight = nameWidth / 2;
+const nameTop = -nameHeight / 2;
+const nameBottom = nameHeight / 2;
+
 
 const nameBg = scene.add.graphics();
 nameBg.fillStyle(0x222222, 1);
@@ -4164,18 +4170,14 @@ nameBg.strokePath();
 
 
 // 📦 Combine in container and position at bottom of tile
-const labelContainer = scene.add.container(0, TILE_SIZE * 0);
+const labelContainer = scene.add.container(0, TILE_SIZE * 2);
 
 
-// 🔁 Recalculate left/right for nameBg with new width
-const nameLeft = -nameWidth / 2;
-const nameRight = nameWidth / 2;
-const nameTop = -nameHeight / 2;
-const nameBottom = nameHeight / 2;
 
 // 🧠 Side-by-side X offset
-const levelOffsetX = -(levelWidth + nameWidth) / 2 + levelWidth / 2;
-const nameOffsetX = levelOffsetX + levelWidth / 2 + nameWidth / 2;
+const levelOffsetX = -nameWidth / 2;
+const nameOffsetX = levelOffsetX + levelWidth;
+
 
 // Both on same horizontal line (Y = 0)
 const labelY = 0;
