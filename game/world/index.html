@@ -4069,7 +4069,6 @@ if (levelToImageKey[level]) {
 const isLocalPlayer = playersUid === playerData.playerUid;
 const nameLabel = isLocalPlayer ? "My Home" : displayName;
 
-// 🏷️ Common Style
 const labelPadding = 4;
 const labelFontSize = 9;
 const labelFontStyle = {
@@ -4079,40 +4078,52 @@ const labelFontStyle = {
   align: 'center'
 };
 
-// 🎖️ Level Tag - create text after level image is rendered
-const levelText = scene.add.text(0, TILE_SIZE * 0.2, `Lv ${level}`, labelFontStyle).setOrigin(0.5);
-levelText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2); // Make sure text wraps within the container width
+// 🎖️ Level Tag
+const levelText = scene.add.text(0, 0, `Lv ${level}`, labelFontStyle).setOrigin(0.5);
+levelText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 const levelWidth = levelText.width + labelPadding * 2;
 const levelHeight = levelText.height + labelPadding * 2;
 
 const levelBg = scene.add.graphics();
-levelBg.fillStyle(0x4444aa, 1); // dark blue background
+levelBg.fillStyle(0x4444aa, 1);
 levelBg.fillRoundedRect(-levelWidth / 2, -levelHeight / 2, levelWidth, levelHeight, 4);
 levelBg.lineStyle(1, 0xffffff, 1);
 levelBg.strokeRoundedRect(-levelWidth / 2, -levelHeight / 2, levelWidth, levelHeight, 4);
 
 // 🏠 Name/Home Tag
-const nameText = scene.add.text(0, TILE_SIZE * 0.4, nameLabel, labelFontStyle).setOrigin(0.5);
-nameText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2); // Ensure name fits
+const nameText = scene.add.text(0, 0, nameLabel, labelFontStyle).setOrigin(0.5);
+nameText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 const nameWidth = nameText.width + labelPadding * 2;
 const nameHeight = nameText.height + labelPadding * 2;
 
 const nameBg = scene.add.graphics();
-nameBg.fillStyle(0x222222, 1); // dark gray background
+nameBg.fillStyle(0x222222, 1);
 nameBg.fillRoundedRect(-nameWidth / 2, -nameHeight / 2, nameWidth, nameHeight, 4);
 nameBg.lineStyle(1, 0xffffff, 1);
 nameBg.strokeRoundedRect(-nameWidth / 2, -nameHeight / 2, nameWidth, nameHeight, 4);
 
-// 👇 Create a container and add in the correct order: background first, then text
-const labelContainer = scene.add.container(0, TILE_SIZE * 0.5, [levelBg, levelText, nameBg, nameText]);
+// Adjust Y positions manually inside the container
+const spacing = 1; // optional spacing between tags
+const levelOffsetY = -(nameHeight / 2 + spacing + levelHeight / 2);
+const nameOffsetY = levelHeight / 2 + spacing + nameHeight / 2;
 
-// Position the label container to the bottom of the tile (adjust y-position)
-labelContainer.y = TILE_SIZE * 0.4 + levelHeight / 2 + nameHeight / 2;
+levelText.y = levelOffsetY;
+levelBg.y = levelOffsetY;
 
-// Add to sprite
+nameText.y = nameOffsetY;
+nameBg.y = nameOffsetY;
+
+// 📦 Combine in container and position at bottom of tile
+const labelContainer = scene.add.container(0, TILE_SIZE * 0.45, [
+  levelBg, levelText,
+  nameBg, nameText
+]);
+
+// 🔧 Add to sprite
 sprite.add([userHomeImage, labelContainer]);
+
 
 // Store or render accordingly
   otherPlayerSprites.set(playerId, sprite);
