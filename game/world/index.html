@@ -4023,6 +4023,7 @@ if (isOnTile) {
 
 
 
+// Create container sprite to hold everything
 
 // Create sprite if it doesn't exist
 if (!sprite) {
@@ -4054,8 +4055,6 @@ if (levelToImageKey[level]) {
 const isLocalPlayer = playersUid === playerData.playerUid;
 const nameLabel = isLocalPlayer ? "My Home" : displayName;
 
-// Create container sprite to hold everything
-const sprite = scene.add.container(0, 0);
 
 // 🏷️ Label Styling
 const labelPadding = 4;
