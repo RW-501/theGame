@@ -2152,7 +2152,7 @@ if (!otherPlayerId && trueType === "land" && info.ownerID == playerData.playerUi
 }
 
 
-if (!otherPlayerId && trueType === "home" && info.ownerID == playerData.playerUid) {
+if (!otherPlayerId && trueType === "home" && dbTileInfo.ownerID == playerData.playerUid) {
   let homeType = level > 5 ? "House" : "Appartment";
 
   createButton({
