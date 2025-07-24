@@ -4079,7 +4079,7 @@ const labelFontStyle = {
 };
 
 // 🎖️ Level Tag
-const levelText = scene.add.text(0, 0, `Lv ${level}`, labelFontStyle);
+const levelText = scene.add.text(0, 0, `Lv ${level}`, labelFontStyle).setOrigin(0.5);
 levelText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 const levelWidth = levelText.width + labelPadding * 2;
@@ -4092,7 +4092,7 @@ levelBg.lineStyle(1, 0xffffff, 1);
 levelBg.strokeRoundedRect(-levelWidth / 2, -levelHeight / 2, levelWidth, levelHeight, 4);
 
 // 🏠 Name/Home Tag
-const nameText = scene.add.text(0, 0, nameLabel, labelFontStyle);
+const nameText = scene.add.text(0, 0, nameLabel, labelFontStyle).setOrigin(0.5);
 nameText.setWordWrapWidth(TILE_SIZE * 0.8 - labelPadding * 2);
 
 const nameWidth = nameText.width + labelPadding * 2;
