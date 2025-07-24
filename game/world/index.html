@@ -1608,6 +1608,9 @@ await processHourlyIncomeAndTax(playerData);
 setInterval(() => processHourlyIncomeAndTax(playerData), 15 * 60 * 1000); // every 15 min
 
   console.log("✅ Player loaded:", playerData);
+  
+  initPlayerRealtimeSync(scene);
+
   updateStatsUI(playerData);
 }, 1000);
 
@@ -2043,6 +2046,7 @@ scene.input.on("pointermove", pointer => {
     tileTooltip.style.display = "none";
   });
 
+}
 
 async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
 
@@ -3065,31 +3069,45 @@ async function upgradeCompany(x, y) {
 window.upgradeCompany = upgradeCompany;
 
 
-document.getElementById("confirmStartCompanyBtn").addEventListener("click", async () => {
-  const sector = document.getElementById("sectorSelect").value;
-  const name = document.getElementById("companyNameInput").value.trim();
-  const symbol = document.getElementById("stockSymbolInput").value.trim().toUpperCase();
+function initStartCompanyButton() {
+  const confirmBtn = document.getElementById("confirmStartCompanyBtn");
 
-  if (!name || !symbol || symbol.length < 3 || symbol.length > 5 || !/^[A-Z]+$/.test(symbol)) {
-    showMessageModal("Please enter a valid company name and a stock symbol (3–5 uppercase letters).");
+  if (!confirmBtn) {
+    console.error("❌ Button with ID 'confirmStartCompanyBtn' not found.");
     return;
   }
 
-  // Replace these with your actual tile context values
-const confirmBtn = document.getElementById("confirmStartCompanyBtn");
-const x = parseInt(confirmBtn.dataset.selectedTileX, 10);
-const y = parseInt(confirmBtn.dataset.selectedTileY, 10);
+  confirmBtn.addEventListener("click", async () => {
+    const sector = document.getElementById("sectorSelect").value;
+    const name = document.getElementById("companyNameInput").value.trim();
+    const symbol = document.getElementById("stockSymbolInput").value.trim().toUpperCase();
 
-  const tileData = await getTileDataAt(x, y);
+    if (!name || !symbol || symbol.length < 3 || symbol.length > 5 || !/^[A-Z]+$/.test(symbol)) {
+      showMessageModal("Please enter a valid company name and a stock symbol (3–5 uppercase letters).");
+      return;
+    }
+
+    const x = parseInt(confirmBtn.dataset.selectedTileX, 10);
+    const y = parseInt(confirmBtn.dataset.selectedTileY, 10);
+
+    const tileData = await getTileDataAt(x, y);
     const uid = auth.currentUser?.uid;
 
-  if (!uid) return alert("User not logged in.");
+    if (!uid) {
+      alert("User not logged in.");
+      return;
+    }
 
-  await startCompany(x, y, tileData, uid, sector, name, symbol);
+    await startCompany(x, y, tileData, uid, sector, name, symbol);
 
-  // Hide the modal
-  bootstrap.Modal.getInstance(document.getElementById("startCompanyModal"))?.hide();
-});
+    // Hide the modal
+    const modalEl = document.getElementById("startCompanyModal");
+    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+    modalInstance?.hide();
+  });
+}
+  initStartCompanyButton();
+
 
 
 async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
@@ -3433,80 +3451,78 @@ window.sellTile = sellTile;
 
 
 
+function initPlayerRealtimeSync(scene) {
+  if (!playerData?.playerUid) {
+    console.error("❌ playerData.playerUid is missing");
+    return;
+  }
 
+  console.log("✅ Realtime sync initialized for playerUid:", playerData.playerUid);
 
+  // 🔁 Watch own player document
+  const playerRef = doc(db, "players", playerData.playerUid);
+  onSnapshot(playerRef, (docSnap) => {
+    if (docSnap.exists()) {
+      const data = docSnap.data();
 
-console.log("uid ", uid)
-  // Realtime sync for player movement and all players
-const playerRef = doc(db, "players", uid);
-onSnapshot(playerRef, (docSnap) => {
-  if (docSnap.exists()) {
-    const data = docSnap.data();
+      // Update position and move player sprite if changed
+      const pos = data.location;
+      if (pos && (pos.x !== playerX || pos.y !== playerY)) {
+        playerX = pos.x;
+        playerY = pos.y;
+        movePlayerSmoothly(scene, playerX, playerY);
+      }
 
-    // Update position and move player sprite if position changed
-    const pos = data.location;
-    if (pos && (pos.x !== playerX || pos.y !== playerY)) {
-      playerX = pos.x;
-      playerY = pos.y;
-      movePlayerSmoothly(scene, playerX, playerY);
+      // Merge new data into playerData
+      playerData = {
+        ...playerData,
+        ...data
+      };
+
+      // Update UI
+      updateStatsUI(data);
     }
+  });
 
+  // 🔁 Watch all players collection
+  const playersRef = collection(db, "players");
+  onSnapshot(playersRef, (querySnapshot) => {
+    console.log("🔥 Received Firestore snapshot for all players");
 
+    playerState.clear();
+    allUsersMap.clear();
 
-    // Update local playerData object with all fresh data from Firestore
-    playerData = {
-      ...playerData,  // keep previous keys if any
-      ...data         // overwrite with latest from Firestore
-    };
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      const id = doc.id;
 
-    // Refresh UI after updating playerData
-    updateStatsUI(data);
-  }
-});
+      allUsersMap.set(id, data);
 
-const playersRef = collection(db, "players"); 
+      if (Array.isArray(data.location) && data.location.length === 2) {
+        playerState.set(id, {
+          playerUid: data.playerUid,
+          x: data.location[0],
+          y: data.location[1],
+          bank: data.bank ?? 0,
+          crypto: data.crypto ?? 0,
+          level: data.level ?? 0,
+          xp: data.xp ?? 0,
+          health: data.health ?? 100,
+          techStrength: data.techStrength ?? 0,
+          securityStrength: data.securityStrength ?? 0,
+          ...data
+        });
 
-onSnapshot(playersRef, (querySnapshot) => {
-  console.log("🔥 Received Firestore snapshot");
+        // Optional: Update self again from collection (if desired)
+        if (playerData.playerUid === data.playerUid) {
+          updateStatsUI(data);
+        }
 
-  playerState.clear();
-  allUsersMap.clear(); 
-
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
-    const id = doc.id;
-
-    /*
-console.log("player id   ",id);
-console.log("player data   ",data);
-*/
-    allUsersMap.set(id, data);
-
-    if (Array.isArray(data.location) && data.location.length === 2) {
-playerState.set(id, {
-  playerUid: data.playerUid,
-  x: data.location[0],
-  y: data.location[1],
-  bank: data.bank ?? 0,
-  crypto: data.crypto ?? 0,
-  level: data.level ?? 0,
-  xp: data.xp ?? 0,
-  health: data.health ?? 100,
-  techStrength: data.techStrength ?? 0,
-  securityStrength: data.securityStrength ?? 0,
-  ...data // optionally spread everything else
-});
-if (playerData.playerUid == data.playerUid) {
-
-updateStatsUI(data);  
-  }
-
-  console.log("🧠 Updated playerState:", Array.from(playerState.entries()));
-  renderAllPlayers(scene);
-}
-});
-});
-
+        console.log("🧠 Updated playerState:", Array.from(playerState.entries()));
+        renderAllPlayers(scene);
+      }
+    });
+  });
 }
 
 
