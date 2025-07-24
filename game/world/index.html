@@ -4116,10 +4116,17 @@ nameText.y = nameOffsetY;
 nameBg.y = nameOffsetY;
 
 // 📦 Combine in container and position at bottom of tile
-const labelContainer = scene.add.container(0, TILE_SIZE * 0.45, [
-  levelBg, levelText,
-  nameBg, nameText
-]).setOrigin(0.5);
+const labelContainer = scene.add.container(0, TILE_SIZE * 0.45);
+
+// Shift children so they're centered in the container
+levelBg.setPosition(0, 0);
+levelText.setPosition(0, 0);
+
+nameBg.setPosition(0, levelHeight); // stacked below level
+nameText.setPosition(0, levelHeight);
+
+// Add children in order
+labelContainer.add([levelBg, levelText, nameBg, nameText]);
 
 // 🔧 Add to sprite
 sprite.add([userHomeImage, labelContainer]);
