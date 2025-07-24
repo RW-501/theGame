@@ -3436,9 +3436,9 @@ window.sellTile = sellTile;
 
 
 
-
+console.log("uid ", uid)
   // Realtime sync for player movement and all players
-const playerRef = doc(db, "players", playerData.playerUid);
+const playerRef = doc(db, "players", uid);
 onSnapshot(playerRef, (docSnap) => {
   if (docSnap.exists()) {
     const data = docSnap.data();
