@@ -132,43 +132,53 @@ selectedAvatar = avatar.dataset.avatar;
 
   // Prepare new player object (playerUid is empty for now)
   const newPlayer = {
-    playerUid: '',               // <-- will be filled after addDoc
-    userID: uid,
-    playerName: username,
-    avatarImage: selectedAvatar,
-    avatarUrl: selectedAvatarImageUrl,
-    status: "active",
-    lastUpdate: serverTimestamp(),
-    online: true,
-    server: "main",
-    location: "start",
-    isNew: true,
-    trainingMode: true,
+      playerUid: "", // will be updated below
+      userID: uid,
+      playerName: user.displayName || "Player" + Math.floor(Math.random() * 1000),
+      avatarUrl: 'https://robohash.org/1?size=50x50',
+      status: "active",
+      lastUpdate: serverTimestamp(),
+      online: true,
+      server: "main",
 
-    // Stats
-    crypto: 5,
-    xp: 0,
-    level: 1,
-    bank: 1000,
-    vault: [],
-    loans: [],
-    health: 100,
-    techStrength: 1,
-    security: 1,
+      location: randomLocation, // ✅ Assigned here
+      playerX: x,
+      playerY: y,
 
-    landOwned: [],
-    jobs: [],
-    companiesOwned: [],
-    stocks: [],
-    trades: 0,
-    tradesTotal: 0,
-    portfolio: [],
-    inCombat: false,
-    attacks: 0,
-    attacked: 0,
-    inventory: [],
-    history: [],
-    createdAt: serverTimestamp()
+      isNew: true,
+      trainingMode: true,
+
+      crypto: 5,
+      xp: 0,
+      level: 1,
+      bank: 1000,
+      vault: [],
+      loans: [],
+      health: 100,
+      techStrength: 1,
+      securityStrength: 1,
+
+      securityStrengthXP: 0,
+      techStrengthXP: 0,
+
+      trades: 0,
+      tradesTotal: 0,
+
+      tradesAvailable: 5,
+      lastTradeRefill: Date.now(), // timestamp in ms
+
+      landOwned: [],
+      jobs: [],
+      companiesOwned: [],
+      stocks: [],
+
+      portfolio: [],
+      inCombat: false,
+      attacks: 0,
+      attacked: 0,
+      inventory: [],
+      history: [],
+      createdAt: serverTimestamp()
   };
 
   // Add the document, get a reference with ID
