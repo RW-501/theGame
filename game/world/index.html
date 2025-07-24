@@ -1997,8 +1997,6 @@ scene.input.on("pointerup", pointer => {
     const clickedY = Math.floor(worldPoint.y / TILE_SIZE);
 
 
-    console.log(`clicked clickedX: ${clickedX}`);
-    console.log(`clicked clickedY: ${clickedY}`);
 
   // Clear any existing highlight
 if (tileHighlightRect) {
@@ -2055,7 +2053,7 @@ let greenShades = [0x00ff00, 0x66ff66, 0x99ff99];
 let current = 0;
 
 scene.time.addEvent({
-  delay: 500,
+  delay: 800,
   loop: true,
   callback: () => {
     tileHighlightRect.setFillStyle(greenShades[current], 0.3);
