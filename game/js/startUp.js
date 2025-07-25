@@ -202,9 +202,10 @@ export async function ensureHomeTileExists(playerData) {
 
 
 let playerData;
-export async function finalizePlayerSetup(playerInfo, scene) {
+export async function finalizePlayerSetup(playerInfo, gameScene) {
   
   playerData = playerInfo;
+  scene = gameScene;
 
   localStorage.setItem("theGame_currentPlayerData", JSON.stringify(playerData));
   playerState.set(playerData.userID, playerData);
@@ -216,4 +217,4 @@ export async function finalizePlayerSetup(playerInfo, scene) {
 }
 
 
-export { playerData };
+export { playerData, scene };
