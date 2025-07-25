@@ -42,7 +42,7 @@ export async function getTileDataAt(x, y) {
 }
 
 
-export  { mapData, zoneInfo,   TILE_SIZE,
+export  {  zoneInfo,   TILE_SIZE,
   MAP_SIZE,
   zoneInfo,
   mapData,
