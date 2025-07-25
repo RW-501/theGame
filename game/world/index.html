@@ -2219,11 +2219,11 @@ if (tileHighlightRect) {
 }
 
 // Store selected tile
-selectedTile = { x: clickedX, y: clickedY };
+selectedTile = { x, y };
 
 // ✅ 1. Zoom in slightly (animated)
-const targetX = clickedX * TILE_SIZE + TILE_SIZE / 2;
-const targetY = clickedY * TILE_SIZE + TILE_SIZE / 2;
+const targetX = x * TILE_SIZE + TILE_SIZE / 2;
+const targetY = y * TILE_SIZE + TILE_SIZE / 2;
 
 // Zoom to 2x
 scene.cameras.main.zoomTo(2, 500, 'Sine.easeInOut');
