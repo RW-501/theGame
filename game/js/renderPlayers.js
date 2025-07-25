@@ -6,6 +6,7 @@ import {
   loadTileData, getTileDataAt, playerState, otherPlayerSprites
 } from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
 
+const allUsersMap = new Map();
 
 // Render other players except local player
 function renderAllPlayers(scene) {
