@@ -12,7 +12,6 @@ import {
   openOwnedModal, refreshOwnedTiles, highlightTile, centerCameraOnTile,
   openTileDetails, renderOwnedList
 } from 'https://rw-501.github.io/theGame/game/js/renderOwnedProperty.js';
-import { getOwnedTiles, renderAllOwnedTiles } from 'https://rw-501.github.io/theGame/game/js/renderOwnedTiles.js';
 
 
 
