@@ -11,7 +11,13 @@ import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.g
  
 let selectedTile = null;
 let tileHighlightRect = null;
+let game;
+let scene;
+let cam;
+let newZoom;
 
+
+let graphics;
 
 
 
@@ -90,9 +96,6 @@ function initPlayerRealtimeSync(scene) {
 }
 
 
-
-
-let graphics;
 
 async function initializeMap(scene) {
   // Assuming graphics and playerSprite are globals or declared elsewhere
