@@ -38,7 +38,7 @@ let graphics;
 
 
 
-function initPlayerRealtimeSync(scene) {
+function initPlayerRealtimeSync(scene, playerData) {
   if (!playerData?.playerUid) {
     console.error("❌ playerData.playerUid is missing");
     return;

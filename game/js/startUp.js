@@ -211,7 +211,7 @@ export async function finalizePlayerSetup(playerData, scene) {
   await processHourlyIncomeAndTax(playerData);
   setInterval(() => processHourlyIncomeAndTax(playerData), 15 * 60 * 1000);
 
-  initPlayerRealtimeSync(scene);
+  initPlayerRealtimeSync(scene, playerData);
 }
 
 
