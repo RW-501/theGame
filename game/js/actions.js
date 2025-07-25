@@ -28,11 +28,17 @@ import { showManageHomeModal } from 'https://rw-501.github.io/theGame/game/js/re
 import { openManageCompanyModal } from 'https://rw-501.github.io/theGame/game/js/renderManageCompany.js';
 
 // Map state and data
-import {
-  TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
-  loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
-  loadTileData, getTileDataAt, playerState, otherPlayerSprites
-} from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
+   import {      TILE_SIZE,
+  MAP_SIZE,
+  zoneInfo,
+  mapData,
+  loadMapFromFirebase,
+  setDefaultMapData,
+  loadTileDataAndRender,
+  loadTileData,
+  playerState,
+  otherPlayerSprites,
+  getTileDataAt  } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 // Owned properties UI
 import {

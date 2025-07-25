@@ -8,7 +8,19 @@ import { initLiveNotifications, sendNotification  } from 'https://rw-501.github.
 import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.github.io/theGame/game/includes/showToast.js'; 
 
 
- 
+ // Map state and data
+   import {      TILE_SIZE,
+  MAP_SIZE,
+  zoneInfo,
+  mapData,
+  loadMapFromFirebase,
+  setDefaultMapData,
+  loadTileDataAndRender,
+  loadTileData,
+  playerState,
+  otherPlayerSprites,
+  getTileDataAt  } from 'https://rw-501.github.io/theGame/game/js/map.js';
+
 let selectedTile = null;
 let tileHighlightRect = null;
 let game;
