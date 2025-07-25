@@ -51,6 +51,21 @@ export  { mapData, zoneInfo,   TILE_SIZE,
   loadTileDataAndRender,
   loadTileData,
   playerState,
-  otherPlayerSprites,
-  getTileDataAt }; 
+  otherPlayerSprites }; 
  
+
+  /*
+   import {   mapData, zoneInfo,   TILE_SIZE,
+  MAP_SIZE,
+  zoneInfo,
+  mapData,
+  loadMapFromFirebase,
+  setDefaultMapData,
+  loadTileDataAndRender,
+  loadTileData,
+  playerState,
+  otherPlayerSprites,
+  getTileDataAt  } from 'https://rw-501.github.io/theGame/game/js/map.js';
+
+
+  */
