@@ -92,7 +92,7 @@ function initPlayerRealtimeSync(scene) {
 
 
 
-
+let graphics;
 
 async function initializeMap(scene) {
   // Assuming graphics and playerSprite are globals or declared elsewhere
