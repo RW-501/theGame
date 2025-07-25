@@ -53,3 +53,4 @@ export  { mapData, zoneInfo,   TILE_SIZE,
   playerState,
   otherPlayerSprites,
   getTileDataAt }; 
+ 
