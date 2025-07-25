@@ -12,7 +12,6 @@ import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.g
 
 
 // Stores and markets
-import { renderStockMarket } from 'https://rw-501.github.io/theGame/game/js/renderStockMarket.js';
 import { renderPowerUpStore } from 'https://rw-501.github.io/theGame/game/js/renderStore.js';
 
 // Game rules and player progression
