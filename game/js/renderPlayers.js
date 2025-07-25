@@ -79,11 +79,13 @@ if (isOnTile) {
 
 // Create sprite if it doesn't exist
 if (!sprite) {
+
+  /*
   sprite = scene.add.container(
     pos.x * TILE_SIZE + TILE_SIZE / 2,
     pos.y * TILE_SIZE + TILE_SIZE / 2
   );
-
+*/
 let userHomeImage;
 
 const levelToImageKey = {
