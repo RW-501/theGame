@@ -2,7 +2,7 @@
  
  // 📥 IMPORTS
 import { zoneInfo } from 'https://rw-501.github.io/theGame/game/includes/js/map.js';
-// import { sleep } from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js'; // if used
+// import { sleep } from 'https://rw-501.github.io/theGame/game/js/helpers.js'; // if used
 
  
  let loadingText;

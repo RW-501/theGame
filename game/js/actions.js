@@ -16,7 +16,7 @@ import {
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
 
-import { sleep, showMessageModal, createButton, movePlayerSmoothly, openManageCompanyModal } from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
+import { sleep, showMessageModal, createButton, movePlayerSmoothly, openManageCompanyModal } from 'https://rw-501.github.io/theGame/game/js/helpers.js';
 
 import { getTileDataAt, mapData, zoneInfo } from 'https://rw-501.github.io/theGame/game/js/map.js';
 

@@ -16,7 +16,7 @@ import {
   createButton, createProgressBar, showCustomModal, showMessageModal, animateNumber,
   launchConfetti, sleep, getRandomEmptyTile, isAdjacent, formatCurrency,
   calculateTotalTaxes, calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly
-} from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
+} from 'https://rw-501.github.io/theGame/game/js/helpers.js';
 
 
 // Stores and markets
