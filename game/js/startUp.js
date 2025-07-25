@@ -201,9 +201,11 @@ export async function ensureHomeTileExists(playerData) {
 }
 
 
-
-export async function finalizePlayerSetup(playerData, scene) {
+let playerData;
+export async function finalizePlayerSetup(playerInfo, scene) {
   const playerRef = doc(db, "players", playerData.playerUid);
+  
+  playerData = playerInfo;
 
   localStorage.setItem("theGame_currentPlayerData", JSON.stringify(playerData));
   playerState.set(playerData.userID, playerData);
