@@ -12,7 +12,7 @@
   margin: 5rem;
 
     min-width: 100svw;
-    height: 100%;
+    min-height: 100%;
   /*
  background: #222;
   box-shadow: 0 0 15px #333;
@@ -26,7 +26,7 @@
     width: 100lvw;
     */
     min-width: 100svw;
-    height: 100%;
+    min-height: 100%;
 }
 }
 
