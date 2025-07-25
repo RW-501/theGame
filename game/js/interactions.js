@@ -21,6 +21,10 @@ import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.g
   otherPlayerSprites,
   getTileDataAt  } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
+  // Map drawing and interactions
+import { drawMap } from 'https://rw-501.github.io/theGame/game/js/drawMap.js';
+
+
 let selectedTile = null;
 let tileHighlightRect = null;
 let game;
