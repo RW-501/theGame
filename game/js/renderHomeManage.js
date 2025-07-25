@@ -21,6 +21,9 @@ import {
   repairHomeHealth, handleHackPlayer, fireEmployee, upgradeCompany, upgradeTile, sellTile
 } from 'https://rw-501.github.io/theGame/game/js/actions.js';
 
+// Startup functions
+import { loadOrCreatePlayer, initGameScene,
+   ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 function showManageHomeModal(x, y) {
   const modalEl = document.getElementById("manageHomeModal");

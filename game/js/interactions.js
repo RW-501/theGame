@@ -38,6 +38,9 @@ import {
 import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/showTileAction.js';
 import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
 
+// Startup functions
+import { loadOrCreatePlayer, initGameScene,
+   ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 
  // Map state and data

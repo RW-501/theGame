@@ -14,6 +14,9 @@ import {   createButton,
   calculateTotalPropertyValue,
   movePlayerSmoothly } from 'https://rw-501.github.io/theGame/game/js/helpers.js';
 
+// Startup functions
+import { loadOrCreatePlayer, initGameScene,
+   ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 export function renderBankLedger() {
 
