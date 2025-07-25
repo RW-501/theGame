@@ -422,14 +422,14 @@ import { } from 'https://rw-501.github.io/theGame/game/includes/chat.js';
 import {
   purchaseTile, startCompany, workForCompany, upgradeLand, upgradeHomeBase, upgradeHomeStat,
   repairHomeHealth, handleHackPlayer, fireEmployee, upgradeCompany, upgradeTile, sellTile
-} from 'https://rw-501.github.io/theGame/game/includes/js/actions.js';
+} from 'https://rw-501.github.io/theGame/game/js/actions.js';
 
 // Map drawing and interactions
-import { drawMap } from 'https://rw-501.github.io/theGame/game/includes/js/drawMap.js';
+import { drawMap } from 'https://rw-501.github.io/theGame/game/js/drawMap.js';
 import {
   initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
   centerCameraOnPlayer, setupMapInteraction, setupMapMovement
-} from 'https://rw-501.github.io/theGame/game/includes/js/interactioms.js';
+} from 'https://rw-501.github.io/theGame/game/js/interactions.js';
 
 // Helpers and utilities
 import {
@@ -439,46 +439,47 @@ import {
 } from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
 
 // Render / UI modules
-import { preload } from 'https://rw-501.github.io/theGame/game/includes/js/preload.js';
-import { renderBankLedger } from 'https://rw-501.github.io/theGame/game/includes/js/renderBank.js';
-import { showEmployeesModal } from 'https://rw-501.github.io/theGame/game/includes/js/renderEmployees.js';
-import { showManageHomeModal } from 'https://rw-501.github.io/theGame/game/includes/js/renderHomeManage.js';
-import { openManageCompanyModal } from 'https://rw-501.github.io/theGame/game/includes/js/renderManageCompany.js';
+import { preload } from 'https://rw-501.github.io/theGame/game/js/preload.js';
+import { renderBankLedger } from 'https://rw-501.github.io/theGame/game/js/renderBank.js';
+import { showEmployeesModal } from 'https://rw-501.github.io/theGame/game/js/renderEmployees.js';
+import { showManageHomeModal } from 'https://rw-501.github.io/theGame/game/js/renderHomeManage.js';
+import { openManageCompanyModal } from 'https://rw-501.github.io/theGame/game/js/renderManageCompany.js';
 
 // Map state and data
 import {
   TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
   loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
   loadTileData, getTileDataAt, playerState, otherPlayerSprites
-} from 'https://rw-501.github.io/theGame/game/includes/js/renderMap.js';
+} from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
 
 // Owned properties UI
 import {
   openOwnedModal, refreshOwnedTiles, highlightTile, centerCameraOnTile,
   openTileDetails, renderOwnedList
-} from 'https://rw-501.github.io/theGame/game/includes/js/renderOwnedProperty.js';
-import { getOwnedTiles, renderAllOwnedTiles } from 'https://rw-501.github.io/theGame/game/includes/js/renderOwnedTiles.js';
+} from 'https://rw-501.github.io/theGame/game/js/renderOwnedProperty.js';
+import { getOwnedTiles, renderAllOwnedTiles } from 'https://rw-501.github.io/theGame/game/js/renderOwnedTiles.js';
 
 // Players and profile UI
-import { renderAllPlayers } from 'https://rw-501.github.io/theGame/game/includes/js/renderPlayers.js';
-import { loadAvatars, selectAvatar, showPlayerInfo } from 'https://rw-501.github.io/theGame/game/includes/js/renderProfile.js';
+import { renderAllPlayers } from 'https://rw-501.github.io/theGame/game/js/renderPlayers.js';
+import { loadAvatars, selectAvatar, showPlayerInfo } from 'https://rw-501.github.io/theGame/game/js/renderProfile.js';
 
 // Stores and markets
-import { renderStockMarket } from 'https://rw-501.github.io/theGame/game/includes/js/renderStockMarket.js';
-import { renderPowerUpStore } from 'https://rw-501.github.io/theGame/game/includes/js/renderStore.js';
+import { renderStockMarket } from 'https://rw-501.github.io/theGame/game/js/renderStockMarket.js';
+import { renderPowerUpStore } from 'https://rw-501.github.io/theGame/game/js/renderStore.js';
 
 // Game rules and player progression
 import {
   rules, checkRuleLimit, refillTradesIfNeeded, tryTrade, getPlayerTitle,
   updatePlayerName, savePlayerData, updateAndPersist, tryLevelUp, processHourlyIncomeAndTax
-} from 'https://rw-501.github.io/theGame/game/includes/js/rulesAndRegulations.js';
+} from 'https://rw-501.github.io/theGame/game/js/rulesAndRegulations.js';
 
 // Tile actions and UI updates
-import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/includes/js/showTileAction.js';
-import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/includes/js/updateStatsUI.js';
+import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/showTileAction.js';
+import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
 
 // Startup functions
-import { loadOrCreatePlayer, initGameScene, ensureHomeTileExists, finalizePlayerSetup } from 'https://rw-501.github.io/theGame/game/includes/js/startUp.js';
+import { loadOrCreatePlayer, initGameScene,
+   ensureHomeTileExists, finalizePlayerSetup } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 
 
