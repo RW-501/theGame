@@ -27,6 +27,10 @@ import {
 } from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
 
 
+// Startup functions
+import { loadOrCreatePlayer, initGameScene,
+   ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
+
 // Players and profile UI
 import { renderAllPlayers } from 'https://rw-501.github.io/theGame/game/js/renderPlayers.js';
 

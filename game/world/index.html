@@ -483,7 +483,7 @@ import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateSt
 
 // Startup functions
 import { loadOrCreatePlayer, initGameScene,
-   ensureHomeTileExists, finalizePlayerSetup } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
+   ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 
 
@@ -516,7 +516,7 @@ onAuthStateChanged(auth, async (user) => {
 
   console.log("uid ",uid);
   
-  const playerData = await loadOrCreatePlayer(uid);
+   playerData = await loadOrCreatePlayer(uid);
   await ensureHomeTileExists(playerData);
   await finalizePlayerSetup(playerData, game.scene.keys.defaultScene);
 });

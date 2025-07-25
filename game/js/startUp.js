@@ -215,3 +215,4 @@ export async function finalizePlayerSetup(playerData, scene) {
 }
 
 
+export { playerData };
