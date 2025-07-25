@@ -15,7 +15,11 @@ import {   createButton,
   calculateTotalPropertyValue,
   movePlayerSmoothly } from 'https://rw-501.github.io/theGame/game/js/helpers.js';
 
-import { upgradeHomeStat, repairHomeHealth } from 'https://rw-501.github.io/theGame/game/js/tiles.js';
+// Game action functions
+import {
+  purchaseTile, startCompany, workForCompany, upgradeLand, upgradeHomeBase, upgradeHomeStat,
+  repairHomeHealth, handleHackPlayer, fireEmployee, upgradeCompany, upgradeTile, sellTile
+} from 'https://rw-501.github.io/theGame/game/js/actions.js';
 
 
 function showManageHomeModal(x, y) {

@@ -4,15 +4,12 @@
 import { TILE_SIZE, MAP_SIZE, mapData, zoneInfo } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 
-// If `graphics` is defined outside this file:
-import { graphics } from './graphics.js'; // only if needed
-
-// If you're importing Phaser scenes or images (only if not globally preloaded)
-import Phaser from 'https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.esm.js';
 
 
 
 function drawMap(scene) {
+  let  graphics = scene.add.graphics();
+
   graphics.clear();
 
   for (let y = 0; y < MAP_SIZE; y++) {
