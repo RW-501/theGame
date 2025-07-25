@@ -42,4 +42,14 @@ export async function getTileDataAt(x, y) {
 }
 
 
-export  { mapData, zoneInfo }; 
+export  { mapData, zoneInfo,   TILE_SIZE,
+  MAP_SIZE,
+  zoneInfo,
+  mapData,
+  loadMapFromFirebase,
+  setDefaultMapData,
+  loadTileDataAndRender,
+  loadTileData,
+  playerState,
+  otherPlayerSprites,
+  getTileDataAt }; 
