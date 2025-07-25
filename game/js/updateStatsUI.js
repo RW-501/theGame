@@ -62,7 +62,5 @@ export function updateStatsUI(state) {
 
   tryLevelUp();
 
-  scene.load.on("complete", () => {
-    loadingText.setText("Loading Complete!");
-  });
+
 }
