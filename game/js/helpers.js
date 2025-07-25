@@ -1,8 +1,5 @@
 
 
-import confetti from 'https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js';
-
-
 function createButton({ text, className, onClick, parent = document.body, styles = {} }) {
   if (!text) {
     console.trace("createButton called with no text");
