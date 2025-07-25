@@ -25,9 +25,6 @@ import {
   calculateTotalTaxes, calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly
 } from 'https://rw-501.github.io/theGame/game/js/helpers.js';
 
-// Render / UI modules
-import { openManageCompanyModal } from 'https://rw-501.github.io/theGame/game/js/renderManageCompany.js';
-
 
 export async function openManageCompanyModal(company, x, y, playerData) {
   const modalElement = document.getElementById("manageCompanyModal");
