@@ -100,6 +100,8 @@ const levelToImageKey = {
 };
 // Check if the image is available
 if (levelToImageKey[level]) {
+  console.log("level   ",level);
+  
   userHomeImage = scene.add.image(0, -10, levelToImageKey[level])
     .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
     .setOrigin(0.5);
