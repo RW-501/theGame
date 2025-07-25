@@ -45,6 +45,13 @@ import {
 
 
 
+async function create() {
+   scene = this;
+
+  await initializeMap(scene);
+  setupMapMovement(scene);
+  setupMapInteraction(scene);
+}
 
 
 // === Firebase Login Check ===
