@@ -67,8 +67,14 @@ let graphics;
 
 const allUsersMap = new Map();
 
+
 let playerX;
 let playerY;
+
+let isPointerDown = false;
+let pointerDownTime = 0;
+let initialPointer = null;
+
 
 function initPlayerRealtimeSync(scene, playerData) {
   if (!playerData?.playerUid) {
