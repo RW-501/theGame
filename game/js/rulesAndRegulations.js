@@ -337,5 +337,4 @@ export {
   savePlayerData,
   updateAndPersist,
   tryLevelUp,
-  processHourlyIncomeAndTax
 };
