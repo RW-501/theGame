@@ -41,10 +41,6 @@ import {
   updatePlayerName, savePlayerData, updateAndPersist, tryLevelUp, processHourlyIncomeAndTax
 } from 'https://rw-501.github.io/theGame/game/js/rulesAndRegulations.js';
 
-// Startup functions
-import { loadOrCreatePlayer, initGameScene,
-   ensureHomeTileExists, finalizePlayerSetup } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
-
 
 
 
