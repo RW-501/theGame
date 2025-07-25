@@ -1,3 +1,14 @@
+   import {      TILE_SIZE,
+  MAP_SIZE,
+  zoneInfo,
+  mapData,
+  loadMapFromFirebase,
+  setDefaultMapData,
+  loadTileDataAndRender,
+  loadTileData,
+  playerState,
+  otherPlayerSprites,
+  getTileDataAt  } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 
 function createButton({ text, className, onClick, parent = document.body, styles = {} }) {

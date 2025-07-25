@@ -56,6 +56,7 @@ export  {
  
 
   /*
+// Map state and data
    import {      TILE_SIZE,
   MAP_SIZE,
   zoneInfo,

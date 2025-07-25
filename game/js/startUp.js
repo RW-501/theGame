@@ -28,11 +28,17 @@ import {
 import { preload } from 'https://rw-501.github.io/theGame/game/js/preload.js';
 
 // Map state and data
-import {
-  TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
-  loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
-  loadTileData, getTileDataAt, playerState, otherPlayerSprites
-} from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
+   import {      TILE_SIZE,
+  MAP_SIZE,
+  zoneInfo,
+  mapData,
+  loadMapFromFirebase,
+  setDefaultMapData,
+  loadTileDataAndRender,
+  loadTileData,
+  playerState,
+  otherPlayerSprites,
+  getTileDataAt  } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 
 // Game rules and player progression
@@ -43,7 +49,8 @@ import {
 
 
 
-
+let scene;
+let MapWidth;
 
 async function create() {
    scene = this;
@@ -56,7 +63,7 @@ async function create() {
 
 // === Firebase Login Check ===
 export function initGameScene() {
-  const MapWidth = (TILE_SIZE * MAP_SIZE) / 2;
+   MapWidth = (TILE_SIZE * MAP_SIZE) / 2;
 
   const config = {
     type: Phaser.AUTO,
