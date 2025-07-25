@@ -36,11 +36,6 @@ import {
   loadTileData, getTileDataAt, playerState, otherPlayerSprites
 } from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
 
-// Owned properties UI
-import {
-  openOwnedModal, refreshOwnedTiles, highlightTile, centerCameraOnTile,
-  openTileDetails, renderOwnedList
-} from 'https://rw-501.github.io/theGame/game/js/renderOwnedProperty.js';
 
 let ownedTiles = [];///  = [ playerData.companiesOwned playerData.landOwned]; // Loaded from player data
 
