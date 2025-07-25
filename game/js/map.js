@@ -8,7 +8,6 @@ import {   TILE_SIZE,
   setDefaultMapData,
   loadTileDataAndRender,
   loadTileData,
-  getTileDataAt,
   playerState,
   otherPlayerSprites  } from 'https://rw-501.github.io/theGame/game/js/renderMap.js'; 
 
