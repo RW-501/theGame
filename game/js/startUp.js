@@ -90,6 +90,8 @@ export async function loadOrCreatePlayer(uid) {
     data.id = docSnap.id;
     data.isNew = false;
 
+  console.log("✅ Create Player");
+
   const randomLocation = getRandomEmptyTile(mapData);
   const [x, y] = randomLocation;
 
@@ -102,6 +104,9 @@ export async function loadOrCreatePlayer(uid) {
     }
 
     return data;
+  }else {
+      console.log("✅ Load Player");
+
   }
 
   // Otherwise create new player
