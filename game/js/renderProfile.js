@@ -29,8 +29,6 @@ import {
 
 // Players and profile UI
 import { renderAllPlayers } from 'https://rw-501.github.io/theGame/game/js/renderPlayers.js';
-import { loadAvatars, selectAvatar, showPlayerInfo } from 'https://rw-501.github.io/theGame/game/js/renderProfile.js';
-
 
 
 const predefinedAvatars = [
