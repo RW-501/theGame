@@ -492,20 +492,10 @@ let pointerDownTime = 0;
 let initialPointer = null;
 const allUsersMap = new Map();
 
-
-
 const tileSpriteMap = new Map(); // Similar to otherPlayerSprites
 let tileDataMap; 
 
 const tileTooltip = document.getElementById("tileTooltip");
-
-
-
-
-
-
-
-
 
 async function create() {
    scene = this;
@@ -515,15 +505,13 @@ async function create() {
   setupMapInteraction(scene);
 }
 
-
-
 let uid;
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) return window.location.href = 'https://rw-501.github.io/theGame';
 
   await sleep(200);
-  uid = auth.user.uid;
+  uid = user.uid;
 
   const game = initGameScene();
   const playerData = await loadOrCreatePlayer(uid);
