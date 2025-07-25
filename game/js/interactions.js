@@ -31,6 +31,7 @@ let game;
 let scene;
 let cam;
 let newZoom;
+let cursors; 
 
 
 let graphics;
