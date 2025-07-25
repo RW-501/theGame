@@ -82,14 +82,16 @@ export async function loadOrCreatePlayer(uid) {
   const q = query(collection(db, "players"), where("userID", "==", uid), where("server", "==", "main"), limit(1));
   const snapshot = await getDocs(q);
 
-  const randomLocation = getRandomEmptyTile(mapData);
-  const [x, y] = randomLocation;
+
 
   if (!snapshot.empty) {
     const docSnap = snapshot.docs[0];
     const data = docSnap.data();
     data.id = docSnap.id;
     data.isNew = false;
+
+  const randomLocation = getRandomEmptyTile(mapData);
+  const [x, y] = randomLocation;
 
     if (data.location === 'start') {
       const docRef = doc(db, "players", data.id);
