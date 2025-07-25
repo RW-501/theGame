@@ -55,7 +55,6 @@ import {
 } from 'https://rw-501.github.io/theGame/game/js/rulesAndRegulations.js';
 
 // Tile actions and UI updates
-import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/showTileAction.js';
 import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
 
 
