@@ -58,6 +58,10 @@ import {
 import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
 
 
+   import {
+  initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
+  centerCameraOnPlayer, setupMapInteraction, setupMapMovement, allUsersMap
+} from 'https://rw-501.github.io/theGame/game/js/interactions.js';
 
 
 async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {

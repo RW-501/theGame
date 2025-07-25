@@ -430,9 +430,9 @@ import {
 
 // Map drawing and interactions
 import { drawMap } from 'https://rw-501.github.io/theGame/game/js/drawMap.js';
-import {
+   import {
   initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
-  centerCameraOnPlayer, setupMapInteraction, setupMapMovement
+  centerCameraOnPlayer, setupMapInteraction, setupMapMovement, allUsersMap
 } from 'https://rw-501.github.io/theGame/game/js/interactions.js';
 
 // Helpers and utilities
@@ -494,7 +494,7 @@ let newZoom;
 let isPointerDown = false;
 let pointerDownTime = 0;
 let initialPointer = null;
-const allUsersMap = new Map();
+
 
 const tileSpriteMap = new Map(); // Similar to otherPlayerSprites
 let tileDataMap; 

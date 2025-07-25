@@ -6,7 +6,15 @@ import {
   loadTileData, getTileDataAt, playerState, otherPlayerSprites
 } from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
 
-const allUsersMap = new Map();
+// Startup functions
+import { loadOrCreatePlayer, initGameScene,
+   ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
+
+   import {
+  initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
+  centerCameraOnPlayer, setupMapInteraction, setupMapMovement, allUsersMap
+} from 'https://rw-501.github.io/theGame/game/js/interactions.js';
+
 
 // Render other players except local player
 function renderAllPlayers(scene) {

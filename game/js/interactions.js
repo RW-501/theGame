@@ -454,5 +454,6 @@ export {
   returnToPlayerLocation,
   centerCameraOnPlayer,
   setupMapInteraction,
-  setupMapMovement
+  setupMapMovement,
+  allUsersMap
 };
