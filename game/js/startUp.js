@@ -1,21 +1,49 @@
-
-// Firebase Firestore imports
-import { 
-  getFirestore, query, where, limit, addDoc, 
-  arrayRemove, increment, serverTimestamp, 
-  arrayUnion, collection, doc, getDoc, getDocs, 
-  onSnapshot, updateDoc, setDoc 
+import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import {
+  getFirestore, query, where, limit, addDoc,
+  arrayRemove, increment, serverTimestamp,
+  arrayUnion, collection, doc, getDoc, getDocs,
+  onSnapshot, updateDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-// Other module imports
+// Notifications and Toast UI
 import { initLiveNotifications, sendNotification } from 'https://rw-501.github.io/theGame/game/includes/notifications.js';
 import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.github.io/theGame/game/includes/showToast.js';
 
-// Your own helpers and state modules (update paths as needed)
-import { getRandomEmptyTile } from 'https://rw-501.github.io/theGame/game/includes/js/map.js';
-import { processHourlyIncomeAndTax } from 'https://rw-501.github.io/theGame/game/includes/js/economy.js';
-import { initPlayerRealtimeSync, playerState } from 'https://rw-501.github.io/theGame/game/includes/js/playerSync.js';
+// Map drawing and interactions
+import { drawMap } from 'https://rw-501.github.io/theGame/game/js/drawMap.js';
+import {
+  initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
+  centerCameraOnPlayer, setupMapInteraction, setupMapMovement
+} from 'https://rw-501.github.io/theGame/game/js/interactions.js';
 
+// Helpers and utilities
+import {
+  createButton, createProgressBar, showCustomModal, showMessageModal, animateNumber,
+  launchConfetti, sleep, getRandomEmptyTile, isAdjacent, formatCurrency,
+  calculateTotalTaxes, calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly
+} from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
+
+// Render / UI modules
+import { preload } from 'https://rw-501.github.io/theGame/game/js/preload.js';
+
+// Map state and data
+import {
+  TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
+  loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
+  loadTileData, getTileDataAt, playerState, otherPlayerSprites
+} from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
+
+
+// Game rules and player progression
+import {
+  rules, checkRuleLimit, refillTradesIfNeeded, tryTrade, getPlayerTitle,
+  updatePlayerName, savePlayerData, updateAndPersist, tryLevelUp, processHourlyIncomeAndTax
+} from 'https://rw-501.github.io/theGame/game/js/rulesAndRegulations.js';
+
+// Startup functions
+import { loadOrCreatePlayer, initGameScene,
+   ensureHomeTileExists, finalizePlayerSetup } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 
 

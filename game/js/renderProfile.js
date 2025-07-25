@@ -1,12 +1,35 @@
-import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
-import {   getFirestore,  query,
-  where, limit, addDoc ,
-  arrayRemove, increment, serverTimestamp, 
-  arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import {
+  getFirestore, query, where, limit, addDoc,
+  arrayRemove, increment, serverTimestamp,
+  arrayUnion, collection, doc, getDoc, getDocs,
+  onSnapshot, updateDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-import { playerData, playerX, playerY, mapData } from 'https://rw-501.github.io/theGame/game/includes/js/state.js';
-import { calculateTotalIncome, calculateTotalPropertyValue, calculateTotalTaxes } from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
-import { zoneInfo } from 'https://rw-501.github.io/theGame/game/includes/js/map.js';
+// Notifications and Toast UI
+import { initLiveNotifications, sendNotification } from 'https://rw-501.github.io/theGame/game/includes/notifications.js';
+import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.github.io/theGame/game/includes/showToast.js';
+
+
+// Helpers and utilities
+import {
+  createButton, createProgressBar, showCustomModal, showMessageModal, animateNumber,
+  launchConfetti, sleep, getRandomEmptyTile, isAdjacent, formatCurrency,
+  calculateTotalTaxes, calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly
+} from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
+
+
+// Map state and data
+import {
+  TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
+  loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
+  loadTileData, getTileDataAt, playerState, otherPlayerSprites
+} from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
+
+
+// Players and profile UI
+import { renderAllPlayers } from 'https://rw-501.github.io/theGame/game/js/renderPlayers.js';
+import { loadAvatars, selectAvatar, showPlayerInfo } from 'https://rw-501.github.io/theGame/game/js/renderProfile.js';
 
 
 

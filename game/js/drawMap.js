@@ -1,7 +1,7 @@
 
 
 // If you're using shared game state or constants from other modules:
-import { TILE_SIZE, MAP_SIZE, mapData, zoneInfo } from 'https://rw-501.github.io/theGame/game/includes/js/map.js';
+import { TILE_SIZE, MAP_SIZE, mapData, zoneInfo } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 
 // If `graphics` is defined outside this file:

@@ -1,6 +1,10 @@
 
-import { playerData, playerState, TILE_SIZE, otherPlayerSprites, allUsersMap } from 'https://rw-501.github.io/theGame/game/includes/js/globals.js';
-import { loadTileDataAndRender } from 'https://rw-501.github.io/theGame/game/includes/js/map.js';
+// Map state and data
+import {
+  TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
+  loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
+  loadTileData, getTileDataAt, playerState, otherPlayerSprites
+} from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
 
 
 // Render other players except local player

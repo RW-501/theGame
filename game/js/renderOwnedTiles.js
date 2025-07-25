@@ -1,21 +1,19 @@
 
 
-import {   getFirestore,  query,
-  where, limit, addDoc ,
-  arrayRemove, increment, serverTimestamp, 
-  arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+// Map state and data
+import {
+  TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
+  loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
+  loadTileData, getTileDataAt, playerState, otherPlayerSprites
+} from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
 
-  import {   TILE_SIZE,
-  MAP_SIZE,
-  zoneInfo,
-  mapData,
-  loadMapFromFirebase,
-  setDefaultMapData,
-  loadTileDataAndRender,
-  loadTileData,
-  getTileDataAt,
-  playerState,
-  otherPlayerSprites  } from 'https://rw-501.github.io/theGame/game/includes/js/renderMap.js'; 
+// Owned properties UI
+import {
+  openOwnedModal, refreshOwnedTiles, highlightTile, centerCameraOnTile,
+  openTileDetails, renderOwnedList
+} from 'https://rw-501.github.io/theGame/game/js/renderOwnedProperty.js';
+import { getOwnedTiles, renderAllOwnedTiles } from 'https://rw-501.github.io/theGame/game/js/renderOwnedTiles.js';
+
 
 
 export function renderAllOwnedTiles(scene) {

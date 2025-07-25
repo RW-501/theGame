@@ -1,4 +1,16 @@
 
+// Game rules and player progression
+import {
+  rules, checkRuleLimit, refillTradesIfNeeded, tryTrade, getPlayerTitle,
+  updatePlayerName, savePlayerData, updateAndPersist, tryLevelUp, processHourlyIncomeAndTax
+} from 'https://rw-501.github.io/theGame/game/js/rulesAndRegulations.js';
+
+// Tile actions and UI updates
+import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/showTileAction.js';
+import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
+
+
+
 export function updateStatsUI(state) {
   if (!state) {
     state = playerData;

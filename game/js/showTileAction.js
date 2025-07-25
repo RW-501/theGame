@@ -1,31 +1,62 @@
-import { 
-  getFirestore, query, where, limit, addDoc, arrayRemove, increment, serverTimestamp, 
-  arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc 
+import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import {
+  getFirestore, query, where, limit, addDoc,
+  arrayRemove, increment, serverTimestamp,
+  arrayUnion, collection, doc, getDoc, getDocs,
+  onSnapshot, updateDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-import { 
-  initLiveNotifications, sendNotification  
-} from 'https://rw-501.github.io/theGame/game/includes/notifications.js';
+// Notifications and Toast UI
+import { initLiveNotifications, sendNotification } from 'https://rw-501.github.io/theGame/game/includes/notifications.js';
+import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.github.io/theGame/game/includes/showToast.js';
 
-import { 
-  showToast, dismissToast, showMessageAndFadeBtn 
-} from 'https://rw-501.github.io/theGame/game/includes/showToast.js'; 
+// Game action functions
+import {
+  purchaseTile, startCompany, workForCompany, upgradeLand, upgradeHomeBase, upgradeHomeStat,
+  repairHomeHealth, handleHackPlayer, fireEmployee, upgradeCompany, upgradeTile, sellTile
+} from 'https://rw-501.github.io/theGame/game/js/actions.js';
 
-import { 
-  TILE_SIZE, MAP_SIZE, zoneInfo, mapData, loadMapFromFirebase, setDefaultMapData, 
-  loadTileDataAndRender, loadTileData, getTileDataAt, playerState, otherPlayerSprites  
-} from 'https://rw-501.github.io/theGame/game/includes/js/renderMap.js'; 
-
-import { 
-  createButton, createProgressBar, showCustomModal, showMessageModal, animateNumber, 
-  launchConfetti, sleep, getRandomEmptyTile, isAdjacent, formatCurrency, calculateTotalTaxes, 
-  calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly 
+// Helpers and utilities
+import {
+  createButton, createProgressBar, showCustomModal, showMessageModal, animateNumber,
+  launchConfetti, sleep, getRandomEmptyTile, isAdjacent, formatCurrency,
+  calculateTotalTaxes, calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly
 } from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
 
-import { 
-  purchaseTile, startCompany, workForCompany, upgradeLand, upgradeHomeBase, upgradeHomeStat, 
-  repairHomeHealth, handleHackPlayer, fireEmployee, upgradeCompany, upgradeTile, sellTile  
-} from 'https://rw-501.github.io/theGame/game/includes/js/actions.js'; 
+// Render / UI modules
+import { preload } from 'https://rw-501.github.io/theGame/game/js/preload.js';
+import { renderBankLedger } from 'https://rw-501.github.io/theGame/game/js/renderBank.js';
+import { showEmployeesModal } from 'https://rw-501.github.io/theGame/game/js/renderEmployees.js';
+import { showManageHomeModal } from 'https://rw-501.github.io/theGame/game/js/renderHomeManage.js';
+import { openManageCompanyModal } from 'https://rw-501.github.io/theGame/game/js/renderManageCompany.js';
+
+// Map state and data
+import {
+  TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
+  loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
+  loadTileData, getTileDataAt, playerState, otherPlayerSprites
+} from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
+
+// Owned properties UI
+import {
+  openOwnedModal, refreshOwnedTiles, highlightTile, centerCameraOnTile,
+  openTileDetails, renderOwnedList
+} from 'https://rw-501.github.io/theGame/game/js/renderOwnedProperty.js';
+import { getOwnedTiles, renderAllOwnedTiles } from 'https://rw-501.github.io/theGame/game/js/renderOwnedTiles.js';
+
+// Stores and markets
+import { renderStockMarket } from 'https://rw-501.github.io/theGame/game/js/renderStockMarket.js';
+import { renderPowerUpStore } from 'https://rw-501.github.io/theGame/game/js/renderStore.js';
+
+// Game rules and player progression
+import {
+  rules, checkRuleLimit, refillTradesIfNeeded, tryTrade, getPlayerTitle,
+  updatePlayerName, savePlayerData, updateAndPersist, tryLevelUp, processHourlyIncomeAndTax
+} from 'https://rw-501.github.io/theGame/game/js/rulesAndRegulations.js';
+
+// Tile actions and UI updates
+import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/showTileAction.js';
+import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
 
 
 

@@ -12,7 +12,7 @@ import {   createButton,
   calculateTotalTaxes,
   calculateTotalIncome,
   calculateTotalPropertyValue,
-  movePlayerSmoothly } from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
+  movePlayerSmoothly } from 'https://rw-501.github.io/theGame/game/js/helpers.js';
 
   import {   getFirestore,  query,
   where, limit, addDoc ,

@@ -10,7 +10,7 @@ import {   TILE_SIZE,
   loadTileData,
   getTileDataAt,
   playerState,
-  otherPlayerSprites  } from 'https://rw-501.github.io/theGame/game/includes/js/renderMap.js'; 
+  otherPlayerSprites  } from 'https://rw-501.github.io/theGame/game/js/renderMap.js'; 
 
 
 

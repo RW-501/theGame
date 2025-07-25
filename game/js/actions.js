@@ -18,7 +18,7 @@ import {
 
 import { sleep, showMessageModal, createButton, movePlayerSmoothly, openManageCompanyModal } from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
 
-import { getTileDataAt, mapData, zoneInfo } from 'https://rw-501.github.io/theGame/game/includes/js/map.js';
+import { getTileDataAt, mapData, zoneInfo } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 
 

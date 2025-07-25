@@ -1,31 +1,28 @@
-import {   getFirestore,  query,
-  where, limit, addDoc ,
-  arrayRemove, increment, serverTimestamp, 
-  arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { initLiveNotifications, sendNotification  } from 'https://rw-501.github.io/theGame/game/includes/notifications.js';
-import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.github.io/theGame/game/includes/showToast.js'; 
+import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import {
+  getFirestore, query, where, limit, addDoc,
+  arrayRemove, increment, serverTimestamp,
+  arrayUnion, collection, doc, getDoc, getDocs,
+  onSnapshot, updateDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-import {   createButton,
-  createProgressBar,
-  showCustomModal,
-  showMessageModal,
-  animateNumber,
-  launchConfetti,
-  sleep,
-  getRandomEmptyTile,
-  isAdjacent,
-  formatCurrency,
-  calculateTotalTaxes,
-  calculateTotalIncome,
-  calculateTotalPropertyValue,
-  movePlayerSmoothly } from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
+// Notifications and Toast UI
+import { initLiveNotifications, sendNotification } from 'https://rw-501.github.io/theGame/game/includes/notifications.js';
+import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.github.io/theGame/game/includes/showToast.js';
+
+// Helpers and utilities
+import {
+  createButton, createProgressBar, showCustomModal, showMessageModal, animateNumber,
+  launchConfetti, sleep, getRandomEmptyTile, isAdjacent, formatCurrency,
+  calculateTotalTaxes, calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly
+} from 'https://rw-501.github.io/theGame/game/includes/js/helpers.js';
 
 
-import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/includes/js/ui-stats.js';
 
-import { executeTrade } from 'https://rw-501.github.io/theGame/game/includes/js/trading.js';
+// Tile actions and UI updates
+import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/showTileAction.js';
+import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
 
-// Also, make sure playerData and player are imported or globally accessible
 
 
 const rules = {
