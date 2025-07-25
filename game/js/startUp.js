@@ -203,7 +203,6 @@ export async function ensureHomeTileExists(playerData) {
 
 let playerData;
 export async function finalizePlayerSetup(playerInfo, scene) {
-  const playerRef = doc(db, "players", playerData.playerUid);
   
   playerData = playerInfo;
 
