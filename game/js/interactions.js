@@ -1,11 +1,47 @@
 
-import {  auth, db , onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
-import {   getFirestore,  query,
-  where, limit, addDoc ,
-  arrayRemove, increment, serverTimestamp, 
-  arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { initLiveNotifications, sendNotification  } from 'https://rw-501.github.io/theGame/game/includes/notifications.js';
-import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.github.io/theGame/game/includes/showToast.js'; 
+// Firebase core & Firestore
+import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import {
+  getFirestore, query, where, limit, addDoc,
+  arrayRemove, increment, serverTimestamp,
+  arrayUnion, collection, doc, getDoc, getDocs,
+  onSnapshot, updateDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+// Notifications and Toast UI
+import { initLiveNotifications, sendNotification } from 'https://rw-501.github.io/theGame/game/includes/notifications.js';
+import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.github.io/theGame/game/includes/showToast.js';
+
+
+// Map drawing and interactions
+import { drawMap } from 'https://rw-501.github.io/theGame/game/js/drawMap.js';
+import {
+  initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
+  centerCameraOnPlayer, setupMapInteraction, setupMapMovement
+} from 'https://rw-501.github.io/theGame/game/js/interactions.js';
+
+// Helpers and utilities
+import {
+  createButton, createProgressBar, showCustomModal, showMessageModal, animateNumber,
+  launchConfetti, sleep, getRandomEmptyTile, isAdjacent, formatCurrency,
+  calculateTotalTaxes, calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly
+} from 'https://rw-501.github.io/theGame/game/js/helpers.js';
+
+
+
+// Players and profile UI
+import { renderAllPlayers } from 'https://rw-501.github.io/theGame/game/js/renderPlayers.js';
+
+// Game rules and player progression
+import {
+  rules, checkRuleLimit, refillTradesIfNeeded, tryTrade, getPlayerTitle,
+  updatePlayerName, savePlayerData, updateAndPersist, tryLevelUp, processHourlyIncomeAndTax
+} from 'https://rw-501.github.io/theGame/game/js/rulesAndRegulations.js';
+
+// Tile actions and UI updates
+import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/showTileAction.js';
+import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
+
 
 
  // Map state and data
@@ -21,9 +57,6 @@ import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.g
   otherPlayerSprites,
   getTileDataAt  } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
-  // Map drawing and interactions
-import { drawMap } from 'https://rw-501.github.io/theGame/game/js/drawMap.js';
-
 
 let selectedTile = null;
 let tileHighlightRect = null;
@@ -36,7 +69,10 @@ let cursors;
 
 let graphics;
 
+const allUsersMap = new Map();
 
+let playerX;
+let playerY;
 
 function initPlayerRealtimeSync(scene, playerData) {
   if (!playerData?.playerUid) {
