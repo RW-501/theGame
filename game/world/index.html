@@ -522,7 +522,7 @@ onAuthStateChanged(auth, async (user) => {
   if (!user) return window.location.href = 'https://rw-501.github.io/theGame';
 
   await sleep(200);
-  uid = user.uid;
+  uid = auth.user.uid;
 
   const game = initGameScene();
   const playerData = await loadOrCreatePlayer(uid);
