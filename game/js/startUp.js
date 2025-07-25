@@ -90,12 +90,15 @@ export async function loadOrCreatePlayer(uid) {
     data.id = docSnap.id;
     data.isNew = false;
 
-  console.log("✅ Create Player");
+    console.log("✅ Load Player");
+
+
+
+    if (data.location === 'start') {
 
   const randomLocation = getRandomEmptyTile(mapData);
   const [x, y] = randomLocation;
 
-    if (data.location === 'start') {
       const docRef = doc(db, "players", data.id);
       await updateDoc(docRef, { location: randomLocation, playerX: x, playerY: y });
       data.location = randomLocation;
@@ -105,9 +108,12 @@ export async function loadOrCreatePlayer(uid) {
 
     return data;
   }else {
-      console.log("✅ Load Player");
 
   }
+    console.log("✅ Create Player");
+
+  const randomLocation = getRandomEmptyTile(mapData);
+  const [x, y] = randomLocation;
 
   // Otherwise create new player
   const newPlayer = {
