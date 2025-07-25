@@ -221,5 +221,6 @@ export {
   loadTileDataAndRender,
   loadTileData,
   playerState,
-  otherPlayerSprites
+  otherPlayerSprites,
+  getTileDataAt
 };
