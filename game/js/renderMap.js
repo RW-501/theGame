@@ -20,7 +20,7 @@ import {   getFirestore,  query,
   calculateTotalIncome,
   calculateTotalPropertyValue,
   movePlayerSmoothly } from 'https://rw-501.github.io/theGame/game/js/helpers.js';
-
+  import {   getTileDataAt } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 // === Game Constants ===
 const TILE_SIZE = 64; 
