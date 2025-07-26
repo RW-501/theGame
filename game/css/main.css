@@ -19,8 +19,10 @@
   */
     height: 100vh;
   canvas {
+
+        /*
     margin: 20rem;
-    /*
+
     width: 100vw;
     width: 100dvw;
     width: 100lvw;
