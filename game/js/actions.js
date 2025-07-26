@@ -62,9 +62,10 @@ import {
 } from 'https://rw-501.github.io/theGame/game/js/rulesAndRegulations.js';
 
 
+
 // Startup functions
 import { loadOrCreatePlayer, 
-   ensureHomeTileExists, finalizePlayerSetup } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
+   ensureHomeTileExists, finalizePlayerSetup, playerData, scene } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 
 
