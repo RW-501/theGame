@@ -667,7 +667,7 @@ document.getElementById("toggleFullscreenBtn").addEventListener("click", () => {
 
 
 document.getElementById("returnToLocationBtn").addEventListener("click", () => {
-  returnToPlayerLocation(game.scene.scenes[0]); // or pass in your current scene reference
+  returnToPlayerLocation(game.scene.keys.default); // or pass in your current scene reference
 });
 
 document.getElementById("goToPlatformBtn").addEventListener("click", () => {
