@@ -150,10 +150,13 @@ async function initializeMap(scene) {
   cam = scene.cameras.main;
 
   await loadMapFromFirebase();
+
+  console.log("✅ Loaded mapData:", mapData);
+
   drawMap(scene);
 
   const mapWidth = MAP_SIZE * TILE_SIZE;
-  const mapHeight = MAP_SIZE * TILE_SIZE * .4;
+  const mapHeight = MAP_SIZE * TILE_SIZE * 0.4;
 
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
@@ -162,11 +165,16 @@ async function initializeMap(scene) {
   const zoomY = screenHeight / mapHeight;
   const zoom = Math.min(zoomX, zoomY, 5);
 
+  console.log("🧭 Map (Cartesian) size:", { mapWidth, mapHeight });
+  console.log("📱 Screen size:", { screenWidth, screenHeight });
+  console.log("🔍 Zoom level:", zoom);
+
   cam.setBounds(0, 0, mapWidth, mapHeight);
   cam.setZoom(zoom);
 
   const centerIso = toIsometric(MAP_SIZE / 2, MAP_SIZE / 2);
   cam.centerOn(centerIso.x, centerIso.y);
+  console.log("🎯 Centering camera on:", centerIso);
 }
 
 
