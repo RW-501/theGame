@@ -150,7 +150,8 @@ function initPlayerRealtimeSync(scene, playerData) {
         }
 
         console.log("🧠 Updated playerState:", Array.from(playerState.entries()));
-        renderAllPlayers(scene);
+
+        renderAllPlayers(this.scene); // or this, if inside a Scene
       }
     });
   });
