@@ -73,7 +73,6 @@ if (!sprite) {
     pos.y * TILE_SIZE + TILE_SIZE / 2
   );
 
-let userHomeImage;
 
 const levelToImageKey = {
   1: "apartment_Lv_1",
@@ -85,16 +84,21 @@ const levelToImageKey = {
   7: "house_Lv_3",
   8: "house_Lv_4"
 };
+
+let userHomeImage;
+
 // Check if the image is available
 if (levelToImageKey[level]) {
   console.log("level   ",level);
 
 const imageKey = levelToImageKey[level] || "house_Lv_4"; // fallback
-userHomeImage = scene.add.image(0, -10, imageKey)
+ userHomeImage = scene.add.image(0, -10, imageKey)
   .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
   .setOrigin(0.5);
 
 }
+  console.log("imageKey   ",imageKey);
+  console.log("userHomeImage   ",userHomeImage);
 
 const isLocalPlayer = playersUid === playerData.playerUid;
 const nameLabel = isLocalPlayer ? "My Home" : displayName;
