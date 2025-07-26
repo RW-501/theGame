@@ -52,7 +52,7 @@ this.load.image("bigHouse_Lv_2", "https://rw-501.github.io/theGame/game/images/t
 this.load.image("bigHouse_Lv_3", "https://rw-501.github.io/theGame/game/images/tile_images/bigHouse/house-3.PNG");
 this.load.image("bigHouse_Lv_4", "https://rw-501.github.io/theGame/game/images/tile_images/bigHouse/house-4.PNG");
 
-this.load.image("land_type-billboard", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-billoard.PNG");
+this.load.image("land_type-billboard", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-billboard.PNG");
 this.load.image("land_type-cellTower", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-cellTower.PNG");
 this.load.image("land_type-crop", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-crop.PNG");
 this.load.image("land_type-dirt", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-dirt.PNG");
