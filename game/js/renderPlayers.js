@@ -18,7 +18,7 @@ import { loadOrCreatePlayer, initGameScene,
 
 // Render other players except local player
 function renderAllPlayers(scene) {
-  console.log("🎨 Rendering All Players...");
+  console.log("🎨 Rendering All Players...  ",scene);
   console.log("🧍 All Player States:", Array.from(playerState.entries()));
 
   for (const [playerId, pos] of playerState.entries()) {
@@ -36,18 +36,6 @@ function renderAllPlayers(scene) {
     let sprite = otherPlayerSprites.get(playerId);
 
 
-
-    /*
-  // Then, check if player is already on that tile
-const isOnTile =
-  playerData?.playerX === pos.x && playerData?.playerY === pos.y;
-
-if (isOnTile) {
-  console.log(`🚫 Skipping render for ${playerId} (already on this tile)`);
-  continue;
-}
-*/
- 
 
   //const avatarKey = playerData?.avatarImage || "avatar1"; // default
  // const avatarImage = scene.add.image(0, -10, avatarKey )
