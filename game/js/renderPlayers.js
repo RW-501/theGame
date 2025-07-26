@@ -75,6 +75,9 @@ if (!sprite) {
     pos.y * TILE_SIZE + TILE_SIZE / 2
   );
 
+}else{
+
+  console.log("sprite   ",sprite);
 
 const levelToImageKey = {
   1: "apartment_Lv_1",
