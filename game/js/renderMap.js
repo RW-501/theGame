@@ -21,7 +21,7 @@ import { getOwnedTiles, renderAllOwnedTiles } from 'https://rw-501.github.io/the
   calculateTotalIncome,
   calculateTotalPropertyValue,
   movePlayerSmoothly } from 'https://rw-501.github.io/theGame/game/js/helpers.js';
-  import {   getTileDataAt } from 'https://rw-501.github.io/theGame/game/js/map.js';
+  import {   getTileDataAt, toIsometric } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 // === Game Constants ===
 const TILE_SIZE = 64; 
@@ -182,7 +182,11 @@ function setDefaultMapData() {
 
       const dist = Math.max(Math.abs(x - centerX), Math.abs(y - centerY));
       if (dist >= 1 && dist <= 12) {
-        mapData[y][x] = `zone${dist}`;
+mapData[y][x] = {
+  type: `zone${dist}`,
+  isoX: (x - y) * (TILE_WIDTH / 2),
+  isoY: (x + y) * (TILE_HEIGHT / 2),
+};
       }
     }
   }
@@ -207,12 +211,6 @@ async function loadTileData() {
   });
 }
 
-// Utility for converting grid to isometric position
-function toIsometric(x, y) {
-  const isoX = (x - y) * (TILE_SIZE / 2);
-  const isoY = (x + y) * (TILE_SIZE / 4);
-  return { x: isoX, y: isoY };
-}
 
 export {
   TILE_SIZE,
