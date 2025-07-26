@@ -166,7 +166,9 @@ export async function ensureHomeTileExists(playerData) {
       unlocked: false,
       ownerID: playerUid,
       ownerName: playerName,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      x: playerX,
+      y: playerY,
     };
 
     await setDoc(tileRef, defaultTileData);
