@@ -42,6 +42,32 @@ this.load.image("apartment_Lv_2", "https://rw-501.github.io/theGame/game/images/
 this.load.image("apartment_Lv_3", "https://rw-501.github.io/theGame/game/images/tile_images/apartment/apartment-3.PNG");
 this.load.image("apartment_Lv_4", "https://rw-501.github.io/theGame/game/images/tile_images/apartment/apartment-4.PNG");
 
+this.load.image("townhouse_Lv_1", "https://rw-501.github.io/theGame/game/images/tile_images/townhouse/townhouse-1.PNG");
+this.load.image("townhouse_Lv_2", "https://rw-501.github.io/theGame/game/images/tile_images/townhouse/townhouse-2.PNG");
+this.load.image("townhouse_Lv_3", "https://rw-501.github.io/theGame/game/images/tile_images/townhouse/townhouse-3.PNG");
+this.load.image("townhouse_Lv_4", "https://rw-501.github.io/theGame/game/images/tile_images/townhouse/townhouse-4.PNG");
+
+this.load.image("bigHouse_Lv_1", "https://rw-501.github.io/theGame/game/images/tile_images/bigHouse/house-1.PNG");
+this.load.image("bigHouse_Lv_2", "https://rw-501.github.io/theGame/game/images/tile_images/bigHouse/house-2.PNG");
+this.load.image("bigHouse_Lv_3", "https://rw-501.github.io/theGame/game/images/tile_images/bigHouse/house-3.PNG");
+this.load.image("bigHouse_Lv_4", "https://rw-501.github.io/theGame/game/images/tile_images/bigHouse/house-4.PNG");
+
+this.load.image("land_type-billboard", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-billoard.PNG");
+this.load.image("land_type-cellTower", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-cellTower.PNG");
+this.load.image("land_type-crop", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-crop.PNG");
+this.load.image("land_type-dirt", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-dirt.PNG");
+this.load.image("land_type-grass", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-grass.PNG");
+this.load.image("land_type-parkingLot", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-parkingLot.PNG");
+this.load.image("land_type-trees", "https://rw-501.github.io/theGame/game/images/tile_images/land/type-trees.PNG");
+
+this.load.image("building_Lv_1", "https://rw-501.github.io/theGame/game/images/tile_images/building/building-1.PNG");
+this.load.image("building_Lv_2", "https://rw-501.github.io/theGame/game/images/tile_images/building/building-2.PNG");
+this.load.image("building_Lv_3", "https://rw-501.github.io/theGame/game/images/tile_images/building/building-3.PNG");
+this.load.image("building_Lv_4", "https://rw-501.github.io/theGame/game/images/tile_images/building/building-4.PNG");
+
+
+
+
   for (const zoneKey in zoneInfo) {
     const tileData = zoneInfo[zoneKey];
     if (tileData.tileImage && !usedImages.has(tileData.tileImage)) {
