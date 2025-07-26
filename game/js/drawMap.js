@@ -26,7 +26,7 @@ function drawMap(scene) {
 
       // Draw base tile background
       graphics.fillStyle(info.color, 1);
-      graphics.fillRect(isoX, isoY, TILE_SIZE, TILE_SIZE / 2);
+      graphics.fillRect(isoX, isoY, TILE_SIZE, TILE_SIZE );
 
       // Draw base image tile
       const tileImage = (zoneType !== "empty") ? "concrete" : "dirt";
