@@ -1,13 +1,10 @@
 
 
 // If you're using shared game state or constants from other modules:
-import { TILE_SIZE, MAP_SIZE, mapData, zoneInfo } from 'https://rw-501.github.io/theGame/game/js/map.js';
+import { TILE_SIZE, MAP_SIZE, mapData, zoneInfo, toIsometric } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
-function toIsometric(x, y) {
-  const isoX = (x - y) * (TILE_SIZE / 2);
-  const isoY = (x + y) * (TILE_SIZE / 4);
-  return { x: isoX, y: isoY };
-}
+
+
 
 function drawMap(scene) {
   const graphics = scene.add.graphics();
@@ -26,7 +23,7 @@ function drawMap(scene) {
 
       // Draw base tile background
       graphics.fillStyle(info.color, 1);
-      graphics.fillRect(isoX, isoY, TILE_SIZE, TILE_SIZE );
+      graphics.fillRect(isoX, isoY, TILE_SIZE, TILE_SIZE / 2);
 
       // Draw base image tile
       const tileImage = (zoneType !== "empty") ? "concrete" : "dirt";
