@@ -36,6 +36,7 @@ let graphics, cursors;
 let mapData = [];
 let otherPlayerSprites = new Map();
 
+let tileDataMap; 
 
 const playerState = new Map();
 
