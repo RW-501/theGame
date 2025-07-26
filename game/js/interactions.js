@@ -153,7 +153,7 @@ async function initializeMap(scene) {
   drawMap(scene);
 
   const mapWidth = MAP_SIZE * TILE_SIZE;
-  const mapHeight = MAP_SIZE * TILE_SIZE * 2;
+  const mapHeight = MAP_SIZE * TILE_SIZE * 0.5;
 
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
@@ -300,7 +300,11 @@ function setupMapMovement(scene) {
 scene.input.addPointer(2); // Allow up to 2 simultaneous pointers
 let lastDistance = 0;
 
-scene.input.on("pointermove", () => {
+scene.input.on("pointermove", pointer => {
+
+  console.log("pointer   ",pointer);
+
+  /*
   const activePointers = scene.input.pointers.filter(p => p && p.isDown);
 
   if (activePointers.length >= 2) {
@@ -326,6 +330,7 @@ scene.input.on("pointermove", () => {
   } else {
     lastDistance = 0;
   }
+    */
 });
 
 
