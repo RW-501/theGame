@@ -147,7 +147,9 @@ function launchConfetti() {
   });
 }
 
-
+function sleep(ms) { 
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function getRandomEmptyTile(mapData) {
   if (!Array.isArray(mapData) || !Array.isArray(mapData[0])) {
