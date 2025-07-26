@@ -64,7 +64,15 @@ function renderAllPlayers(scene) {
 
 
 
-    console.log("scene   ",scene);
+console.log("scene:", scene);
+console.log("scene.constructor.name:", scene.constructor.name);
+console.log("scene.add:", scene.add);
+console.log("Phaser Version:", Phaser.VERSION);
+
+  if (!scene.add || typeof scene.add.container !== "function") {
+    console.error("scene.add.container is not a function");
+    return;
+  }
 
   // ✅ Create container sprite
   sprite = scene.add.container(
