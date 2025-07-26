@@ -84,10 +84,11 @@ console.log("Phaser Version:", Phaser.VERSION);
 
 
 const levelToImageKey = {
-  1: "land_type-billboard",
+  1: "apartment_Lv_1",
   2: "apartment_Lv_2",
   3: "apartment_Lv_3",
   4: "apartment_Lv_4",
+
   5: "house_Lv_1",
   6: "house_Lv_2",
   7: "house_Lv_3",
@@ -109,7 +110,7 @@ let userHomeImage;
 // Check if the image is available
 if (levelToImageKey[level]) {
 
-const imageKey = levelToImageKey[level] || "house_Lv_4"; // fallback
+const imageKey = levelToImageKey[level] || "apartment_Lv_1"; // fallback
  userHomeImage = scene.add.image(0, -10, imageKey)
   .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
   .setOrigin(0.5);
