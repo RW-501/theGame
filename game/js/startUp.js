@@ -154,6 +154,7 @@ export async function ensureHomeTileExists(playerData) {
       color: 0x90caf9,
       label: "Home Base",
       type: "home",
+      subType: "home",
       level: 1,
       tileLevelXP: 0,
       icon: "🏠",

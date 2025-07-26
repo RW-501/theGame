@@ -27,7 +27,7 @@ export function renderAllOwnedTiles(scene) {
   }
 
   for (const [tileId, tile] of tileDataMap.entries()) {
-    const { x, y, icon, level, ownerName, color, label, ownerID, forSale, type } = tile;
+    const { x, y, icon, level, ownerName, color, label, ownerID, forSale, type, subType } = tile;
 
     if (x == null || y == null || !ownerID || type == 'home') continue;
 
@@ -38,6 +38,7 @@ export function renderAllOwnedTiles(scene) {
       existing.setPosition(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
       continue;
     }
+    
 const typeToImageKey = {
   // Land types
   'billboard': "land_type-billboard",
@@ -49,10 +50,10 @@ const typeToImageKey = {
   'trees': "land_type-trees",
 
   // Building levels
-  'building_1': "building_Lv_1",
-  'building_2': "building_Lv_2",
-  'building_3': "building_Lv_3",
-  'building_4': "building_Lv_4"
+  1: "building_Lv_1",
+  2: "building_Lv_2",
+  3: "building_Lv_3",
+  4: "building_Lv_4"
 };
 
   const container = scene.add.container(
@@ -64,7 +65,16 @@ const typeToImageKey = {
     .setStrokeStyle(2, color || 0x00ff00)
     .setDepth(0);
 
-  const imageKey = typeToImageKey[type] || "land_type-dirt";
+     let imageKey;
+
+     if(type == "land"){
+   imageKey = typeToImageKey[subType] || "land_type-dirt";
+
+     } else if(type == 'company'){
+   imageKey = typeToImageKey[level] || "building_Lv_1";
+
+     }
+
   const playerLandImage = scene.add.image(0, -10, imageKey)
     .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
     .setOrigin(0.5);

@@ -111,6 +111,7 @@ async function purchaseTile(x, y, overrideType = null, shouldMove = false) {
       ownerID: playerData.userID,
       ownerName: playerData.playerName || 'Player',
       status: "owned",
+      subType: type,
       note: 'new',
       tileImage: '',
       color: info.color,
