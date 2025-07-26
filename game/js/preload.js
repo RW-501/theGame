@@ -77,9 +77,11 @@ this.load.image("building_Lv_4", "https://rw-501.github.io/theGame/game/images/t
       tileData.imageKey = imageKey; // store it for drawMap()
       usedImages.add(tileData.tileImage);
 
+      /*
       console.log("imageKey ",imageKey);
       console.log("zoneKey ",zoneKey);
       console.log("tileData ",tileData);
+      */
     }
   }
 this.load.image('avatar1', "https://rw-501.github.io/theGame/game/images/avatars/avatar1.png");
@@ -101,12 +103,12 @@ this.load.image('avatar7', "https://rw-501.github.io/theGame/game/images/avatars
   this.load.on('progress', (value) => {
     loadingText.setText(`Loading... ${Math.round(value * 100)}%`);
   });
-/*
+
   this.load.on('complete', () => {
     loadingText.setText('Loading Complete!');
   });
 
-  */
+  
 }
 
 

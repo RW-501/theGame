@@ -276,9 +276,7 @@ if(playerData.playerUid == playerId){
 
 loadTileDataAndRender(scene);
 
-    scene.load.on("complete", () => {
-    loadingText.setText("Loading Complete!");
-  });
+ 
 
   console.log("✅ Render Complete. Current Sprites:", Array.from(otherPlayerSprites.keys()));
 
