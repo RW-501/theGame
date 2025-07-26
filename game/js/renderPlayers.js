@@ -253,8 +253,6 @@ sprite.setPosition(
 
 
 
-  }
-
 loadTileDataAndRender(scene);
 
     scene.load.on("complete", () => {
@@ -263,6 +261,8 @@ loadTileDataAndRender(scene);
 
   console.log("✅ Render Complete. Current Sprites:", Array.from(otherPlayerSprites.keys()));
 
+
+  }
 
 
 export { renderAllPlayers };
