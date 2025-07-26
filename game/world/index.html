@@ -544,18 +544,9 @@ onAuthStateChanged(auth, async (user) => {
   let playerData = await loadOrCreatePlayer(uid);
   await ensureHomeTileExists(playerData);
 
-    const scene = this;
-
-    // Create layers
-    scene.groundLayer = scene.add.layer().setDepth(0);
-    scene.tileLayer = scene.add.layer().setDepth(1);      // for owned tiles
-    scene.playerLayer = scene.add.layer().setDepth(2);    // for player
-    scene.uiLayer = scene.add.layer().setDepth(3);
-
-
   console.log(Object.keys(game.scene.keys));  // e.g., ["default"]
 
-await finalizePlayerSetup(playerData, scene.playerLayer); //.keys.default // ✅ correct
+await finalizePlayerSetup(playerData, game.scene.keys.default);  // ✅ correct
 
 });
 
