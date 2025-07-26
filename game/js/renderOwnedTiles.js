@@ -13,6 +13,7 @@ import {
   openTileDetails, renderOwnedList
 } from 'https://rw-501.github.io/theGame/game/js/renderOwnedProperty.js';
 
+const tileSpriteMap = new Map(); // Similar to otherPlayerSprites
 
 
 export function renderAllOwnedTiles(scene) {
