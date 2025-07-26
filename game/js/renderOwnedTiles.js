@@ -110,8 +110,7 @@ if (x == null || y == null || !ownerID || type === 'home') {
     }
 
     // Store container for reuse
-scene.tileLayer.add(container);
-tileSpriteMap.set(spriteKey, container);
+    tileSpriteMap.set(spriteKey, container);
   }
 
   console.log("✅ Tile Render Complete. Tiles drawn:", tileSpriteMap.size);
