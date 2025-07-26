@@ -153,7 +153,7 @@ async function initializeMap(scene) {
   drawMap(scene);
 
   const mapWidth = MAP_SIZE * TILE_SIZE;
-  const mapHeight = MAP_SIZE * TILE_SIZE * 1;
+  const mapHeight = MAP_SIZE * TILE_SIZE * .4;
 
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
