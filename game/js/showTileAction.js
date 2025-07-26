@@ -63,6 +63,9 @@ import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateSt
   centerCameraOnPlayer, setupMapInteraction, setupMapMovement, allUsersMap
 } from 'https://rw-501.github.io/theGame/game/js/interactions.js';
 
+let selectedTile = null;
+let tileHighlightRect = null;
+
 
 async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
 
