@@ -518,9 +518,8 @@ onAuthStateChanged(auth, async (user) => {
 
   let playerData = await loadOrCreatePlayer(uid);
   await ensureHomeTileExists(playerData);
-  await finalizePlayerSetup(playerData, game.scene.keys.defaultScene);
+  await finalizePlayerSetup(playerData, game.scene);
     console.log("onAuthStateChanged  game.scene....  ", game.scene);
-    console.log("onAuthStateChanged  game.scene.keys.defaultScene...  ", game.scene.keys.defaultScene);
 
   await sleep(400);
 
