@@ -54,7 +54,7 @@ import { loadOrCreatePlayer,
   loadTileData,
   playerState,
   otherPlayerSprites,
-  getTileDataAt, fromIsometric  } from 'https://rw-501.github.io/theGame/game/js/map.js';
+  getTileDataAt, fromIsometric, toIsometric  } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 
 let selectedTile = null;
@@ -78,18 +78,6 @@ let isPointerDown = false;
 let pointerDownTime = 0;
 let initialPointer = null;
 
-// Utility: Convert isometric <-> cartesian
-function fromIsometric(isoX, isoY) {
-  const x = Math.floor((isoY / (TILE_SIZE / 4) + isoX / (TILE_SIZE / 2)) / 2);
-  const y = Math.floor((isoY / (TILE_SIZE / 4) - isoX / (TILE_SIZE / 2)) / 2);
-  return { x, y };
-}
-
-function toIsometric(x, y) {
-  const isoX = (x - y) * (TILE_SIZE / 2);
-  const isoY = (x + y) * (TILE_SIZE / 4);
-  return { x: isoX, y: isoY };
-}
 
 function initPlayerRealtimeSync(scene, playerData) {
   if (!playerData?.playerUid) {
