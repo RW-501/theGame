@@ -93,11 +93,14 @@ function initPlayerRealtimeSync(scene, playerData) {
       const data = docSnap.data();
       const pos = data.location;
 
-      if (pos && (pos.x !== playerX || pos.y !== playerY)) {
-        playerX = pos.x;
-        playerY = pos.y;
-        movePlayerSmoothly(scene, playerX, playerY);
-      }
+if (pos && (pos.x !== playerX || pos.y !== playerY)) {
+  playerX = pos.x;
+  playerY = pos.y;
+
+  const isoPos = toIsometric(playerX, playerY);
+  movePlayerSmoothly(scene, isoPos.x, isoPos.y);
+}
+
 
       playerData = { ...playerData, ...data };
       updateStatsUI(data);
@@ -150,14 +153,14 @@ async function initializeMap(scene) {
   drawMap(scene);
 
   const mapWidth = MAP_SIZE * TILE_SIZE;
-  const mapHeight = MAP_SIZE * TILE_SIZE * 0.5;
+  const mapHeight = MAP_SIZE * TILE_SIZE * 2;
 
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
 
   const zoomX = screenWidth / mapWidth;
   const zoomY = screenHeight / mapHeight;
-  const zoom = Math.min(zoomX, zoomY, 1);
+  const zoom = Math.min(zoomX, zoomY, 3);
 
   cam.setBounds(0, 0, mapWidth, mapHeight);
   cam.setZoom(zoom);
