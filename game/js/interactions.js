@@ -144,7 +144,6 @@ if (pos && (pos.x !== playerX || pos.y !== playerY)) {
     });
   });
 }
-
 async function initializeMap(scene) {
   graphics = scene.add.graphics();
   cam = scene.cameras.main;
@@ -155,8 +154,9 @@ async function initializeMap(scene) {
 
   drawMap(scene);
 
+  // ✅ Isometric map size correction
   const mapWidth = MAP_SIZE * TILE_SIZE;
-  const mapHeight = MAP_SIZE * TILE_SIZE * 0.4;
+  const mapHeight = MAP_SIZE * TILE_SIZE / 2; // Isometric height
 
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
@@ -165,14 +165,14 @@ async function initializeMap(scene) {
   const zoomY = screenHeight / mapHeight;
   const zoom = Math.min(zoomX, zoomY, 5);
 
-  console.log("🧭 Map (Cartesian) size:", { mapWidth, mapHeight });
+  console.log("🧭 Map (Isometric) size:", { mapWidth, mapHeight });
   console.log("📱 Screen size:", { screenWidth, screenHeight });
   console.log("🔍 Zoom level:", zoom);
 
   cam.setBounds(0, 0, mapWidth, mapHeight);
   cam.setZoom(zoom);
 
-  const centerIso = toIsometric(MAP_SIZE / 2, MAP_SIZE / 2);
+  const centerIso = toIsometric(Math.floor(MAP_SIZE / 2), Math.floor(MAP_SIZE / 2));
   cam.centerOn(centerIso.x, centerIso.y);
   console.log("🎯 Centering camera on:", centerIso);
 }

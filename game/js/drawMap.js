@@ -21,6 +21,12 @@ function drawMap(scene) {
 
       const { x: isoX, y: isoY } = toIsometric(x, y);
 
+      if (x === 0 && y === 0 || (x === MAP_SIZE - 1 && y === MAP_SIZE - 1)) {
+  const iso = toIsometric(x, y);
+  console.log(`📍 Top-left [0,0] iso:`, iso);
+  console.log(`📍 Bottom-right [${MAP_SIZE-1},${MAP_SIZE-1}] iso:`, iso);
+}
+
       // Draw base tile background
       graphics.fillStyle(info.color, 1);
       graphics.fillRect(isoX, isoY, TILE_SIZE, TILE_SIZE / 2);
