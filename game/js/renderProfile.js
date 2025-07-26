@@ -34,6 +34,7 @@ import { loadOrCreatePlayer,
 // Players and profile UI
 import { renderAllPlayers } from 'https://rw-501.github.io/theGame/game/js/renderPlayers.js';
 
+let playerY, playerX;
 
 const predefinedAvatars = [
   { avatarImage: "avatar1", avatarUrl: "https://rw-501.github.io/theGame/game/images/avatars/avatar1.png" },
