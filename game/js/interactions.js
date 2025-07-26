@@ -165,10 +165,11 @@ async function initializeMap(scene) {
   const zoomY = screenHeight / mapHeight;
   const zoom = Math.min(zoomX, zoomY, 5);
 
+  /*
   console.log("🧭 Map (Isometric) size:", { mapWidth, mapHeight });
   console.log("📱 Screen size:", { screenWidth, screenHeight });
   console.log("🔍 Zoom level:", zoom);
-
+*/
   cam.setBounds(0, 0, mapWidth, mapHeight);
   cam.setZoom(zoom);
 
