@@ -8,7 +8,7 @@ import {
 // Tile actions and UI updates
 import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/showTileAction.js';
 // Startup functions
-import { loadOrCreatePlayer, initGameScene,
+import { loadOrCreatePlayer, 
    ensureHomeTileExists, finalizePlayerSetup, playerData, scene } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 // Helpers and utilities

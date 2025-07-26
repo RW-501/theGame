@@ -482,10 +482,12 @@ import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/sh
 import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
 
 // Startup functions
-import { loadOrCreatePlayer, initGameScene,
+import { loadOrCreatePlayer, 
    ensureHomeTileExists, finalizePlayerSetup } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 
+// Render / UI modules
+import { preload } from 'https://rw-501.github.io/theGame/game/js/preload.js';
 
 let game;
 let scene;
@@ -503,6 +505,31 @@ const tileTooltip = document.getElementById("tileTooltip");
 
 
 let uid;
+
+// === Firebase Login Check ===
+ function initGameScene() {
+   MapWidth = (TILE_SIZE * MAP_SIZE) / 2;
+
+  const config = {
+    type: Phaser.AUTO,
+    width: MapWidth,
+    height: MapWidth,
+    parent: "game-container",
+    backgroundColor: "#222222",
+    scene: { preload, create }
+  };
+
+  return new Phaser.Game(config);
+}
+async function create() {
+   scene = this;
+
+  await initializeMap(scene);
+  setupMapMovement(scene);
+  setupMapInteraction(scene);
+}
+
+
 
 onAuthStateChanged(auth, async (user) => {
   if (!user) return window.location.href = 'https://rw-501.github.io/theGame';

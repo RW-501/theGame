@@ -20,7 +20,7 @@ import {   createButton,
   arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 // Startup functions
-import { loadOrCreatePlayer, initGameScene,
+import { loadOrCreatePlayer, 
    ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 

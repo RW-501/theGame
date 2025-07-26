@@ -63,7 +63,7 @@ import {
 
 
 // Startup functions
-import { loadOrCreatePlayer, initGameScene,
+import { loadOrCreatePlayer, 
    ensureHomeTileExists, finalizePlayerSetup } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 

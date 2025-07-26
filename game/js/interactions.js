@@ -39,7 +39,7 @@ import { showTileActionModal } from 'https://rw-501.github.io/theGame/game/js/sh
 import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateStatsUI.js';
 
 // Startup functions
-import { loadOrCreatePlayer, initGameScene,
+import { loadOrCreatePlayer, 
    ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
 

@@ -24,8 +24,6 @@ import {
   calculateTotalTaxes, calculateTotalIncome, calculateTotalPropertyValue, movePlayerSmoothly
 } from 'https://rw-501.github.io/theGame/game/js/helpers.js';
 
-// Render / UI modules
-import { preload } from 'https://rw-501.github.io/theGame/game/js/preload.js';
 
 // Map state and data
    import {      TILE_SIZE,
@@ -52,30 +50,6 @@ import {
 let scene;
 let MapWidth;
 
-async function create() {
-   scene = this;
-
-  await initializeMap(scene);
-  setupMapMovement(scene);
-  setupMapInteraction(scene);
-}
-
-
-// === Firebase Login Check ===
-export function initGameScene() {
-   MapWidth = (TILE_SIZE * MAP_SIZE) / 2;
-
-  const config = {
-    type: Phaser.AUTO,
-    width: MapWidth,
-    height: MapWidth,
-    parent: "game-container",
-    backgroundColor: "#222222",
-    scene: { preload, create }
-  };
-
-  return new Phaser.Game(config);
-}
 
 
 export async function loadOrCreatePlayer(uid) {
