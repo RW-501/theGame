@@ -153,14 +153,14 @@ async function initializeMap(scene) {
   drawMap(scene);
 
   const mapWidth = MAP_SIZE * TILE_SIZE;
-  const mapHeight = MAP_SIZE * TILE_SIZE * 0.5;
+  const mapHeight = MAP_SIZE * TILE_SIZE * 1;
 
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
 
   const zoomX = screenWidth / mapWidth;
   const zoomY = screenHeight / mapHeight;
-  const zoom = Math.min(zoomX, zoomY, 0.01);
+  const zoom = Math.min(zoomX, zoomY, 1);
 
   cam.setBounds(0, 0, mapWidth, mapHeight);
   cam.setZoom(zoom);
