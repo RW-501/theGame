@@ -1,7 +1,6 @@
 // map.js
 
-import {   TILE_SIZE,
-  MAP_SIZE,
+import {   
   zoneInfo,
   mapData,
   loadMapFromFirebase,
@@ -20,6 +19,8 @@ import {
   onSnapshot, updateDoc, setDoc
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
+const TILE_SIZE = 64; 
+const MAP_SIZE = 25;
 
 function fromIsometric(isoX, isoY) {
   const x = Math.floor((isoY / (TILE_SIZE / 4) + isoX / (TILE_SIZE / 2)) / 2);
@@ -30,9 +31,10 @@ function fromIsometric(isoX, isoY) {
 
 function toIsometric(x, y) {
   const isoX = (x - y) * (TILE_SIZE / 2);
-  const isoY = (x + y) * (TILE_SIZE / 4);
+  const isoY = (x + y) * (TILE_SIZE / 4); // Use TILE_SIZE / 2 for 1:1, TILE_SIZE / 4 for flatter angles
   return { x: isoX, y: isoY };
 }
+
 
 export async function getTileDataAt(x, y) {
   try {
