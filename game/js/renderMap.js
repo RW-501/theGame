@@ -5,6 +5,7 @@ import {   getFirestore,  query,
   where, limit, addDoc ,
   arrayRemove, increment, serverTimestamp, 
   arrayUnion, collection, doc, getDoc, getDocs, onSnapshot, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { getOwnedTiles, renderAllOwnedTiles } from 'https://rw-501.github.io/theGame/game/js/renderOwnedTiles.js';
 
   import {   createButton,
   createProgressBar,
