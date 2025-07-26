@@ -59,7 +59,7 @@ import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateSt
 
 // Startup functions
 import { loadOrCreatePlayer, 
-   ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
+   ensureHomeTileExists, finalizePlayerSetup, playerData, scene } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
    import {
   initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
@@ -71,8 +71,6 @@ let tileHighlightRect = null;
 
 
 async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
-
-
 
 
   const modalEl = document.getElementById("tileActionModal");
