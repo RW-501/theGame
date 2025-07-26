@@ -9,7 +9,7 @@ import {   TILE_SIZE,
   loadTileDataAndRender,
   loadTileData,
   playerState,
-  otherPlayerSprites  } from 'https://rw-501.github.io/theGame/game/js/renderMap.js'; 
+  otherPlayerSprites, tileDataMap  } from 'https://rw-501.github.io/theGame/game/js/renderMap.js'; 
 
 // Firebase core & Firestore
 import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
@@ -60,7 +60,7 @@ export  {
   loadTileDataAndRender,
   loadTileData,
   playerState,
-  otherPlayerSprites }; 
+  otherPlayerSprites, tileDataMap }; 
  
 
   /*

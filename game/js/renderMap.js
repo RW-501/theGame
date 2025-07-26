@@ -224,5 +224,6 @@ export {
   loadTileData,
   playerState,
   otherPlayerSprites,
-  getTileDataAt
+  getTileDataAt,
+  tileDataMap
 };

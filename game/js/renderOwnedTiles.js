@@ -2,7 +2,7 @@
 
 // Map state and data
 import {
-  TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
+  TILE_SIZE, MAP_SIZE, zoneInfo, mapData, tileDataMap,
   loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
   loadTileData, getTileDataAt, playerState, otherPlayerSprites
 } from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
@@ -14,7 +14,7 @@ import {
 } from 'https://rw-501.github.io/theGame/game/js/renderOwnedProperty.js';
 
 const tileSpriteMap = new Map(); // Similar to otherPlayerSprites
-let tileDataMap; 
+
 
 
 export function renderAllOwnedTiles(scene) {
