@@ -536,16 +536,16 @@ onAuthStateChanged(auth, async (user) => {
   uid = user.uid;
 
   const game = initGameScene();
-        console.log("onAuthStateChanged  game....  ", game);
 
+  
   await sleep(200);
 
   console.log("uid ",uid);
 
   let playerData = await loadOrCreatePlayer(uid);
   await ensureHomeTileExists(playerData);
-      console.log("onAuthStateChanged  game.scene.keys.default....  ", game.scene.keys.default);
-console.log(Object.keys(game.scene.keys));  // e.g., ["default"]
+
+  console.log(Object.keys(game.scene.keys));  // e.g., ["default"]
 
 await finalizePlayerSetup(playerData, game.scene.keys.default);  // ✅ correct
 

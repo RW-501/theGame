@@ -81,7 +81,6 @@ let initialPointer = null;
 
 function initPlayerRealtimeSync(scene, playerData) {
 
-    console.log("initPlayerRealtimeSync  scene...  ", scene);
 
   if (!playerData?.playerUid) {
     console.error("❌ playerData.playerUid is missing");
@@ -149,7 +148,7 @@ function initPlayerRealtimeSync(scene, playerData) {
           updateStatsUI(data);
         }
 
-        console.log("🧠 Updated playerState:", Array.from(playerState.entries()));
+    //    console.log("🧠 Updated playerState:", Array.from(playerState.entries()));
 
         renderAllPlayers(scene); // or this, if inside a Scene
       }
