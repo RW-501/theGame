@@ -182,11 +182,7 @@ function setDefaultMapData() {
 
       const dist = Math.max(Math.abs(x - centerX), Math.abs(y - centerY));
       if (dist >= 1 && dist <= 12) {
-mapData[y][x] = {
-  type: `zone${dist}`,
-  isoX: (x - y) * (TILE_WIDTH / 2),
-  isoY: (x + y) * (TILE_HEIGHT / 2),
-};
+        mapData[y][x] = `zone${dist}`;
       }
     }
   }
