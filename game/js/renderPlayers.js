@@ -63,19 +63,17 @@ function renderAllPlayers(scene) {
 
 
 
-// Create container sprite to hold everything
 
-// Create sprite if it doesn't exist
-if (!sprite) {
-    console.log("sprite   ",sprite);
+    console.log("scene   ",scene);
 
   // ✅ Create container sprite
   sprite = scene.add.container(
     pos.x * TILE_SIZE + TILE_SIZE / 2,
     pos.y * TILE_SIZE + TILE_SIZE / 2
   );
+  console.log("sprite   ",sprite);
 
-}else{
+
 
   console.log("sprite   ",sprite);
 
@@ -94,7 +92,6 @@ let userHomeImage;
 
 // Check if the image is available
 if (levelToImageKey[level]) {
-  console.log("level   ",level);
 
 const imageKey = levelToImageKey[level] || "house_Lv_4"; // fallback
  userHomeImage = scene.add.image(0, -10, imageKey)
@@ -265,7 +262,7 @@ loadTileDataAndRender(scene);
   });
 
   console.log("✅ Render Complete. Current Sprites:", Array.from(otherPlayerSprites.keys()));
-}
+
 
 
 export { renderAllPlayers };
