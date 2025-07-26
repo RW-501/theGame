@@ -38,40 +38,55 @@ export function renderAllOwnedTiles(scene) {
       existing.setPosition(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
       continue;
     }
+const typeToImageKey = {
+  // Land types
+  'billboard': "land_type-billboard",
+  'cellTower': "land_type-cellTower",
+  'crop': "land_type-crop",
+  'dirt': "land_type-dirt",
+  'grass': "land_type-grass",
+  'parkingLot': "land_type-parkingLot",
+  'trees': "land_type-trees",
 
-    const container = scene.add.container(
-      x * TILE_SIZE + TILE_SIZE / 2,
-      y * TILE_SIZE + TILE_SIZE / 2
-    );
+  // Building levels
+  'building_1': "building_Lv_1",
+  'building_2': "building_Lv_2",
+  'building_3': "building_Lv_3",
+  'building_4': "building_Lv_4"
+};
 
-    const border = scene.add.circle(0, 0, TILE_SIZE * 0.4, color || 0x00ff00, 0.2)
-      .setStrokeStyle(2, color || 0x00ff00)
-      .setDepth(0);
+  const container = scene.add.container(
+    x * TILE_SIZE + TILE_SIZE / 2,
+    y * TILE_SIZE + TILE_SIZE / 2
+  );
 
-    const iconText = scene.add.text(0, -5, icon || "🏠", {
-      fontSize: '16px',
+  const border = scene.add.circle(0, 0, TILE_SIZE * 0.4, color || 0x00ff00, 0.2)
+    .setStrokeStyle(2, color || 0x00ff00)
+    .setDepth(0);
+
+  const imageKey = typeToImageKey[type] || "land_type-dirt";
+  const playerLandImage = scene.add.image(0, -10, imageKey)
+    .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
+    .setOrigin(0.5);
+
+  const nameText = scene.add.text(0, TILE_SIZE * 0.25, ownerName || "Owner", {
+    fontSize: '10px',
+    color: '#cccccc'
+  }).setOrigin(0.5);
+
+  container.add([border, playerLandImage, nameText]);
+
+  if (forSale === true) {
+    const forSaleText = scene.add.text(TILE_SIZE * 0.25, -TILE_SIZE * 0.25, "💲", {
+      fontSize: '12px',
       fontStyle: 'bold',
-      color: '#ffffff'
+      color: '#ffcc00'
     }).setOrigin(0.5);
+    container.add(forSaleText);
+  }
 
-    const nameText = scene.add.text(0, TILE_SIZE * 0.25, ownerName || "Owner", {
-      fontSize: '10px',
-      color: '#cccccc'
-    }).setOrigin(0.5);
+  tileSpriteMap.set(spriteKey, container);
 
-    container.add([border, iconText, nameText]);
-
-    // 🟨 For Sale sign
-    if (forSale === true) {
-      const forSaleText = scene.add.text(TILE_SIZE * 0.25, -TILE_SIZE * 0.25, "💲", {
-        fontSize: '12px',
-        fontStyle: 'bold',
-        color: '#ffcc00'
-      }).setOrigin(0.5);
-      container.add(forSaleText);
-    }
-
-    tileSpriteMap.set(spriteKey, container);
   }
 
   console.log("✅ Tile Render Complete. Tiles drawn:", tileSpriteMap.size);

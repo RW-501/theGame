@@ -84,14 +84,24 @@ console.log("Phaser Version:", Phaser.VERSION);
 
 
 const levelToImageKey = {
-  1: "apartment_Lv_1",
+  1: "land_type-billboard",
   2: "apartment_Lv_2",
   3: "apartment_Lv_3",
   4: "apartment_Lv_4",
   5: "house_Lv_1",
   6: "house_Lv_2",
   7: "house_Lv_3",
-  8: "house_Lv_4"
+  8: "house_Lv_4",
+
+  9: "townhouse_Lv_1",
+  10: "townhouse_Lv_2",
+  11: "townhouse_Lv_3",
+  12: "townhouse_Lv_4",
+
+  13: "bigHouse_Lv_1",
+  14: "bigHouse_Lv_2",
+  15: "bigHouse_Lv_3",
+  16: "bigHouse_Lv_4",
 };
 
 let userHomeImage;
