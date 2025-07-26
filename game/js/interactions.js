@@ -160,7 +160,7 @@ async function initializeMap(scene) {
 
   const zoomX = screenWidth / mapWidth;
   const zoomY = screenHeight / mapHeight;
-  const zoom = Math.min(zoomX, zoomY, 1);
+  const zoom = Math.min(zoomX, zoomY, 5);
 
   cam.setBounds(0, 0, mapWidth, mapHeight);
   cam.setZoom(zoom);
