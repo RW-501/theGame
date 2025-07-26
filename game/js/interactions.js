@@ -80,6 +80,9 @@ let initialPointer = null;
 
 
 function initPlayerRealtimeSync(scene, playerData) {
+
+    console.log("initPlayerRealtimeSync  scene...  ", scene);
+
   if (!playerData?.playerUid) {
     console.error("❌ playerData.playerUid is missing");
     return;

@@ -18,7 +18,7 @@ import { loadOrCreatePlayer, initGameScene,
 
 // Render other players except local player
 function renderAllPlayers(scene) {
-  console.log("🎨 Rendering All Players...  ",scene);
+    console.log("renderAllPlayers  scene...  ", scene);
   console.log("🧍 All Player States:", Array.from(playerState.entries()));
 
   for (const [playerId, pos] of playerState.entries()) {
@@ -67,6 +67,8 @@ function renderAllPlayers(scene) {
 
 // Create sprite if it doesn't exist
 if (!sprite) {
+    console.log("sprite   ",sprite);
+
   // ✅ Create container sprite
   sprite = scene.add.container(
     pos.x * TILE_SIZE + TILE_SIZE / 2,
