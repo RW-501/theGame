@@ -180,6 +180,7 @@ let playerData;
 export async function finalizePlayerSetup(playerInfo, gameScene) {
   
   playerData = playerInfo;
+  scene = gameScene.keys.default
   scene = gameScene;
 
   localStorage.setItem("theGame_currentPlayerData", JSON.stringify(playerData));

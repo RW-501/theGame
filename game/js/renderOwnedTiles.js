@@ -29,7 +29,10 @@ export function renderAllOwnedTiles(scene) {
     const { x, y, icon, level, ownerName, color, label, ownerID, forSale, type, subType } = tile;
 
     // Skip tiles without valid position, owner, or if type is 'home'
-    if (x == null || y == null || !ownerID || type === 'home') continue;
+if (x == null || y == null || !ownerID || type === 'home') {
+  console.warn("Skipping invalid tile:", tile);
+  continue;
+}
 
     const spriteKey = `${x}_${y}`;
 
@@ -107,7 +110,8 @@ export function renderAllOwnedTiles(scene) {
     }
 
     // Store container for reuse
-    tileSpriteMap.set(spriteKey, container);
+scene.tileLayer.add(container);
+tileSpriteMap.set(spriteKey, container);
   }
 
   console.log("✅ Tile Render Complete. Tiles drawn:", tileSpriteMap.size);
