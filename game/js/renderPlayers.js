@@ -79,11 +79,9 @@ console.log("Phaser Version:", Phaser.VERSION);
     pos.x * TILE_SIZE + TILE_SIZE / 2,
     pos.y * TILE_SIZE + TILE_SIZE / 2
   );
-  console.log("sprite   ",sprite);
+  console.log("level   ",level);
 
 
-
-  console.log("sprite   ",sprite);
 
 const levelToImageKey = {
   1: "apartment_Lv_1",
@@ -105,9 +103,9 @@ const imageKey = levelToImageKey[level] || "house_Lv_4"; // fallback
  userHomeImage = scene.add.image(0, -10, imageKey)
   .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
   .setOrigin(0.5);
+  console.log("imageKey   ",imageKey);
 
 }
-  console.log("imageKey   ",imageKey);
   console.log("userHomeImage   ",userHomeImage);
 
 const isLocalPlayer = playersUid === playerData.playerUid;
