@@ -3,7 +3,7 @@
 import {
   TILE_SIZE, MAP_SIZE, zoneInfo, mapData,
   loadMapFromFirebase, setDefaultMapData, loadTileDataAndRender,
-  loadTileData, getTileDataAt, playerState, otherPlayerSprites
+  loadTileData, getTileDataAt, playerState, otherPlayerSprites, toIsometric 
 } from 'https://rw-501.github.io/theGame/game/js/renderMap.js';
 
 // Startup functions
@@ -18,22 +18,24 @@ import { loadOrCreatePlayer,
 
 // Render other players except local player
 function renderAllPlayers(scene) {
-    console.log("renderAllPlayers  scene...  ", scene);
-  console.log("🧍 All Player States:", Array.from(playerState.entries()));
-
   for (const [playerId, pos] of playerState.entries()) {
+    if (!pos || pos.x === undefined || pos.y === undefined) continue;
 
-        console.log(`continue: playerId  ${playerId}, || ${playerState} at (${pos.x}, ${pos.y})`);
+    let sprite = otherPlayerSprites.get(playerId);
+    const { x: isoX, y: isoY } = toIsometric(pos.x, pos.y);
+
+    if (!sprite) {
+      sprite = scene.add.container(isoX, isoY);
+      otherPlayerSprites.set(playerId, sprite);
+      scene.add.existing(sprite);
+
+        console.log(`continue: playerId  ${playerId}, || ${playerState} at (${isoX}, ${isoY})`);
 
    // if (playerId === playerData.playerUid) continue;
     if (!pos || pos.x === undefined || pos.y === undefined) {
       console.warn(`⚠️ Invalid pos for ${playerId}:`, pos);
       continue;
     }
-
-   // console.log(`🧍 Drawing ${playerId} at (${pos.x}, ${pos.y})`);
-
-    let sprite = otherPlayerSprites.get(playerId);
 
 
 
@@ -63,22 +65,15 @@ function renderAllPlayers(scene) {
 
 
 
-
-console.log("scene:", scene);
-console.log("scene.constructor.name:", scene.constructor.name);
-console.log("scene.add:", scene.add);
-console.log("Phaser Version:", Phaser.VERSION);
-
   if (!scene.add || typeof scene.add.container !== "function") {
     console.error("scene.add.container is not a function");
     return;
   }
 
   // ✅ Create container sprite
-  sprite = scene.add.container(
-    pos.x * TILE_SIZE + TILE_SIZE / 2,
-    pos.y * TILE_SIZE + TILE_SIZE / 2
-  );
+const isoPos = toIsometric(pos.x, pos.y);
+sprite = scene.add.container(isoPos.x, isoPos.y);
+
   console.log("level   ",level);
 
 
@@ -111,9 +106,10 @@ let userHomeImage;
 if (levelToImageKey[level]) {
 
 const imageKey = levelToImageKey[level] || "apartment_Lv_1"; // fallback
- userHomeImage = scene.add.image(0, -10, imageKey)
+userHomeImage = scene.add.image(0, TILE_SIZE * -0.15, imageKey)
   .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
-  .setOrigin(0.5);
+  .setOrigin(0.5, 1); // bottom center origin
+
   console.log("imageKey   ",imageKey);
 
 }
@@ -259,11 +255,14 @@ sprite.add(objectsToAdd);
   otherPlayerSprites.set(playerId, sprite);
   scene.add.existing(sprite);
 
-// Update sprite position
-sprite.setPosition(
-  pos.x * TILE_SIZE + TILE_SIZE / 2,
-  pos.y * TILE_SIZE + TILE_SIZE / 2
-);
+
+
+} else {
+  // update position here if needed
+}
+
+
+sprite.setPosition(isoX, isoY);
 
 }
 

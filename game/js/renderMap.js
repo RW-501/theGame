@@ -146,7 +146,6 @@ const zoneInfo = {
   })()
 };
 
-
 async function loadMapFromFirebase() {
   try {
     const snapshot = await getDocs(collection(db, "mapTiles"));
@@ -172,8 +171,8 @@ async function loadMapFromFirebase() {
 function setDefaultMapData() {
   mapData = Array.from({ length: MAP_SIZE }, () => Array(MAP_SIZE).fill("empty"));
 
-  const centerX = 12;
-  const centerY = 12;
+  const centerX = Math.floor(MAP_SIZE / 2);
+  const centerY = Math.floor(MAP_SIZE / 2);
   mapData[centerY][centerX] = "stockMarket";
 
   for (let y = centerY - 6; y <= centerY + 6; y++) {
@@ -189,14 +188,13 @@ function setDefaultMapData() {
   }
 }
 
-
 async function loadTileDataAndRender(scene) {
-  await loadTileData(); // <- this populates tileDataMap
+  await loadTileData();
   if (!tileDataMap) {
     console.error("❌ tileDataMap failed to load.");
     return;
   }
-  renderAllOwnedTiles(scene); // <- now it's safe to call
+  renderAllOwnedTiles(scene);
 }
 
 async function loadTileData() {
@@ -209,9 +207,12 @@ async function loadTileData() {
   });
 }
 
-
-
-
+// Utility for converting grid to isometric position
+function toIsometric(x, y) {
+  const isoX = (x - y) * (TILE_SIZE / 2);
+  const isoY = (x + y) * (TILE_SIZE / 4);
+  return { x: isoX, y: isoY };
+}
 
 export {
   TILE_SIZE,
@@ -225,5 +226,6 @@ export {
   playerState,
   otherPlayerSprites,
   getTileDataAt,
-  tileDataMap
+  tileDataMap,
+  toIsometric
 };

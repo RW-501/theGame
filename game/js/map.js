@@ -21,6 +21,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 
+function fromIsometric(isoX, isoY) {
+  const x = Math.floor((isoY / (TILE_SIZE / 4) + isoX / (TILE_SIZE / 2)) / 2);
+  const y = Math.floor((isoY / (TILE_SIZE / 4) - isoX / (TILE_SIZE / 2)) / 2);
+  return { x, y };
+}
+
+
+function toIsometric(x, y) {
+  const isoX = (x - y) * (TILE_SIZE / 2);
+  const isoY = (x + y) * (TILE_SIZE / 4);
+  return { x: isoX, y: isoY };
+}
 
 export async function getTileDataAt(x, y) {
   try {
@@ -60,7 +72,7 @@ export  {
   loadTileDataAndRender,
   loadTileData,
   playerState,
-  otherPlayerSprites, tileDataMap }; 
+  otherPlayerSprites, tileDataMap,toIsometric, fromIsometric }; 
  
 
   /*
@@ -75,7 +87,7 @@ export  {
   loadTileData,
   playerState,
   otherPlayerSprites,
-  getTileDataAt  } from 'https://rw-501.github.io/theGame/game/js/map.js';
+  getTileDataAt, fromIsometric, toIsometric  } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
 
   */
