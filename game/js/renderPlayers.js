@@ -89,9 +89,11 @@ const levelToImageKey = {
 if (levelToImageKey[level]) {
   console.log("level   ",level);
 
-  userHomeImage = scene.add.image(0, -10, levelToImageKey[level])
-    .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
-    .setOrigin(0.5);
+const imageKey = levelToImageKey[level] || "house_Lv_4"; // fallback
+userHomeImage = scene.add.image(0, -10, imageKey)
+  .setDisplaySize(TILE_SIZE * 0.8, TILE_SIZE * 0.8)
+  .setOrigin(0.5);
+
 }
 
 const isLocalPlayer = playersUid === playerData.playerUid;
@@ -223,8 +225,12 @@ labelContainer.setSize(nameOffsetX + nameWidth, nameHeight);
 
 
 // 🔧 Add to sprite
-sprite.add([userHomeImage, labelContainer]);
+const objectsToAdd = [];
 
+if (userHomeImage) objectsToAdd.push(userHomeImage);
+if (labelContainer) objectsToAdd.push(labelContainer);
+
+sprite.add(objectsToAdd);
 
 // Store or render accordingly
   otherPlayerSprites.set(playerId, sprite);
