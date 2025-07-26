@@ -313,7 +313,7 @@ let lastDistance = 0;
 
 scene.input.on("pointermove", pointer => {
 
-  console.log("pointer   ",pointer);
+ // console.log("pointer   ",pointer);
 
   /*
   const activePointers = scene.input.pointers.filter(p => p && p.isDown);
