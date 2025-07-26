@@ -52,44 +52,66 @@ let MapWidth;
 
 
 
+
 export async function loadOrCreatePlayer(uid) {
-  const q = query(collection(db, "players"), where("userID", "==", uid), where("server", "==", "main"), limit(1));
+  const existingPlayer = await fetchPlayerFromDB(uid);
+
+  if (existingPlayer) {
+    console.log("✅ Load Player");
+
+    if (existingPlayer.location === 'start') {
+      await assignRandomLocation(existingPlayer);
+    }
+
+    return existingPlayer;
+  } else {
+    console.log("✅ Create Player");
+    const newPlayer = await createNewPlayer(uid);
+    return newPlayer;
+  }
+}
+
+async function fetchPlayerFromDB(uid) {
+  const q = query(
+    collection(db, "players"),
+    where("userID", "==", uid),
+    where("server", "==", "main"),
+    limit(1)
+  );
+
   const snapshot = await getDocs(q);
-
-
 
   if (!snapshot.empty) {
     const docSnap = snapshot.docs[0];
     const data = docSnap.data();
     data.id = docSnap.id;
     data.isNew = false;
-
-    console.log("✅ Load Player");
-
-
-
-    if (data.location === 'start') {
-
-  const randomLocation = getRandomEmptyTile(mapData);
-  const [x, y] = randomLocation;
-
-      const docRef = doc(db, "players", data.id);
-      await updateDoc(docRef, { location: randomLocation, playerX: x, playerY: y });
-      data.location = randomLocation;
-      data.playerX = x;
-      data.playerY = y;
-    }
-
     return data;
-  }else {
-
   }
-    console.log("✅ Create Player");
 
+  return null;
+}
+
+async function assignRandomLocation(playerData) {
   const randomLocation = getRandomEmptyTile(mapData);
   const [x, y] = randomLocation;
 
-  // Otherwise create new player
+  const docRef = doc(db, "players", playerData.id);
+  await updateDoc(docRef, {
+    location: randomLocation,
+    playerX: x,
+    playerY: y
+  });
+
+  playerData.location = randomLocation;
+  playerData.playerX = x;
+  playerData.playerY = y;
+}
+
+async function createNewPlayer(uid) {
+  const randomLocation = getRandomEmptyTile(mapData);
+  const [x, y] = randomLocation;
+
   const newPlayer = {
     userID: uid,
     playerName: "Player" + Math.floor(Math.random() * 1000),

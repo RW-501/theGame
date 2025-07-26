@@ -149,21 +149,20 @@ function launchConfetti() {
 
 
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
-
 function getRandomEmptyTile(mapData) {
+  if (!Array.isArray(mapData) || !Array.isArray(mapData[0])) {
+    console.error("❌ mapData is not a 2D array!", mapData);
+    return [5, 5]; // fallback
+  }
+
   const emptyTiles = [];
 
   for (let y = 0; y < MAP_SIZE; y++) {
     for (let x = 0; x < MAP_SIZE; x++) {
-      if (mapData[y][x] === "empty") {
+      if (mapData[y]?.[x] === "empty") {
         emptyTiles.push([x, y]);
       }
     }
-          //  console.log("emptyTiles   ", emptyTiles);
-
   }
 
   if (emptyTiles.length === 0) {
