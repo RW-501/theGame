@@ -68,7 +68,7 @@ import { loadOrCreatePlayer,
 
 let selectedTile = null;
 let tileHighlightRect = null;
-
+let clickedX, clickedY; 
 
 async function showTileActionModal(x, y, tileTypeFromCaller, otherPlayerId) {
 
