@@ -264,6 +264,11 @@ sprite.add(objectsToAdd);
 
 sprite.setPosition(isoX, isoY);
 
+if(playerData.playerUid == playerId){
+ centerCameraOnPlayer(pos.x, pos.y);
+
+}
+
 }
 
 

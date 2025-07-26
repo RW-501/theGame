@@ -187,7 +187,9 @@ function returnToPlayerLocation(scene) {
 }
 
 
-function centerCameraOnPlayer() {
+function centerCameraOnPlayer(x, y) {
+  playerX = x
+  playerY = y;
   cam.setZoom(newZoom);
   const iso = toIsometric(playerX, playerY);
   cam.centerOn(iso.x, iso.y);
