@@ -11,6 +11,14 @@ import {   TILE_SIZE,
   playerState,
   otherPlayerSprites  } from 'https://rw-501.github.io/theGame/game/js/renderMap.js'; 
 
+// Firebase core & Firestore
+import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
+import {
+  getFirestore, query, where, limit, addDoc,
+  arrayRemove, increment, serverTimestamp,
+  arrayUnion, collection, doc, getDoc, getDocs,
+  onSnapshot, updateDoc, setDoc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 
 
