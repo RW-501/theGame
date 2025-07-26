@@ -294,28 +294,37 @@ function setupMapMovement(scene) {
   });
 
   // Mobile pinch-zoom support
-  scene.input.addPointer(2); // Allow 2-finger input
-  let lastDistance = 0;
+scene.input.addPointer(2); // Allow 2-finger input
+let lastDistance = 0;
 
-  scene.input.on("pointermove", () => {
-    const pointers = scene.input.pointers;
+scene.input.on("pointermove", () => {
+  const pointers = scene.input.pointers;
 
-    if (pointers[0].isDown && pointers[1].isDown) {
-      const dist = Phaser.Math.Distance.Between(
-        pointers[0].worldX, pointers[0].worldY,
-        pointers[1].worldX, pointers[1].worldY
-      );
+  const pointer1 = pointers[0];
+  const pointer2 = pointers[1];
 
-      if (lastDistance > 0) {
-        const zoomFactor = dist / lastDistance;
-        cam.setZoom(Phaser.Math.Clamp(cam.zoom * zoomFactor, 0.5, 2));
-      }
+  if (
+    pointer1 && pointer1.isDown &&
+    pointer2 && pointer2.isDown &&
+    typeof pointer1.worldX === 'number' &&
+    typeof pointer2.worldX === 'number'
+  ) {
+    const dist = Phaser.Math.Distance.Between(
+      pointer1.worldX, pointer1.worldY,
+      pointer2.worldX, pointer2.worldY
+    );
 
-      lastDistance = dist;
-    } else {
-      lastDistance = 0;
+    if (lastDistance > 0) {
+      const zoomFactor = dist / lastDistance;
+      cam.setZoom(Phaser.Math.Clamp(cam.zoom * zoomFactor, 0.5, 2));
     }
-  });
+
+    lastDistance = dist;
+  } else {
+    lastDistance = 0;
+  }
+});
+
 }
 
 
