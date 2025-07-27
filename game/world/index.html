@@ -16,6 +16,48 @@
 <link href="https://rw-501.github.io/theGame/game/css/main.css" rel="stylesheet" />
 
   <style>
+.tile-tooltip {
+  position: fixed;
+  background: rgba(20, 20, 30, 0.95);
+  color: white;
+  border-radius: 8px;
+  padding: 10px;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  max-width: 250px;
+  font-size: 14px;
+}
+
+.tile-tooltip .tile-actions {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tile-tooltip button {
+  background: #444;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex: 1 1 40%;
+}
+
+.tile-tooltip button:hover {
+  background: #666;
+}
+
+@media (max-width: 600px) {
+  .tile-tooltip {
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    top: auto !important;
+  }
+}
 
   </style>
 </head>
@@ -65,7 +107,32 @@
 </div>
 
 
-<div id="tileTooltip"></div>
+<div id="tileTooltip" style="
+  position: absolute;
+  background: rgba(20, 20, 20, 0.9);
+  color: white;
+  font-family: monospace;
+  font-size: 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+  white-space: nowrap;
+  display: none;
+  z-index: 1000;
+  box-shadow: 0 0 12px rgba(0, 255, 0, 0.5);
+"></div>
+
+<div id="tileTooltip" class="tile-tooltip ">
+  <div class="tooltip-content">
+    <div class="tile-info"></div>
+    <div class="tile-actions">
+      <button onclick="handleTileAction('buy')">Buy</button>
+      <button onclick="handleTileAction('build')">Build</button>
+      <button onclick="handleTileAction('upgrade')">Upgrade</button>
+      <button onclick="handleTileAction('view')">View</button>
+    </div>
+  </div>
+</div>
 
 
 <div id="userTool" class="fade-out">

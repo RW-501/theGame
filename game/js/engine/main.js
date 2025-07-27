@@ -121,3 +121,4 @@ window.addEventListener("resize", () => {
 
 });
 
+export {createScene };

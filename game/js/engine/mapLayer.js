@@ -1,6 +1,5 @@
 //mapLayer.js
 // 
-
 export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAssets = {}, config = {}, onTileClick) {
   const tileSize = 2;
   const halfTile = tileSize / 2;
@@ -8,17 +7,7 @@ export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAsset
   defaultMat.diffuseColor = new BABYLON.Color3(1, 0, 1);
 
   const camera = scene.activeCamera;
-  let lastHighlightMesh = null;
-  let pulseAnim = null;
-  let lastClickTime = 0;
-
-  const highlightConfig = {
-    enabled: config.clickHighlight?.enabled ?? true,
-    color: config.clickHighlight?.color ?? "#00ff00",
-    pulseSpeed: config.clickHighlight?.pulseSpeed ?? 500,
-    intensity: config.clickHighlight?.intensity ?? 0.7,
-    cooldown: config.clickHighlight?.cooldown ?? 300,
-  };
+  const glowLayer = new BABYLON.GlowLayer("glow", scene, { blurKernelSize: 32 });
 
   const getZoneAt = (x, y) => {
     if (!config.restrictedZones) return null;
@@ -29,6 +18,8 @@ export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAsset
       y < zone.y + zone.height
     );
   };
+
+  const tiles = [];
 
   for (let y = 0; y < tileMapData.length; y++) {
     for (let x = 0; x < tileMapData[y].length; x++) {
@@ -58,103 +49,177 @@ export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAsset
         buildable: isBuildable,
         zone: zone ? zone.name : null
       };
+
+      tiles.push(tile);
     }
   }
 
-  const createPulsingBorder = (tile) => {
-    if (lastHighlightMesh) {
-      lastHighlightMesh.dispose();
-      lastHighlightMesh = null;
-    }
-    if (pulseAnim) {
-      scene.stopAnimation(pulseAnim.target);
-      pulseAnim = null;
-    }
+  // 🔦 Pulsing border
+  let borderMesh = null;
+  let pulseAnim = null;
+  let clickCooldown = false;
 
-    const border = BABYLON.MeshBuilder.CreateTiledBox("tileHighlight", {
-      width: tileSize,
+  function createBorder() {
+    const mat = new BABYLON.StandardMaterial("borderMat", scene);
+    mat.emissiveColor = BABYLON.Color3.FromHexString(config.clickHighlight?.color || "#00ff00");
+    mat.disableLighting = true;
+    mat.alpha = 0.6;
+
+    const border = BABYLON.MeshBuilder.CreateBox("tileBorder", {
+      width: tileSize * 1.05,
       height: 0.1,
-      depth: tileSize,
-      pattern: 1,
-      tileSize: 1,
+      depth: tileSize * 1.05,
     }, scene);
-    border.position = tile.position.clone();
-    border.position.y += 0.1;
-    border.parent = tile;
+    border.material = mat;
+    border.isPickable = false;
+    border.visibility = 0;
 
-    const borderMat = new BABYLON.StandardMaterial("highlightMat", scene);
-    const highlightColor = BABYLON.Color3.FromHexString(highlightConfig.color);
-    borderMat.emissiveColor = highlightColor.scale(highlightConfig.intensity);
-    border.material = borderMat;
+    glowLayer.addIncludedOnlyMesh(border);
+    return border;
+  }
 
-    // Pulse animation
-    const anim = new BABYLON.Animation("pulse", "material.emissiveColor", 60,
-      BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+  borderMesh = createBorder();
 
-    const frameRate = 60;
-    const pulseFrames = frameRate * (highlightConfig.pulseSpeed / 1000);
-    const dimColor = highlightColor.scale(0.1);
-    const brightColor = highlightColor.scale(highlightConfig.intensity);
+  function pulseBorder() {
+    if (pulseAnim) pulseAnim.stop();
+    const intensity = config.clickHighlight?.intensity || 0.7;
+    const speed = config.clickHighlight?.pulseSpeed || 500;
 
-    anim.setKeys([
-      { frame: 0, value: dimColor },
-      { frame: pulseFrames / 2, value: brightColor },
-      { frame: pulseFrames, value: dimColor },
-    ]);
+    const keys = [
+      { frame: 0, value: 0.2 },
+      { frame: 30, value: intensity },
+      { frame: 60, value: 0.2 }
+    ];
 
-    pulseAnim = anim;
-    border.animations = [pulseAnim];
-    scene.beginAnimation(border, 0, pulseFrames, true);
+    pulseAnim = new BABYLON.Animation("pulse", "material.emissiveColor", 60, BABYLON.Animation.ANIMATIONTYPE_COLOR3, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+    const baseColor = BABYLON.Color3.FromHexString(config.clickHighlight?.color || "#00ff00");
 
-    lastHighlightMesh = border;
-  };
+    pulseAnim.setKeys(keys.map(k => ({
+      frame: k.frame,
+      value: baseColor.scale(k.value)
+    })));
 
-  // Handle tile click
+    borderMesh.animations = [pulseAnim];
+    scene.beginAnimation(borderMesh, 0, 60, true);
+  }
+
+  // 🔘 Click logic
   scene.onPointerObservable.add((pointerInfo) => {
-    if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERPICK) {
-      const now = Date.now();
-      if (now - lastClickTime < highlightConfig.cooldown) return;
+  if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERPICK) {
+    const picked = pointerInfo.pickInfo;
+    if (picked?.hit && picked.pickedMesh?.name?.startsWith("tile_")) {
+      const tile = picked.pickedMesh;
+      const meta = tile.metadata;
 
-      const picked = pointerInfo.pickInfo;
-      if (picked?.hit && picked.pickedMesh?.name?.startsWith("tile_")) {
-        const tile = picked.pickedMesh;
-        const meta = tile.metadata;
-        lastClickTime = now;
-
-        // 🧭 Smooth zoom to clicked tile
-        if (config.zoomOnClick?.enabled && camera) {
-          const offset = config.zoomOnClick.cameraTargetOffset || { x: 0, y: 2, z: -4 };
-          const targetPos = tile.position.add(new BABYLON.Vector3(offset.x, offset.y, offset.z));
-          const animDuration = config.zoomOnClick.animationDuration || 1000;
-
-          BABYLON.Animation.CreateAndStartAnimation(
-            "camMove",
-            camera,
-            "position",
-            60,
-            (60 * animDuration) / 1000,
-            camera.position,
-            targetPos,
-            BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
-          );
-
-          if (camera.setTarget) camera.setTarget(tile.position);
-          if (config.zoomOnClick.fov) camera.fov = config.zoomOnClick.fov;
-        }
-
-        // 🌟 Highlight clicked tile
-        if (highlightConfig.enabled) createPulsingBorder(tile);
-
-        if (onTileClick) onTileClick(tile, meta);
+      if (config.clickHighlight?.enabled && !clickCooldown) {
+        borderMesh.position.set(tile.position.x, tile.position.y + 0.1, tile.position.z);
+        borderMesh.visibility = 1;
+        pulseBorder();
+        clickCooldown = true;
+        setTimeout(() => { clickCooldown = false; }, config.clickHighlight.cooldown || 500);
       }
+
+      // ✅ Show tooltip
+      showTooltip(tile, meta);
+
+      if (config.zoomOnClick?.enabled && camera) {
+        const offset = config.zoomOnClick.cameraTargetOffset || { x: 0, y: 2, z: -4 };
+        const targetPos = tile.position.add(new BABYLON.Vector3(offset.x, offset.y, offset.z));
+        const animDuration = config.zoomOnClick.animationDuration || 1000;
+
+        BABYLON.Animation.CreateAndStartAnimation(
+          "camMove",
+          camera,
+          "position",
+          60,
+          (60 * animDuration) / 1000,
+          camera.position,
+          targetPos,
+          BABYLON.Animation.ANIMATIONLOOPMODE_CONSTANT
+        );
+
+        if (camera.setTarget) camera.setTarget(tile.position);
+        if (config.zoomOnClick.fov) camera.fov = config.zoomOnClick.fov;
+      }
+
+      if (onTileClick) onTileClick(tile, meta);
+    } else {
+      // Hide tooltip if clicked elsewhere
+      hideTooltip();
     }
-  });
+  }
+});
 
   console.log(`[MapLayer] Built ${tileMapData.length * tileMapData[0].length} tiles`);
 }
 
-
       /*
+////////////////////////////////////
+TOOL TIPS
+//////////////////////////////////////
+*/
+
+
+
+
+// Tooltip DOM reference
+const tooltip = document.getElementById("tileTooltip");
+const canvasRect = scene.getEngine().getRenderingCanvasClientRect();
+
+let tooltipTimeout;
+
+function showTooltip(tile, meta) {
+  const tooltip = document.getElementById("tileTooltip");
+  const infoDiv = tooltip.querySelector(".tile-info");
+  const canvasRect = scene.getEngine().getRenderingCanvasClientRect();
+
+  infoDiv.innerHTML = `
+    <strong>Tile Info</strong><br>
+    Type: ${meta.tileType}<br>
+    Grid: (${meta.gridX}, ${meta.gridY})<br>
+    Zone: ${meta.zone || "None"}<br>
+    Buildable: ${meta.buildable ? "✅" : "❌"}
+  `;
+
+  // Compute screen position
+  const screenPos = BABYLON.Vector3.Project(
+    tile.position.clone().add(new BABYLON.Vector3(0, 0.3, 0)),
+    BABYLON.Matrix.Identity(),
+    scene.getTransformMatrix(),
+    camera.viewport.toGlobal(scene.getEngine().getRenderWidth(), scene.getEngine().getRenderHeight())
+  );
+
+  tooltip.style.left = `${screenPos.x + canvasRect.left + 10}px`;
+  tooltip.style.top = `${screenPos.y + canvasRect.top - 10}px`;
+  tooltip.style.display = "block";
+
+  clearTimeout(tooltipTimeout);
+  tooltipTimeout = setTimeout(hideTooltip, 5000); // auto-hide after 5s
+}
+
+function hideTooltip() {
+  const tooltip = document.getElementById("tileTooltip");
+  tooltip.style.display = "none";
+}
+
+function handleTileAction(action) {
+  const tooltip = document.getElementById("tileTooltip");
+  const infoDiv = tooltip.querySelector(".tile-info");
+  const metaText = infoDiv.textContent;
+
+  console.log(`Action "${action}" clicked for:`);
+  console.log(metaText);
+
+  // Replace with real logic...
+  alert(`🔧 ${action.toUpperCase()} - coming soon...`);
+
+  // Optional: hide tooltip after action
+  hideTooltip();
+}
+
+window.handleTileAction = handleTileAction;
+
+     /*
 
 {
   "gridX": 2,
