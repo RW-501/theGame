@@ -487,6 +487,7 @@ import { updateStatsUI } from 'https://rw-501.github.io/theGame/game/js/updateSt
 import { loadOrCreatePlayer, 
    ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
+import { createScene } from "https://rw-501.github.io/theGame/game/js/engine/main.js";
 
 let game;
 let scene;
@@ -537,7 +538,7 @@ onAuthStateChanged(auth, async (user) => {
   uid = user.uid;
 
 
-  
+
 /*
   const game = initGameScene();
 
