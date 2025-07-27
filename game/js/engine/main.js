@@ -2,8 +2,13 @@
 
 import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 
-import { buildMapLayer } from "https://rw-501.github.io/theGame/game/js/engine/mapLayer.js";
+
+
+import "https://cdn.babylonjs.com/babylon.js"; // Make sure Babylon core is loaded
+import "https://cdn.babylonjs.com/materialsLibrary/babylon.gridMaterial.min.js"; // ✅ This enables GridMaterial
+
 import { createScene } from "https://rw-501.github.io/theGame/game/js/engine/createScene.js";
+import { buildMapLayer } from "https://rw-501.github.io/theGame/game/js/engine/mapLayer.js";
 import { getServerTimestampInSeconds } from "https://rw-501.github.io/theGame/game/js/engine/utils/firebaseTime.js"; // you’ll need this file
 
 const canvas = document.getElementById("mainCanvas");
