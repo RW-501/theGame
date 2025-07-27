@@ -11,6 +11,22 @@ const config = {
   fogDensity: 0.02,
   fogColor: new BABYLON.Color3(0.05, 0.05, 0.1),
 
+  zoomOnClick: {
+  enabled: true,
+  cameraTargetOffset: { x: 0, y: 2, z: -4 }, // offset from tile
+  animationDuration: 1000, // milliseconds
+  fov: 0.6 // optional field of view change (or leave camera as-is)
+},
+
+clickHighlight: {
+  enabled: true,
+  color: "#00ff00", // Green
+  pulseSpeed: 500,  // ms for one pulse cycle
+  intensity: 0.7,   // max glow
+    cooldown: 300,
+  },
+
+
   performance: {
     hardwareScaling: 1.5
   },
