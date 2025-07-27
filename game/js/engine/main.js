@@ -1,5 +1,7 @@
 // main.js
 
+import * as BABYLON from "https://cdn.jsdelivr.net/npm/babylonjs@7.0.0/babylon.module.js";
+
 import { buildMapLayer } from "https://rw-501.github.io/theGame/game/js/engine/mapLayer.js";
 import { createScene } from "https://rw-501.github.io/theGame/game/js/engine/createScene.js";
 import { getServerTimestampInSeconds } from "https://rw-501.github.io/theGame/game/js/engine/utils/firebaseTime.js"; // you’ll need this file
