@@ -1,5 +1,9 @@
 //mapLayer.js
 // 
+
+import { tooltipConfig  } from "https://rw-501.github.io/theGame/game/js/engine/main.js";
+
+
 export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAssets = {}, config = {}, onTileClick) {
   const tileSize = 2;
   const halfTile = tileSize / 2;
@@ -153,6 +157,7 @@ export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAsset
   console.log(`[MapLayer] Built ${tileMapData.length * tileMapData[0].length} tiles`);
 }
 
+
       /*
 ////////////////////////////////////
 TOOL TIPS
@@ -163,12 +168,14 @@ TOOL TIPS
 
 
 // Tooltip DOM reference
+/*
 const tooltip = document.getElementById("tileTooltip");
 const canvasRect = scene.getEngine().getRenderingCanvasClientRect();
+*/
 
 let tooltipTimeout;
 
-function showTooltip(tile, meta) {
+export function showTooltip(tile, meta, scene, camera) {
   const tooltip = document.getElementById("tileTooltip");
   const infoDiv = tooltip.querySelector(".tile-info");
   const canvasRect = scene.getEngine().getRenderingCanvasClientRect();
@@ -178,7 +185,9 @@ function showTooltip(tile, meta) {
     Type: ${meta.tileType}<br>
     Grid: (${meta.gridX}, ${meta.gridY})<br>
     Zone: ${meta.zone || "None"}<br>
-    Buildable: ${meta.buildable ? "✅" : "❌"}
+    Buildable: ${meta.buildable ? "✅" : "❌"}<br>
+    <button onclick="handleTileAction('upgrade')">Upgrade</button>
+    <button onclick="handleTileAction('inspect')">Inspect</button>
   `;
 
   // Compute screen position
@@ -189,34 +198,54 @@ function showTooltip(tile, meta) {
     camera.viewport.toGlobal(scene.getEngine().getRenderWidth(), scene.getEngine().getRenderHeight())
   );
 
-  tooltip.style.left = `${screenPos.x + canvasRect.left + 10}px`;
-  tooltip.style.top = `${screenPos.y + canvasRect.top - 10}px`;
+  tooltip.style.left = `${screenPos.x + canvasRect.left + tooltipConfig.offsetX}px`;
+  tooltip.style.top = `${screenPos.y + canvasRect.top + tooltipConfig.offsetY}px`;
   tooltip.style.display = "block";
 
   clearTimeout(tooltipTimeout);
-  tooltipTimeout = setTimeout(hideTooltip, 5000); // auto-hide after 5s
+
+  if (tooltipConfig.autoHide) {
+    tooltipTimeout = setTimeout(() => {
+      tooltip.style.display = "none";
+    }, tooltipConfig.autoHideDelay);
+  }
 }
 
-function hideTooltip() {
+// Hover listener for pause-on-hover feature
+function setupTooltipHoverEvents() {
   const tooltip = document.getElementById("tileTooltip");
-  tooltip.style.display = "none";
+
+  if (tooltipConfig.pauseOnHover) {
+    tooltip.addEventListener("mouseenter", () => {
+      clearTimeout(tooltipTimeout);
+    });
+
+    tooltip.addEventListener("mouseleave", () => {
+      if (tooltipConfig.autoHide) {
+        tooltipTimeout = setTimeout(() => {
+          tooltip.style.display = "none";
+        }, tooltipConfig.hoverDelayExtension);
+      }
+    });
+  }
 }
 
-function handleTileAction(action) {
-  const tooltip = document.getElementById("tileTooltip");
-  const infoDiv = tooltip.querySelector(".tile-info");
-  const metaText = infoDiv.textContent;
+export function hideTooltip() {
+  document.getElementById("tileTooltip").style.display = "none";
+}
 
+export function handleTileAction(action) {
+  const infoDiv = document.getElementById("tileTooltip").querySelector(".tile-info");
   console.log(`Action "${action}" clicked for:`);
-  console.log(metaText);
+  console.log(infoDiv.textContent);
 
-  // Replace with real logic...
   alert(`🔧 ${action.toUpperCase()} - coming soon...`);
 
-  // Optional: hide tooltip after action
   hideTooltip();
 }
 
+// Run once at app start
+setupTooltipHoverEvents();
 window.handleTileAction = handleTileAction;
 
      /*
