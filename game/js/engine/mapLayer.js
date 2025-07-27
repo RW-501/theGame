@@ -172,6 +172,14 @@ TOOL TIPS
 const tooltip = document.getElementById("tileTooltip");
 const canvasRect = scene.getEngine().getRenderingCanvasClientRect();
 */
+export const tooltipConfig = {
+  autoHide: true,
+  autoHideDelay: 5000,
+  pauseOnHover: true,
+  hoverDelayExtension: 3000,
+  offsetX: 10,
+  offsetY: -10
+};
 
 let tooltipTimeout;
 
