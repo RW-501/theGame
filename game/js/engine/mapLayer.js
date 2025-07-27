@@ -1,7 +1,7 @@
 //mapLayer.js
 // 
 
-import { tooltipConfig  } from "https://rw-501.github.io/theGame/game/js/engine/main.js";
+import {   } from "https://rw-501.github.io/theGame/game/js/engine/main.js";
 
 
 export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAssets = {}, config = {}, onTileClick) {
