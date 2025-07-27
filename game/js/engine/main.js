@@ -1,5 +1,6 @@
 // main.js
 
+import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 
 import { buildMapLayer } from "https://rw-501.github.io/theGame/game/js/engine/mapLayer.js";
 import { createScene } from "https://rw-501.github.io/theGame/game/js/engine/createScene.js";

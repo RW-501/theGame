@@ -1,8 +1,8 @@
 // firebaseTime.js
 import { getFirestore, doc, getDoc, serverTimestamp, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { auth, db, onAuthStateChanged, signInAnonymously } from "https://rw-501.github.io/theGame/firebase/firebase-config.js";
 
 export async function getServerTimestampInSeconds() {
-  const db = getFirestore();
   const tempDoc = doc(db, "serverTime", "now");
 
   await setDoc(tempDoc, { ts: serverTimestamp() });
