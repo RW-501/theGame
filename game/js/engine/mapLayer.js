@@ -194,8 +194,13 @@ export function showTooltip(tile, meta, scene, camera) {
     Grid: (${meta.gridX}, ${meta.gridY})<br>
     Zone: ${meta.zone || "None"}<br>
     Buildable: ${meta.buildable ? "✅" : "❌"}<br>
-    <button onclick="handleTileAction('upgrade')">Upgrade</button>
-    <button onclick="handleTileAction('inspect')">Inspect</button>
+
+        <div class="tile-actions">
+      <button onclick="handleTileAction('buy')">Buy</button>
+      <button onclick="handleTileAction('build')">Build</button>
+      <button onclick="handleTileAction('upgrade')">Upgrade</button>
+      <button onclick="handleTileAction('view')">View</button>
+      </div>
   `;
 
   // Compute screen position
