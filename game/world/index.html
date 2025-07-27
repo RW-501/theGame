@@ -23,7 +23,9 @@
 
   <main>
 <div id="mainArea" class="d-flex justify-content-center align-items-center vh-100">
-  <div id="game-container"></div>
+  <div id="game-container">
+    <canvas id="mainCanvas" ></canvas>
+  </div>
 </div>
 
 <div class="card shadow-sm rounded info-box p-3 mb-3" id="statsBox">
@@ -534,6 +536,9 @@ onAuthStateChanged(auth, async (user) => {
   await sleep(200);
   uid = user.uid;
 
+
+  
+/*
   const game = initGameScene();
 
   
@@ -547,7 +552,7 @@ onAuthStateChanged(auth, async (user) => {
   console.log(Object.keys(game.scene.keys));  // e.g., ["default"]
 
 await finalizePlayerSetup(playerData, game.scene.keys.default);  // ✅ correct
-
+*/
 });
 
 
