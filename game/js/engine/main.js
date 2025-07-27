@@ -57,6 +57,9 @@ clickHighlight: {
 
 // Get Firebase time first
 getServerTimestampInSeconds().then((firebaseTimeSeconds) => {
+
+    console.log("config   ",config);
+
 // Destructure to get all layers
 const { scene, mapLayer, playerLayer, objectLayer, zoneLayer } = createScene(engine, canvas, firebaseTimeSeconds, config);
 
@@ -69,6 +72,7 @@ const tileMapData = [
   ["dirt", "stone", "concrete", "stone", "stone"]
 ];
 
+    console.log("scene   ",scene);
 
 
 // Optional: Define materials for tile types
@@ -79,6 +83,7 @@ const tileAssets = {
   //dirt: new BABYLON.StandardMaterial("dirtMat", scene),
   stone: new BABYLON.StandardMaterial("stoneMat", scene),
 };
+
 tileAssets.grass.diffuseColor = new BABYLON.Color3(0.2, 0.8, 0.2);
 tileAssets.water.diffuseColor = new BABYLON.Color3(0.1, 0.2, 0.8);
 tileAssets.road.diffuseColor = new BABYLON.Color3(0.2, 0.2, 0.2);
