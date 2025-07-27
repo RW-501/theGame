@@ -29,44 +29,6 @@ const config = {
 };
 
 
-// mapLayer.js
-
-export function buildMapLayer(scene, mapLayer, tileMapData, tileAssets) {
-  const tileSize = 2.0;
-  const yLevel = 0; // Height of ground
-
-  for (let row = 0; row < tileMapData.length; row++) {
-    for (let col = 0; col < tileMapData[row].length; col++) {
-      const tileType = tileMapData[row][col];
-
-      const x = col * tileSize;
-      const z = row * tileSize;
-
-      // Create a tile mesh (flat box)
-      const tile = BABYLON.MeshBuilder.CreateBox(`tile_${row}_${col}`, {
-        width: tileSize,
-        height: 0.1,
-        depth: tileSize
-      }, scene);
-
-      tile.position.set(x, yLevel, z);
-      tile.rotation.y = Math.PI / 4; // Optional: rotate for isometric feel
-
-      // Assign material (color or image)
-      const mat = tileAssets[tileType];
-      if (mat) {
-        tile.material = mat;
-      } else {
-        const defaultMat = new BABYLON.StandardMaterial("defaultMat", scene);
-        defaultMat.diffuseColor = new BABYLON.Color3(1, 0, 1); // pink = error
-        tile.material = defaultMat;
-      }
-
-      // Attach tile to the map layer container
-      tile.parent = mapLayer;
-    }
-  }
-}
 
 
 // Get Firebase time first
