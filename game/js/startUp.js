@@ -49,6 +49,7 @@ import {
 
 let scene;
 let MapWidth;
+let playerData;
 
 
 
@@ -200,7 +201,6 @@ export async function ensureHomeTileExists(playerData) {
 }
 
 
-let playerData;
 export async function finalizePlayerSetup(playerInfo, gameScene) {
   
   playerData = playerInfo;

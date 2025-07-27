@@ -1,3 +1,4 @@
+import { buildPlayerLayer } from "https://rw-501.github.io/theGame/game/js/engine/playerLayer.js";
 
 
 export function createScene(engine, canvas, firebaseTimeSeconds = 0, config = {}) {
@@ -93,9 +94,13 @@ export function createScene(engine, canvas, firebaseTimeSeconds = 0, config = {}
 
   // LAYERS
   const mapLayer = new BABYLON.TransformNode("mapLayer", scene);
-  const playerLayer = new BABYLON.TransformNode("playerLayer", scene);
+  //const playerLayer = new BABYLON.TransformNode("playerLayer", scene);
   const objectLayer = new BABYLON.TransformNode("objectLayer", scene);
   const zoneLayer = new BABYLON.TransformNode("zoneLayer", scene);
+
+  // inside createScene()
+const playerLayer = buildPlayerLayer(scene);
+
 
   return {
     scene,

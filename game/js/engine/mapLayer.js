@@ -1,7 +1,6 @@
 //mapLayer.js
 // 
 
-import {   } from "https://rw-501.github.io/theGame/game/js/engine/main.js";
 
 
 export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAssets = {}, config = {}, onTileClick) {
@@ -155,6 +154,8 @@ export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAsset
 });
 
   console.log(`[MapLayer] Built ${tileMapData.length * tileMapData[0].length} tiles`);
+
+//  buildPlayerLayer(scene);
 }
 
 
