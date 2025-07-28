@@ -58,6 +58,7 @@ clickHighlight: {
 
     console.log("config   ",config);
 
+function startGame() {
 
 // Get Firebase time first
 getServerTimestampInSeconds().then((firebaseTimeSeconds) => {
@@ -140,4 +141,6 @@ window.addEventListener("resize", () => {
 
 });
 
-export {createScene };
+}
+
+export {createScene, startGame };

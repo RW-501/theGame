@@ -581,10 +581,10 @@ let uid;
 import "https://cdn.babylonjs.com/babylon.js"; // Make sure Babylon core is loaded
 import "https://cdn.babylonjs.com/materialsLibrary/babylon.gridMaterial.min.js"; // ✅ This enables GridMaterial
 
-import { createScene } from "https://rw-501.github.io/theGame/game/js/engine/createScene.js";
+import { createScene, startGame } from "https://rw-501.github.io/theGame/game/js/engine/createScene.js";
 import { buildMapLayer } from "https://rw-501.github.io/theGame/game/js/engine/mapLayer.js";
 import { getServerTimestampInSeconds } from "https://rw-501.github.io/theGame/game/js/engine/utils/firebaseTime.js"; // you’ll need this file
-
+/*
 const canvas = document.getElementById("mainCanvas");
 const engine = new BABYLON.Engine(canvas, true);
 
@@ -711,7 +711,7 @@ window.addEventListener("resize", () => {
 
 export {createScene };
 
-
+*/
 
 
 // === Firebase Login Check ===
@@ -747,6 +747,7 @@ onAuthStateChanged(auth, async (user) => {
   await sleep(200);
   uid = user.uid;
 
+startGame();
 
 
 /*
