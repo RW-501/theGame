@@ -123,7 +123,7 @@ export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAsset
       }
 
       // ✅ Show tooltip
-      showTooltip(tile, meta);
+      showTooltip(tileMesh, tileMeta, scene, camera);
 
       if (config.zoomOnClick?.enabled && camera) {
         const offset = config.zoomOnClick.cameraTargetOffset || { x: 0, y: 2, z: -4 };

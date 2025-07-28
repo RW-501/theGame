@@ -1,8 +1,12 @@
 import { buildPlayerLayer } from "https://rw-501.github.io/theGame/game/js/engine/playerLayer.js";
 
+let gameScene;
 
 export function createScene(engine, canvas, firebaseTimeSeconds = 0, config = {}) {
   const scene = new BABYLON.Scene(engine);
+
+
+  gameScene = scene;
 
   // Global ENVIRONMENT Config
   const environment = {
