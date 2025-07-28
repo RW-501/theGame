@@ -17,10 +17,10 @@ const worldMatrix = BABYLON.Matrix.Identity();
   defaultMat.diffuseColor = new BABYLON.Color3(1, 0, 1);
 
   const camera = scene.activeCamera;
-  camera.lowerBetaLimit = 0.1;        // Prevent camera flipping underneath
+  camera.lowerBetaLimit = 0.3;        // Prevent camera flipping underneath
 camera.upperBetaLimit = Math.PI / 2; // Limit vertical rotation to top-down view
-camera.lowerRadiusLimit = 10;       // Prevent zooming in too close
-camera.upperRadiusLimit = 100;      // Prevent zooming too far out
+camera.lowerRadiusLimit = 50;       // Prevent zooming in too close
+camera.upperRadiusLimit = 150;      // Prevent zooming too far out
 
   const glowLayer = new BABYLON.GlowLayer("glow", scene, { blurKernelSize: 32 });
 
@@ -194,7 +194,7 @@ const tooltip = document.getElementById("tileTooltip");
 const canvasRect = scene.getEngine().getRenderingCanvasClientRect();
 */
 export const tooltipConfig = {
-  autoHide: true,
+  autoHide: false,
   autoHideDelay: 5000,
   pauseOnHover: true,
   hoverDelayExtension: 3000,

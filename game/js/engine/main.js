@@ -48,8 +48,10 @@ clickHighlight: {
   },
 
   restrictedZones: [
+    /*
     { name: "central_plaza", x: 0, y: 0, width: 10, height: 10 },
     { name: "admin_building", x: 20, y: -10, width: 5, height: 5 }
+     */
   ]
 };
 
