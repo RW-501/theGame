@@ -1,7 +1,7 @@
 
 
 
-function createUILayer(scene, engine, canvas, serverStartTime) {
+export function createUILayer(scene, engine, canvas, serverStartTime) {
   const ui = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
   // Toolbar container
