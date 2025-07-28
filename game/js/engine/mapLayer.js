@@ -106,7 +106,9 @@ console.log(`Approximate tile size in pixels: ${pixelWidth}px x ${pixelHeight}px
   borderMesh = createBorder();
 
   function pulseBorder() {
-    if (pulseAnim) pulseAnim.stop();
+if (pulseAnim && typeof pulseAnim.stop === "function") {
+  pulseAnim.stop();
+}
     const intensity = config.clickHighlight?.intensity || 0.7;
     const speed = config.clickHighlight?.pulseSpeed || 500;
 
