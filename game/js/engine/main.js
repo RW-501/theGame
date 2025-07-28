@@ -59,7 +59,6 @@ clickHighlight: {
 // Get Firebase time first
 getServerTimestampInSeconds().then((firebaseTimeSeconds) => {
 
-    console.log("ocnfig   ",config);
 
 // Destructure to get all layers
 const { scene, mapLayer, playerLayer, objectLayer, zoneLayer } = createScene(engine, canvas, firebaseTimeSeconds, config);

@@ -48,8 +48,8 @@ camera.upperRadiusLimit = 100;      // Prevent zooming too far out
         subdivisions: 1,
       }, scene);
 
-      tile.position.x = (x - y) * halfTile;
-      tile.position.z = (x + y) * halfTile;
+      tile.position.x = (x - y);// * halfTile;
+      tile.position.z = (x + y);// * halfTile;
       tile.position.y = 0.01;
 
       tile.material = tileAssets[tileType] || defaultMat;
