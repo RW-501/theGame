@@ -9,6 +9,7 @@ import "https://cdn.babylonjs.com/materialsLibrary/babylon.gridMaterial.min.js";
 
 import { createScene } from "https://rw-501.github.io/theGame/game/js/engine/createScene.js";
 import { buildMapLayer } from "https://rw-501.github.io/theGame/game/js/engine/mapLayer.js";
+import { createUILayer } from "https://rw-501.github.io/theGame/game/js/engine/uiLayer.js";
 import { getServerTimestampInSeconds } from "https://rw-501.github.io/theGame/game/js/engine/utils/firebaseTime.js"; // you’ll need this file
 
 const canvas = document.getElementById("mainCanvas");
@@ -65,6 +66,7 @@ getServerTimestampInSeconds().then((firebaseTimeSeconds) => {
 // Destructure to get all layers
 const { scene, mapLayer, playerLayer, objectLayer, zoneLayer } = createScene(engine, canvas, firebaseTimeSeconds, config);
 
+createUILayer(scene, engine, canvas, firebaseTimeSeconds);
 
 const tileMapData = [
   ["grass", "concrete", "road", "road", "water"],

@@ -102,10 +102,15 @@ const center = tile.position.clone();
 
   borderMesh = createBorder();
 
-  function pulseBorder() {
-if (pulseAnim && typeof pulseAnim.stop === "function") {
+function hidePulseBorder() {
+    if (pulseAnim && typeof pulseAnim.stop === "function") {
   pulseAnim.stop();
 }
+}
+
+  function pulseBorder() {
+hidePulseBorder();
+
     const intensity = config.clickHighlight?.intensity || 0.7;
     const speed = config.clickHighlight?.pulseSpeed || 500;
 
@@ -170,6 +175,8 @@ if (pulseAnim && typeof pulseAnim.stop === "function") {
     } else {
       // Hide tooltip if clicked elsewhere
       hideTooltip();
+      hidePulseBorder();
+
     }
   }
 });
