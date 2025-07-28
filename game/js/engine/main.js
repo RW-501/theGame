@@ -140,9 +140,11 @@ window.addEventListener("resize", () => {
   engine.resize();
 });
 
-});
 
 return scene;
+
+});
+
 }
 
 export {createScene, startGame };
