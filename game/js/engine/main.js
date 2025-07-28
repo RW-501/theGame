@@ -66,7 +66,6 @@ getServerTimestampInSeconds().then((firebaseTimeSeconds) => {
 // Destructure to get all layers
 const { scene, mapLayer, playerLayer, objectLayer, zoneLayer } = createScene(engine, canvas, firebaseTimeSeconds, config);
 
-createUILayer(scene, engine, canvas, firebaseTimeSeconds);
 
 const tileMapData = [
   ["grass", "concrete", "road", "road", "water"],
@@ -129,6 +128,8 @@ buildMapLayer(
 
   engine.runRenderLoop(() => {
     scene.render();
+    createUILayer(scene, engine, canvas, firebaseTimeSeconds);
+
   });
 
 

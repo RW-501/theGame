@@ -6,10 +6,10 @@ function createUILayer(scene, engine, canvas, serverStartTime) {
 
   // Toolbar container
   const toolbar = new BABYLON.GUI.Rectangle("toolbar");
-  toolbar.height = "40px";
+  toolbar.height = "50px";
   toolbar.width = "100%";
   toolbar.background = "#1a1a1a";
-  toolbar.thickness = 0;
+  toolbar.thickness = 1;
   toolbar.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
   toolbar.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
   ui.addControl(toolbar);
