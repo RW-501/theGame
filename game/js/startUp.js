@@ -13,7 +13,7 @@ import { showToast, dismissToast, showMessageAndFadeBtn } from 'https://rw-501.g
 // Map drawing and interactions
 import { drawMap } from 'https://rw-501.github.io/theGame/game/js/drawMap.js';
 import {
-  initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
+  initPlayerRealtimeSync, initializeMap,  
    setupMapInteraction, setupMapMovement
 } from 'https://rw-501.github.io/theGame/game/js/interactions.js';
 

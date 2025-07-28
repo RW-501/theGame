@@ -11,7 +11,7 @@ import { loadOrCreatePlayer,
    ensureHomeTileExists, finalizePlayerSetup, playerData } from 'https://rw-501.github.io/theGame/game/js/startUp.js';
 
    import {
-  initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
+  initPlayerRealtimeSync, initializeMap,  
    setupMapInteraction, setupMapMovement, allUsersMap
 } from 'https://rw-501.github.io/theGame/game/js/interactions.js';
 
