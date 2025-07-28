@@ -102,7 +102,7 @@ export function buildPlayerLayer(scene)  {
 
     // Center camera on local player
     if (playerId === playerData.playerUid) {
-      centerCameraOnPlayer(pos.x, pos.y);
+
     }
   }
 
