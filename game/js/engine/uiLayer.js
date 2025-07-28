@@ -10,7 +10,7 @@ export function createUILayer(scene, engine, canvas, serverStartTime) {
   toolbar.width = "100%";
   toolbar.background = "#eaeaeaff";
 toolbar.thickness = 2;
-toolbar.color = "red";
+toolbar.color = "black";
   toolbar.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
   toolbar.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
   ui.addControl(toolbar);
@@ -18,7 +18,7 @@ toolbar.color = "red";
   // Game Time Text
   const gameTimeText = new BABYLON.GUI.TextBlock();
   gameTimeText.text = "🕒 Game Time: ";
-  gameTimeText.color = "white";
+  gameTimeText.color = "black";
   gameTimeText.fontSize = 16;
   gameTimeText.paddingLeft = "10px";
   gameTimeText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_LEFT;
@@ -27,7 +27,7 @@ toolbar.color = "red";
   // Pointer Position Text
   const pointerText = new BABYLON.GUI.TextBlock();
   pointerText.text = "🖱️ X: -, Y: -";
-  pointerText.color = "white";
+  pointerText.color = "black";
   pointerText.fontSize = 16;
   pointerText.paddingRight = "10px";
   pointerText.textHorizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
@@ -58,7 +58,24 @@ toolbar.color = "red";
       }
     }
   });
-console.log(ui.getDescendants());
+//console.log(ui.getDescendants());
 
   return ui;
 }
+
+
+/*
+
+const healthBar = new BABYLON.GUI.Rectangle("healthBar"); // Acts like an ID
+healthBar.name = "healthBar"; // Optional but good for clarity
+
+
+const found = ui.getDescendants().find(c => c.name === "healthBar");
+
+
+ui.getDescendants(false).forEach(control => {
+  console.log(control.name);
+});
+
+
+*/

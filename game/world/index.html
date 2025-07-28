@@ -587,6 +587,9 @@ import { buildMapLayer } from "https://rw-501.github.io/theGame/game/js/engine/m
 import { getServerTimestampInSeconds } from "https://rw-501.github.io/theGame/game/js/engine/utils/firebaseTime.js"; // you’ll need this file
 
 
+const oldStatsBox = document.getElementById("statsBox");
+if (oldStatsBox) oldStatsBox.remove();
+
 // === Firebase Login Check ===
  function initGameScene() {
    MapWidth = (TILE_SIZE * MAP_SIZE);

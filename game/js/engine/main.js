@@ -130,7 +130,7 @@ buildMapLayer(
   engine.runRenderLoop(() => {
     scene.render();
   let ui =  createUILayer(scene, engine, canvas, firebaseTimeSeconds);
-    console.log("createUILayer   ",ui);
+   // console.log("createUILayer   ",ui);
 
   });
 
