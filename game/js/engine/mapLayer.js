@@ -68,15 +68,7 @@ camera.upperRadiusLimit = 100;      // Prevent zooming too far out
       // Tile center
 const center = tile.position.clone();
 
-// Tile corner offset (assuming flat ground, top-down view)
-const offset = new BABYLON.Vector3(tileSize / 2, 0, tileSize / 2);
-const topLeft = BABYLON.Vector3.Project(center.subtract(offset), worldMatrix, scene.getTransformMatrix(), camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight()));
-const bottomRight = BABYLON.Vector3.Project(center.add(offset), worldMatrix, scene.getTransformMatrix(), camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight()));
 
-const pixelWidth = Math.abs(bottomRight.x - topLeft.x);
-const pixelHeight = Math.abs(bottomRight.y - topLeft.y);
-
-console.log(`Approximate tile size in pixels: ${pixelWidth}px x ${pixelHeight}px`);
 
 
 
