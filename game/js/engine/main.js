@@ -118,12 +118,12 @@ buildMapLayer(
     console.log("Clicked tile data:", meta);
 
     if (!meta.buildable) {
-      alert(`🚫 You can't build in ${meta.zone}`);
+      console.log(`🚫 You can't build in ${meta.zone}`);
       return;
     }
 
     // Otherwise, allow building...
-    alert(`You can build on ${meta.tileType} at (${meta.gridX}, ${meta.gridY})`);
+    console.log(`You can build on ${meta.tileType} at (${meta.gridX}, ${meta.gridY})`);
   }
 );
 

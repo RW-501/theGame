@@ -55,9 +55,9 @@ export function buildPlayerLayer(scene)  {
   for (const [playerId, pos] of playerState.entries()) {
     if (!pos || pos.x === undefined || pos.y === undefined) continue;
 
-    const isoX = pos.x * TILE_SIZE;
+    const isoX = pos.x;// * TILE_SIZE;
     const isoY = 0; // flat terrain for now
-    const isoZ = pos.y * TILE_SIZE;
+    const isoZ = pos.y;// * TILE_SIZE;
 
     const otherPlayerData = allUsersMap.get(playerId);
     const level = otherPlayerData?.level || 1;
