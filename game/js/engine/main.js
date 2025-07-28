@@ -128,7 +128,8 @@ buildMapLayer(
 
   engine.runRenderLoop(() => {
     scene.render();
-    createUILayer(scene, engine, canvas, firebaseTimeSeconds);
+  let ui =  createUILayer(scene, engine, canvas, firebaseTimeSeconds);
+    console.log("createUILayer   ",ui);
 
   });
 
