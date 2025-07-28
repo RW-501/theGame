@@ -5,7 +5,7 @@
 
 export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAssets = {}, config = {}, onTileClick) {
   const tileSize = 10;
-  const halfTile = tileSize / 5;
+  const halfTile = tileSize;// / 5;
 
 const engine = scene.getEngine();
 const canvas = engine.getRenderingCanvas();
@@ -48,8 +48,8 @@ camera.upperRadiusLimit = 100;      // Prevent zooming too far out
         subdivisions: 1,
       }, scene);
 
-      tile.position.x = (x - y);// * halfTile;
-      tile.position.z = (x + y);// * halfTile;
+      tile.position.x = (x - y) * halfTile;
+      tile.position.z = (x + y) * halfTile;
       tile.position.y = 0.01;
 
       tile.material = tileAssets[tileType] || defaultMat;
