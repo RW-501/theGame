@@ -46,6 +46,8 @@ toolbar.color = "black";
     gameTimeText.text = `🕒 Game Time: ${gameHours.toString().padStart(2, '0')}:${gameMinutes.toString().padStart(2, '0')}`;
   });
 */
+
+/*
   // Update pointer info
   scene.onPointerObservable.add((pointerInfo) => {
     if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE) {
@@ -59,8 +61,8 @@ toolbar.color = "black";
     }
   });
 //console.log(ui.getDescendants());
-
-  return ui;
+*/
+ // return ui;
 }
 
 
