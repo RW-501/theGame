@@ -19,7 +19,7 @@ const worldMatrix = BABYLON.Matrix.Identity();
   const camera = scene.activeCamera;
   camera.lowerBetaLimit = 0.3;        // Prevent camera flipping underneath
 camera.upperBetaLimit = Math.PI / 2; // Limit vertical rotation to top-down view
-camera.lowerRadiusLimit = 50;       // Prevent zooming in too close
+camera.lowerRadiusLimit = 5;       // Prevent zooming in too close
 camera.upperRadiusLimit = 150;      // Prevent zooming too far out
 
   const glowLayer = new BABYLON.GlowLayer("glow", scene, { blurKernelSize: 32 });
