@@ -11,7 +11,7 @@ import { createScene } from "https://rw-501.github.io/theGame/game/js/engine/cre
 import { buildMapLayer } from "https://rw-501.github.io/theGame/game/js/engine/mapLayer.js";
 import { createUILayer } from "https://rw-501.github.io/theGame/game/js/engine/uiLayer.js";
 import { getServerTimestampInSeconds } from "https://rw-501.github.io/theGame/game/js/engine/utils/firebaseTime.js"; // you’ll need this file
-import { scene } from "../startUp";
+
 
 const canvas = document.getElementById("mainCanvas");
 const engine = new BABYLON.Engine(canvas, true);
