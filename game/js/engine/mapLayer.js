@@ -17,6 +17,11 @@ const worldMatrix = BABYLON.Matrix.Identity();
   defaultMat.diffuseColor = new BABYLON.Color3(1, 0, 1);
 
   const camera = scene.activeCamera;
+  camera.lowerBetaLimit = 0.1;        // Prevent camera flipping underneath
+camera.upperBetaLimit = Math.PI / 2; // Limit vertical rotation to top-down view
+camera.lowerRadiusLimit = 10;       // Prevent zooming in too close
+camera.upperRadiusLimit = 100;      // Prevent zooming too far out
+
   const glowLayer = new BABYLON.GlowLayer("glow", scene, { blurKernelSize: 32 });
 
   const getZoneAt = (x, y) => {
@@ -179,7 +184,6 @@ if (pulseAnim && typeof pulseAnim.stop === "function") {
 
   console.log(`[MapLayer] Built ${tileMapData.length * tileMapData[0].length} tiles`);
 
-//  buildPlayerLayer(scene);
 }
 
 
