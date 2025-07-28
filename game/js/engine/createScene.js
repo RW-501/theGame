@@ -1,4 +1,3 @@
-import { buildPlayerLayer } from "https://rw-501.github.io/theGame/game/js/engine/playerLayer.js";
 import {   
   zoneInfo,
   mapData,
@@ -122,7 +121,7 @@ camera.panningInertia = 0.7;
   const zoneLayer = new BABYLON.TransformNode("zoneLayer", scene);
 
   // inside createScene()
-const playerLayer = buildPlayerLayer(scene);
+//const playerLayer = buildPlayerLayer(scene);
 
 
   return {

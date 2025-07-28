@@ -56,6 +56,7 @@ import { loadOrCreatePlayer,
   otherPlayerSprites,
   getTileDataAt, fromIsometric, toIsometric  } from 'https://rw-501.github.io/theGame/game/js/map.js';
 
+import { buildPlayerLayer } from "https://rw-501.github.io/theGame/game/js/engine/playerLayer.js";
 
 let selectedTile = null;
 let tileHighlightRect = null;
@@ -139,7 +140,7 @@ if (pos && (pos.x !== playerX || pos.y !== playerY)) {
           updateStatsUI(data);
         }
 
-        renderAllPlayers(scene);
+        buildPlayerLayer(scene);
       }
     });
   });
