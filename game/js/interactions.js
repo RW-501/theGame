@@ -98,8 +98,7 @@ if (pos && (pos.x !== playerX || pos.y !== playerY)) {
   playerX = pos.x;
   playerY = pos.y;
 
-  const isoPos = toIsometric(playerX, playerY);
-  movePlayerSmoothly(scene, isoPos.x, isoPos.y);
+ 
 }
 
 
@@ -145,6 +144,9 @@ if (pos && (pos.x !== playerX || pos.y !== playerY)) {
     });
   });
 }
+
+
+
 async function initializeMap(scene) {
   graphics = scene.add.graphics();
   cam = scene.cameras.main;
@@ -180,30 +182,6 @@ async function initializeMap(scene) {
 }
 
 
-function clearTileSelection() {
-  selectedTile = null;
-  if (tileHighlightRect) {
-    tileHighlightRect.destroy();
-    tileHighlightRect = null;
-  }
-  document.getElementById("statsBox").style.display = "block";
-}
-
-
-function returnToPlayerLocation(scene) {
-  const cam = scene.cameras.main;
-  const iso = toIsometric(playerX, playerY);
-  cam.pan(iso.x, iso.y, 500, 'Sine.easeInOut');
-}
-
-
-function centerCameraOnPlayer(x, y) {
-  playerX = x
-  playerY = y;
-  cam.setZoom(newZoom);
-  const iso = toIsometric(playerX, playerY);
-  cam.centerOn(iso.x, iso.y);
-}
 
 
 function setupMapInteraction(scene) {
@@ -218,8 +196,6 @@ function setupMapInteraction(scene) {
       case "ArrowDown": tryMove(0, 1, scene); break;
     }
   });
-
-  clearTileSelection();
 
   // Handle tap vs drag
   scene.input.on("pointerdown", pointer => {
@@ -352,9 +328,6 @@ scene.input.on("pointermove", pointer => {
 export {
   initPlayerRealtimeSync,
   initializeMap,
-  clearTileSelection,
-  returnToPlayerLocation,
-  centerCameraOnPlayer,
   setupMapInteraction,
   setupMapMovement,
   allUsersMap

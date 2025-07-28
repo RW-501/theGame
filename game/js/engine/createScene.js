@@ -129,7 +129,6 @@ camera.panningInertia = 0.7;
     camera,
     light,
     mapLayer,
-    playerLayer,
     objectLayer,
     zoneLayer,
     restrictedZones

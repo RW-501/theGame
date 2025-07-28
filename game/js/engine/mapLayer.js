@@ -45,8 +45,13 @@ const worldMatrix = BABYLON.Matrix.Identity();
         subdivisions: 1,
       }, scene);
 
-      tile.position.x = (x - y) * halfTile;
-      tile.position.z = (x + y) * halfTile;
+      tile.position.x = x * tileSize;
+      tile.position.z = y * tileSize;
+
+      /*
+    tile.position.x = (x - y) * halfTile;
+    tile.position.z = (x + y) * halfTile;
+      */
       tile.position.y = 0.01;
 
       tile.material = tileAssets[tileType] || defaultMat;
