@@ -4,26 +4,12 @@
 
 
 export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAssets = {}, config = {}, onTileClick) {
-  const tileSize = 2;
-  const halfTile = tileSize / 2;
+  const tileSize = 10;
+  const halfTile = tileSize / 5;
 
 const engine = scene.getEngine();
 const canvas = engine.getRenderingCanvas();
 const worldMatrix = BABYLON.Matrix.Identity();
-
-// Tile center
-const center = tile.position.clone();
-
-// Tile corner offset (assuming flat ground, top-down view)
-const offset = new BABYLON.Vector3(tileSize / 2, 0, tileSize / 2);
-const topLeft = BABYLON.Vector3.Project(center.subtract(offset), worldMatrix, scene.getTransformMatrix(), camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight()));
-const bottomRight = BABYLON.Vector3.Project(center.add(offset), worldMatrix, scene.getTransformMatrix(), camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight()));
-
-const pixelWidth = Math.abs(bottomRight.x - topLeft.x);
-const pixelHeight = Math.abs(bottomRight.y - topLeft.y);
-
-console.log(`Approximate tile size in pixels: ${pixelWidth}px x ${pixelHeight}px`);
-
 
 
 
@@ -73,6 +59,21 @@ console.log(`Approximate tile size in pixels: ${pixelWidth}px x ${pixelHeight}px
         buildable: isBuildable,
         zone: zone ? zone.name : null
       };
+
+      // Tile center
+const center = tile.position.clone();
+
+// Tile corner offset (assuming flat ground, top-down view)
+const offset = new BABYLON.Vector3(tileSize / 2, 0, tileSize / 2);
+const topLeft = BABYLON.Vector3.Project(center.subtract(offset), worldMatrix, scene.getTransformMatrix(), camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight()));
+const bottomRight = BABYLON.Vector3.Project(center.add(offset), worldMatrix, scene.getTransformMatrix(), camera.viewport.toGlobal(engine.getRenderWidth(), engine.getRenderHeight()));
+
+const pixelWidth = Math.abs(bottomRight.x - topLeft.x);
+const pixelHeight = Math.abs(bottomRight.y - topLeft.y);
+
+console.log(`Approximate tile size in pixels: ${pixelWidth}px x ${pixelHeight}px`);
+
+
 
       tiles.push(tile);
     }
