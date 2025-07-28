@@ -8,8 +8,9 @@ function createUILayer(scene, engine, canvas, serverStartTime) {
   const toolbar = new BABYLON.GUI.Rectangle("toolbar");
   toolbar.height = "50px";
   toolbar.width = "100%";
-  toolbar.background = "#1a1a1a";
-  toolbar.thickness = 1;
+  toolbar.background = "#eaeaeaff";
+toolbar.thickness = 2;
+toolbar.color = "red";
   toolbar.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_CENTER;
   toolbar.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_TOP;
   ui.addControl(toolbar);
@@ -57,6 +58,7 @@ function createUILayer(scene, engine, canvas, serverStartTime) {
       }
     }
   });
+console.log(ui.getDescendants());
 
   return ui;
 }
