@@ -5,7 +5,7 @@
 
 export async function buildMapLayer(scene, mapLayer, tileMapData = [], tileAssets = {}, config = {}, onTileClick) {
   const tileSize = 10;
-  const halfTile = tileSize / 2;
+  const halfTile = 0; //tileSize / 2;
 
 const engine = scene.getEngine();
 const canvas = engine.getRenderingCanvas();

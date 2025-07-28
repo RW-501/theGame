@@ -41,7 +41,7 @@ export function createScene(engine, canvas, firebaseTimeSeconds = 0, config = {}
 
   camera.lowerBetaLimit = 1;        // Prevent camera flipping underneath Try 0.5 or 0.6 for a higher flyover
 camera.upperBetaLimit = Math.PI / 2; // Limit vertical rotation to top-down view
-camera.lowerRadiusLimit = 1;       // Prevent zooming in too close
+camera.lowerRadiusLimit = 20;       // Prevent zooming in too close
 camera.upperRadiusLimit = 100;      // Prevent zooming too far out
 camera.setTarget(new BABYLON.Vector3(0, 5, 0)); // Hover 5 units above ground
 
