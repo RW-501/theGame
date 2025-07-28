@@ -36,7 +36,7 @@ toolbar.color = "black";
   // Game time loop
   const fullCycleMinutes = 30;
   const cycleSeconds = fullCycleMinutes * 60;
-
+/*
   scene.onBeforeRenderObservable.add(() => {
     const now = Math.floor(Date.now() / 1000);
     const timeElapsed = (now - serverStartTime) % cycleSeconds;
@@ -45,7 +45,7 @@ toolbar.color = "black";
 
     gameTimeText.text = `🕒 Game Time: ${gameHours.toString().padStart(2, '0')}:${gameMinutes.toString().padStart(2, '0')}`;
   });
-
+*/
   // Update pointer info
   scene.onPointerObservable.add((pointerInfo) => {
     if (pointerInfo.type === BABYLON.PointerEventTypes.POINTERMOVE) {

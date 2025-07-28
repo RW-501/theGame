@@ -38,7 +38,7 @@ camera.setTarget(new BABYLON.Vector3(0, 5, 0)); // Hover 5 units above ground
 
 camera.inertia = 0.7;
 camera.panningInertia = 0.7;
-// camera.panningAxis = new BABYLON.Vector3(1, 0, 1); // Only allow panning in X and Z
+ camera.panningAxis = new BABYLON.Vector3(1, 0, 1); // Only allow panning in X and Z
 
   // PERFORMANCE OPTIONS
   if (config.performance?.hardwareScaling) {
