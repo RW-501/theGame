@@ -25,10 +25,15 @@ export function createScene(engine, canvas, firebaseTimeSeconds = 0, config = {}
   // CAMERA (ArcRotate isometric-style)
   const camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 4, Math.PI / 3.2, 50, new BABYLON.Vector3(0, 0, 0), scene);
   camera.attachControl(canvas, true);
-  camera.lowerRadiusLimit = 20;
-  camera.upperRadiusLimit = 200;
+ //camera.lowerRadiusLimit = 20;
+ // camera.upperRadiusLimit = 200;
   camera.wheelDeltaPercentage = 0.01;
   camera.panningSensibility = 50;
+
+  camera.lowerBetaLimit = 0.3;        // Prevent camera flipping underneath
+camera.upperBetaLimit = Math.PI / 2; // Limit vertical rotation to top-down view
+camera.lowerRadiusLimit = 50;       // Prevent zooming in too close
+camera.upperRadiusLimit = 150;      // Prevent zooming too far out
 
   // PERFORMANCE OPTIONS
   if (config.performance?.hardwareScaling) {
