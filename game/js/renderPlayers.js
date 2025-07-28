@@ -12,7 +12,7 @@ import { loadOrCreatePlayer,
 
    import {
   initPlayerRealtimeSync, initializeMap, clearTileSelection, returnToPlayerLocation,
-  centerCameraOnPlayer, setupMapInteraction, setupMapMovement, allUsersMap
+   setupMapInteraction, setupMapMovement, allUsersMap
 } from 'https://rw-501.github.io/theGame/game/js/interactions.js';
 
 
