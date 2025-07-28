@@ -1,4 +1,13 @@
 import { buildPlayerLayer } from "https://rw-501.github.io/theGame/game/js/engine/playerLayer.js";
+import {   
+  zoneInfo,
+  mapData,
+  loadMapFromFirebase,
+  setDefaultMapData,
+  loadTileDataAndRender,
+  loadTileData,
+  playerState,
+  otherPlayerSprites, tileDataMap  } from 'https://rw-501.github.io/theGame/game/js/renderMap.js'; 
 
 let gameScene;
 
@@ -115,6 +124,7 @@ camera.panningInertia = 0.7;
   // inside createScene()
 const playerLayer = buildPlayerLayer(scene);
 
+ loadTileData(scene);
 
   return {
     scene,
