@@ -205,6 +205,8 @@ async function loadTileData() {
     const data = doc.data();
     tileDataMap.set(doc.id, data);
   });
+
+  return tileDataMap;
 }
 
 

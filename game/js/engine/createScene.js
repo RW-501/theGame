@@ -124,7 +124,6 @@ camera.panningInertia = 0.7;
   // inside createScene()
 const playerLayer = buildPlayerLayer(scene);
 
- loadTileData(scene);
 
   return {
     scene,

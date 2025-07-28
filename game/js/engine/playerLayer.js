@@ -45,7 +45,11 @@ const levelToMesh = {
   16: "bigHouse_Lv_4",
 };
 
-export function buildPlayerLayer(scene) {
+export function buildPlayerLayer(scene)  {
+
+
+
+    
   const playerLayer = new BABYLON.TransformNode("playerLayer", scene);
 
   for (const [playerId, pos] of playerState.entries()) {
